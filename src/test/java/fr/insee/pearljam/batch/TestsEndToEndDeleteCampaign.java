@@ -163,7 +163,7 @@ public class TestsEndToEndDeleteCampaign {
 		assertEquals(BatchErrorCode.OK, launcherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario7", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/delete/testScenarios"), "campaign","delete.done.xml"));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/delete/testScenarios"), "campaign","delete.archive.xml"));
-		assertEquals(false, messageDao.isIdPresentForCampaignId("simpsons2020x00"));
+		assertEquals(false, messageDao.isIdPresentForCampaignId("SIMPSONS2020X00"));
 	}
 	
 	@After

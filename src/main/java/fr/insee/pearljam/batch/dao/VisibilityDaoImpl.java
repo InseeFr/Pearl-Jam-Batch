@@ -83,7 +83,7 @@ public class VisibilityDaoImpl implements VisibilityDao {
 			interviewerStartDate = null;
 			managementStartDate = null;
 		}
-	    jdbcTemplate.update(qString, campaign.getId(), organizationalUnitType.getId(), collectionEndDate, 
+	    jdbcTemplate.update(qString, campaign.getId().toUpperCase(), organizationalUnitType.getId(), collectionEndDate, 
 	    		collectionStartDate, endDate, identificationPhaseStartDate, interviewerStartDate, managementStartDate);
 	}
 	
@@ -111,7 +111,7 @@ public class VisibilityDaoImpl implements VisibilityDao {
 			throw new BatchException("Error during update of the visibility for campaign "+campaign.getId()+" : "+e.getMessage());
 		}
 		jdbcTemplate.update(qString, collectionEndDate, collectionStartDate, endDate, identificationPhaseStartDate, 
-				interviewerStartDate, managementStartDate, campaign.getId(), organizationalUnitType.getId());
+				interviewerStartDate, managementStartDate, campaign.getId().toUpperCase(), organizationalUnitType.getId());
 	}
 	
 	@Transactional

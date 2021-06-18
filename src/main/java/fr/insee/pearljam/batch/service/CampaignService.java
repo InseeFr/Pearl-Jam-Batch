@@ -388,12 +388,13 @@ public class CampaignService {
 		initDaos();
 		connection.setAutoCommit(false);
 		try {
+			String campaignId = campaign.getId().toUpperCase();
 			if (campaignExist) {
 				campaignDao.updateCampaignById(campaign);
-				logger.log(Level.INFO, "The Campaign {} has been updated", campaign.getId());
+				logger.log(Level.INFO, "The Campaign {} has been updated", campaignId);
 				for (OrganizationalUnitType organizationalUnitType : campaign.getOrganizationalUnits()
 						.getOrganizationalUnit()) {
-					if (visibilityDao.existVisibility(campaign.getId(), organizationalUnitType.getId())) {
+					if (visibilityDao.existVisibility(campaignId, organizationalUnitType.getId())) {
 						visibilityDao.updateDateVisibilityByCampaignIdAndOrganizationalUnitId(campaign,
 								organizationalUnitType);
 						logger.log(Level.INFO, "The Visibility for the Organizational Unit {} has been updated",
@@ -427,7 +428,7 @@ public class CampaignService {
 					}
 				}
 				for(String userId : lstUserId) {
-					preferenceDao.createPreference(userId, campaign.getId());
+					preferenceDao.createPreference(userId, campaignId);
 				}
 			}
 			returnCode = createSurveyUnits(campaign, in, out, returnCode);
@@ -470,6 +471,7 @@ public class CampaignService {
 			throws IOException, SAXException, ParserConfigurationException, XPathExpressionException,
 			TransformerFactoryConfigurationError, TransformerException, SynchronizationException {
 		String fileNameList = out + "/campaign." + getTimestampForPath() + ".error.list.xml";
+		String campaignId = campaign.getId().toUpperCase();
 		FileUtils.copyFile(new File(in), new File(fileNameList));
 		File file = new File(fileNameList);
 		InputSource is = new InputSource(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
@@ -481,7 +483,7 @@ public class CampaignService {
 			if (!campaign.getSurveyUnits().getSurveyUnit().isEmpty()) {
 				for (SurveyUnitType surveyUnitType : campaign.getSurveyUnits().getSurveyUnit()) {
 					// check if survey unit exist and associated to an other campaign
-					if (!surveyUnitDao.existSurveyUnitForCampaign(surveyUnitType.getId(), campaign.getId())) {
+					if (!surveyUnitDao.existSurveyUnitForCampaign(surveyUnitType.getId(), campaignId)) {
 						if (StringUtils.isNotBlank(surveyUnitType.getInseeAddress().getGeographicalLocationId())) {
 							if (geographicalLocationDao.existGeographicalLocation(
 									String.valueOf(surveyUnitType.getInseeAddress().getGeographicalLocationId()))) {
@@ -496,7 +498,7 @@ public class CampaignService {
 									String organizationUnitAffectation = getOrganizationUnitAffectation(surveyUnitType);
 									
 									// Create Survey Unit
-									surveyUnitDao.createSurveyUnit(campaign.getId(), surveyUnitType, addressId,
+									surveyUnitDao.createSurveyUnit(campaignId, surveyUnitType, addressId,
 											sampleIdentifierId, interviewerAffectation, organizationUnitAffectation);
 									
 									// Create persons
@@ -529,7 +531,7 @@ public class CampaignService {
 									// Update Survey Unit
 									String interviewerAffectation = getInterviewerAffectation(surveyUnitType);
 									String organizationUnitAffectation = getOrganizationUnitAffectation(surveyUnitType);
-									surveyUnitDao.updateSurveyUnitById(campaign.getId(), surveyUnitType, interviewerAffectation, organizationUnitAffectation);
+									surveyUnitDao.updateSurveyUnitById(campaignId, surveyUnitType, interviewerAffectation, organizationUnitAffectation);
 									
 									// Replace persons
 									phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitType.getId());

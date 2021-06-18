@@ -41,7 +41,7 @@ import liquibase.resource.ResourceAccessor;
 @RunWith(Suite.class)
 @SuiteClasses({
 		UnitTests.class,
-		TestsEndToEndCampaign.class, 
+		TestsEndToEndCampaign.class,
 		TestsEndToEndDeleteCampaign.class, 
 		TestsEndToEndContext.class, 
 		TestsEndToEndSynchro.class,

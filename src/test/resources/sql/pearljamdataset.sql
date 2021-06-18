@@ -7,8 +7,8 @@ INSERT INTO public.address (dtype, l1, l2, l3, l4, l5, l6, l7, geographical_loca
 INSERT INTO public.address (dtype, l1, l2, l3, l4, l5, l6, l7, geographical_location_id) VALUES ('InseeAddress', 'Anthony Bennett' ,'','','7 avenue de la Liberté' ,'','62000 Arras' ,'France', '62041');
 INSERT INTO public.address (dtype, l1, l2, l3, l4, l5, l6, l7, geographical_location_id) VALUES ('InseeAddress', 'Christopher Lewis' ,'','','8 route du moulin' ,'','35000 Rennes' ,'France', '35238');
 
-INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('simpsons2020x00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Survey on the Simpsons tv show 2020');
-INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('vqs2021x00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Everyday life and health survey 2021');
+INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('SIMPSONS2020X00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Survey on the Simpsons tv show 2020');
+INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('VQS2021X00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Everyday life and health survey 2021');
 
 INSERT INTO public.organization_unit (id, label, type, organization_unit_parent_id) VALUES ('OU-NATIONAL', 'National organizational unit', 'NATIONAL', null);
 INSERT INTO public.organization_unit (id, label, type, organization_unit_parent_id) VALUES ('OU-NORTH', 'North region organizational unit', 'LOCAL', 'OU-NATIONAL');
@@ -29,14 +29,14 @@ INSERT INTO public.sample_identifier (dtype, autre, bs, ec, le, nograp, noi, nol
 INSERT INTO public.sample_identifier (dtype, autre, bs, ec, le, nograp, noi, nole, nolog, numfa, rges, ssech) VALUES ('InseeSampleIdentifier', '23', 23, '2', 23, '23', 23, 23, 23, 23, 23, 1);
 
 
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('11', 'Ted', 'Farmer', TRUE, 1, 'simpsons2020x00', 'INTW1', 1);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('12', 'Cecilia', 'Ortega', TRUE, 2, 'simpsons2020x00', 'INTW1', 2);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('13', 'Claude', 'Watkins', FALSE, 3, 'simpsons2020x00', 'INTW2', 3);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('14', 'Veronica', 'Gill', FALSE, 4, 'simpsons2020x00', 'INTW3', 4);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('20', 'Christine', 'Aguilar', TRUE, 5, 'vqs2021x00', 'INTW1', 5);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('21', 'Louise', 'Walker', TRUE, 6, 'vqs2021x00', 'INTW2', 6);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('22', 'Anthony', 'Bennett', FALSE, 7, 'vqs2021x00', 'INTW4', 7);
-INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('23', 'Christopher', 'Lewis', TRUE, 8, 'vqs2021x00', 'INTW4', 8);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('11', 'Ted', 'Farmer', TRUE, 1, 'SIMPSONS2020X00', 'INTW1', 1);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('12', 'Cecilia', 'Ortega', TRUE, 2, 'SIMPSONS2020X00', 'INTW1', 2);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('13', 'Claude', 'Watkins', FALSE, 3, 'SIMPSONS2020X00', 'INTW2', 3);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('14', 'Veronica', 'Gill', FALSE, 4, 'SIMPSONS2020X00', 'INTW3', 4);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('20', 'Christine', 'Aguilar', TRUE, 5, 'VQS2021X00', 'INTW1', 5);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('21', 'Louise', 'Walker', TRUE, 6, 'VQS2021X00', 'INTW2', 6);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('22', 'Anthony', 'Bennett', FALSE, 7, 'VQS2021X00', 'INTW4', 7);
+INSERT INTO public.survey_unit (id, first_name, last_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id) VALUES ('23', 'Christopher', 'Lewis', TRUE, 8, 'VQS2021X00', 'INTW4', 8);
 
 INSERT INTO public.survey_unit_phone_numbers(survey_unit_id, phone_numbers) VALUES ('11', '+3351231231230');
 INSERT INTO public.survey_unit_phone_numbers(survey_unit_id, phone_numbers) VALUES ('12', '+3351231231231');
@@ -68,12 +68,12 @@ INSERT INTO public."user" (id, first_name, last_name, organization_unit_id) VALU
 INSERT INTO public."user" (id, first_name, last_name, organization_unit_id) VALUES ('GHI', 'Elsie', 'Clarke', 'OU-SOUTH');
 INSERT INTO public."user" (id, first_name, last_name, organization_unit_id) VALUES ('JKL', 'Julius', 'Howell', 'OU-NATIONAL');
 
-INSERT INTO public.preference (id_user, id_campaign) VALUES ('ABC', 'simpsons2020x00');
-INSERT INTO public.preference (id_user, id_campaign) VALUES ('ABC', 'vqs2021x00');
-INSERT INTO public.preference (id_user, id_campaign) VALUES ('DEF', 'simpsons2020x00');
-INSERT INTO public.preference (id_user, id_campaign) VALUES ('DEF', 'vqs2021x00');
-INSERT INTO public.preference (id_user, id_campaign) VALUES ('GHI', 'vqs2021x00');
+INSERT INTO public.preference (id_user, id_campaign) VALUES ('ABC', 'SIMPSONS2020X00');
+INSERT INTO public.preference (id_user, id_campaign) VALUES ('ABC', 'VQS2021X00');
+INSERT INTO public.preference (id_user, id_campaign) VALUES ('DEF', 'SIMPSONS2020X00');
+INSERT INTO public.preference (id_user, id_campaign) VALUES ('DEF', 'VQS2021X00');
+INSERT INTO public.preference (id_user, id_campaign) VALUES ('GHI', 'VQS2021X00');
 
-INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-NORTH', 'simpsons2020x00');
-INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-NORTH', 'vqs2021x00');
-INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-SOUTH', 'vqs2021x00');
+INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-NORTH', 'SIMPSONS2020X00');
+INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-NORTH', 'VQS2021X00');
+INSERT INTO public.visibility (collection_end_date, collection_start_date, organization_unit_id, campaign_id) VALUES ((SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'OU-SOUTH', 'VQS2021X00');

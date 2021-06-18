@@ -37,7 +37,7 @@ public class CampaignDaoImpl implements CampaignDao {
 	public void createCampaign(Campaign campaign) {
 		String qString = "INSERT INTO campaign (id, label) VALUES (?, ?)";
 		
-		jdbcTemplate.update(qString, campaign.getId(), campaign.getLabel());
+		jdbcTemplate.update(qString, campaign.getId().toUpperCase(), campaign.getLabel());
     }
 	
 	@Override
@@ -49,7 +49,7 @@ public class CampaignDaoImpl implements CampaignDao {
 	public void updateCampaignById(Campaign campaign) {
 		String qString ="UPDATE campaign SET label=? WHERE id=?";
 
-		jdbcTemplate.update(qString, campaign.getLabel(), campaign.getId());
+		jdbcTemplate.update(qString, campaign.getLabel(), campaign.getId().toUpperCase());
 	}
 	
 }

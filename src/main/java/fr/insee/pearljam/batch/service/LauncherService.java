@@ -283,17 +283,17 @@ public class LauncherService {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
 		CampaignService campaignService = context.getBean(CampaignService.class);
 		if(campaign!=null) {
-			String campaignId = campaign.getId();
+			String campaignId = campaign.getId().toUpperCase();
 		    moveCampaignFileToProcessing("campaign", in, processing, campaignId);
 		    
 			if(checkOrganizationUnits(campaign) && checkDateConsistency(campaign)) {
 				return campaignService.createOrUpdateCampaign(
 						campaign, 
-						campaignDao.existCampaign(campaign.getId()), 
+						campaignDao.existCampaign(campaignId), 
 						processing + "/" + folderService.getFilename(), 
 						out);
 			}else{
-				throw new ValidateException("Error during load campaign " + campaign.getId());
+				throw new ValidateException("Error during load campaign " + campaignId);
 			}
 		}else {
 			throw new ValidateException("Error : campaign is null");
