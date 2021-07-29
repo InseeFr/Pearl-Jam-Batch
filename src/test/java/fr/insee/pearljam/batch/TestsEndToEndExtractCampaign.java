@@ -26,7 +26,7 @@ public class TestsEndToEndExtractCampaign {
 	
 	PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
 	
-	private static final String OUT = "src/test/resources/out/sampleprocessing/testScenarios";
+	private static final String OUT = "src/test/resources/out/extract/testScenarios";
 
 	/**
 	 * This method is executed before each test in this class.
@@ -36,7 +36,7 @@ public class TestsEndToEndExtractCampaign {
 	@Before
 	public void setUp() throws Exception {
 		PearlJamBatchApplicationTests.initData();
-		PearlJamBatchApplicationTests.copyFiles("sampleprocessing");
+		PearlJamBatchApplicationTests.copyFiles("extract");
 	}
 	
 	public static UnitTests unitTests = new UnitTests();
@@ -47,42 +47,35 @@ public class TestsEndToEndExtractCampaign {
 	 */
 	@Test
 	public void testScenario1() throws Exception {
-		String in = "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1";
+		String in = "src/test/resources/in/extract/testScenarios/extractScenario1";
 		try {
-			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, OUT);
+			pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating campaign.to.sampleprocessing.xml : "));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","sampleprocessing.error.xml"));
+			assertEquals(true, ve.getMessage().contains("Error validating campaign.to.extract.xml : "));
+			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.error.xml"));
 		}
 	}
 	
 	
 	/**
-	 * Scenario 2 : Campaing in XML file not exist in Datacollection DB
+	 * Scenario 2 : Campaing in XML file not exist
 	 * @throws Exception
 	 */
 	@Test
 	public void testScenario2() throws Exception {
-		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", OUT));
+		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario2", OUT));
+		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.warning.xml"));
 	}
 	
 	/**
-	 * Scenario 3 : Campaing in XML file not exist in Pilotage DB
+	 * Scenario 3 : XML ok, campaign exist but no survey-units to treat in the file
 	 * @throws Exception
 	 */
 	@Test
 	public void testScenario3() throws Exception {
-		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", OUT));
-	}
-	
-	/**
-	 * Scenario 4 : XML ok and campaign exist in both DB
-	 * @throws Exception
-	 */
-	@Test
-	public void testScenario4() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", OUT));
-		
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario3", OUT));
+		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.done.xml"));
+		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.xml"));
 	}
 	
 	
@@ -100,7 +93,7 @@ public class TestsEndToEndExtractCampaign {
 	
 	@AfterClass
 	public static void deleteFiles() throws IOException {
-		File deleteFolderInDeleteForTest = new File("src/test/resources/in/sampleprocessing/testScenarios");
+		File deleteFolderInDeleteForTest = new File("src/test/resources/in/extract/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInDeleteForTest);
 	}
 }

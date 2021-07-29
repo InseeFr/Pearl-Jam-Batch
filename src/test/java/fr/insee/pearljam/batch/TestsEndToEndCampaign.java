@@ -372,7 +372,7 @@ public class TestsEndToEndCampaign {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCAMPAIGN, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating campaign.xml : "));
+			assertEquals(true, ve.getMessage().contains("Error during validation"));
 			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/campaign/testScenarios"), "campaign","error.xml"));
 		}
 	}
@@ -402,7 +402,7 @@ public class TestsEndToEndCampaign {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCAMPAIGN, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating campaign.xml : "));
+			assertEquals(true, ve.getMessage().contains("Error during validation"));
 			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/campaign/testScenarios"), "campaign","error.xml"));
 		}
 	}

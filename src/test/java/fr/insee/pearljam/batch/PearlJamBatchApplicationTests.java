@@ -40,14 +40,14 @@ import liquibase.resource.ResourceAccessor;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-		UnitTests.class,
-		TestsEndToEndCampaign.class,
-		TestsEndToEndDeleteCampaign.class, 
-		TestsEndToEndExtractCampaign.class, 
-		TestsEndToEndContext.class, 
-		TestsEndToEndSynchro.class,
-		TestsEndToEndDailyUpdate.class,
+//		UnitTests.class,
+//		TestsEndToEndCampaign.class,
+//		TestsEndToEndDeleteCampaign.class, 
 		TestsEndToEndSampleProcessing.class
+//		TestsEndToEndContext.class, 
+//		TestsEndToEndSynchro.class,
+//		TestsEndToEndDailyUpdate.class,
+//		TestsEndToEndExtractCampaign.class
 	})
 public class PearlJamBatchApplicationTests {
 
@@ -61,7 +61,6 @@ public class PearlJamBatchApplicationTests {
 	@ClassRule
 	public static PostgreSQLContainer postgreSQLContainerPilotage = new PostgreSQLContainer("postgres")
 	.withDatabaseName("pearljam").withUsername("pearljam").withPassword("pearljam");
-	
 	
 	@SuppressWarnings("rawtypes")
 	@ClassRule
@@ -98,6 +97,8 @@ public class PearlJamBatchApplicationTests {
 		System.setProperty("fr.insee.queen.persistence.database.driver", "org.postgresql.Driver");
 		System.setProperty("fr.insee.queen.folder.in", "src/test/resources/in");
 		System.setProperty("fr.insee.queen.folder.out", "src/test/resources/out");
+		System.setProperty("fr.insee.pearljam.folder.queen.in", "src/test/resources/in");
+		System.setProperty("fr.insee.pearljam.folder.queen.out", "src/test/resources/out");
 		
 		System.setProperty(
 				"fr.insee.pearljam.context.synchronization.interviewers.reaffectation.threshold.absolute",
@@ -138,9 +139,9 @@ public class PearlJamBatchApplicationTests {
 		
 		PGSimpleDataSource dsDataCollection = new PGSimpleDataSource();
 		// Datasource initialization
-		dsDataCollection.setUrl(postgreSQLContainerPilotage.getJdbcUrl());
-		dsDataCollection.setUser(postgreSQLContainerPilotage.getUsername());
-		dsDataCollection.setPassword(postgreSQLContainerPilotage.getPassword());
+		dsDataCollection.setUrl(postgreSQLContainerDataCollection.getJdbcUrl());
+		dsDataCollection.setUser(postgreSQLContainerDataCollection.getUsername());
+		dsDataCollection.setPassword(postgreSQLContainerDataCollection.getPassword());
 		DatabaseConnection dbconnDataCollection = new JdbcConnection(dsDataCollection.getConnection());
 		ResourceAccessor raDataCollection = new FileSystemResourceAccessor("src/test/resources/sql");
 		Liquibase liquibaseDataCollection = new Liquibase("masterDataCollection.xml", raDataCollection, dbconnDataCollection);
@@ -207,20 +208,10 @@ public class PearlJamBatchApplicationTests {
 		}
 
 	}
-	
-	
+		
 	@Bean
     @Primary
     public ContextReferentialService contextReferentialService() {
         return Mockito.mock(ContextReferentialService.class);
     }
-
-	/**
-	 * This method deletes the ".done" and ".error" files that are created during
-	 * the clean and reset step
-	 * 
-	 * @throws IOException
-	 */
-	
-
 }

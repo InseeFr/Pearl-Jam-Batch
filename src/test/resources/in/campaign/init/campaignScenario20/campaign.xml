@@ -25,7 +25,7 @@
 	<SurveyUnits>
 		<SurveyUnit>
 			<Id>11</Id>
-			<InterwieverId/>
+			<InterviewerId/>
 			<Persons>
           <Person>
           <Title>Mister</Title>
@@ -78,7 +78,7 @@
 		</SurveyUnit>
 		<SurveyUnit>
 			<Id>12</Id>
-			<InterwieverId/>
+			<InterviewerId/>
 			      <Persons>
         <Person>
           <Title>Miss</Title>

@@ -68,7 +68,7 @@ public class PilotageLauncherService {
 	PilotageFolderService pilotageFolderService;
 	
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
-	private static final String CAMPAIGN_PATH_IN = "/Campaign/campaign.xml";
+	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 	private static final String SAMPLE_PATH_IN = "/sample/sample.xml";
 
 	/**
@@ -488,7 +488,7 @@ public class PilotageLauncherService {
 		if(new File(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN).exists()) {
 			Files.move(Paths.get(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN), 
 					Paths.get(new StringBuilder(ApplicationConfig.FOLDER_OUT)
-							.append("/Campaign/")
+							.append("/campaign/")
 							.append("campaign")
 							.append(".")
 							.append(PathUtils.getTimestampForPath())
@@ -503,14 +503,14 @@ public class PilotageLauncherService {
 			return new HashMap<>();
 		}
 		CampaignDao pilotageCampaignDao = context.getBean(CampaignDao.class);
-		logger.log(Level.INFO, "Extract Pilotage content");
-		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
-		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN, pilotageCampaign);
-		logger.log(Level.INFO, "Validate Pilotage input");
 		if(!pilotageCampaignDao.existCampaign(campaignId)){
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
+		logger.log(Level.INFO, "Extract Pilotage content");
+		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
+		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN, pilotageCampaign);
+		logger.log(Level.INFO, "Validate Pilotage input");
 		return pilotageCampaign.getSurveyUnits().getSurveyUnit()
 				.stream()
 				.collect(Collectors.toMap(SurveyUnitType::getId, su-> su));
@@ -523,6 +523,10 @@ public class PilotageLauncherService {
 		if(!steps.contains(Constants.DATACOLLECTION)) {
 			return new HashMap<>();
 		}
+		if(!dataCollectionCampaignDao.exist(campaignId)){
+			logger.log(Level.INFO, "Campaign {} does not exist in Data-collection", campaignId);
+			throw new ValidateException("Campaign does not exist in Data-collection DB");
+		}
 		logger.log(Level.INFO, "Get Data-collection content");
 		dataCollectionCampaign = DataCollectionMapper.mapSampleProcessingToDataCollectionCampaign(sampleProcessing);
 		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN, dataCollectionCampaign);
@@ -531,10 +535,6 @@ public class PilotageLauncherService {
 			dataCollectionSample = dataCollectionXmlUtils.createSample(XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN_QUEEN + "/sample.xml", dataCollectionCampaign).getPath());
 		} catch (Exception e) {
 			throw new ValidateException("Error on getting sample entity : " + e.getMessage());
-		}
-		if(!dataCollectionCampaignDao.exist(campaignId)){
-			logger.log(Level.INFO, "Campaign {} does not exist in Data-collection", campaignId);
-			throw new ValidateException("Campaign does not exist in Data-collection DB");
 		}
 		return dataCollectionSample.getSurveyUnits()
 				.stream()

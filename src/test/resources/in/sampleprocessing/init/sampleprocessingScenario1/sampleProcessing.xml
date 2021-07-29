@@ -1,90 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Campagne idSource="SIMPSONS" millesime="2020" idPeriode="X00">
-  <Steps>
-    <Step name="pilotage">
-      <Goal>create</Goal>
-      <Options/>
-    </Step>
-    <Step name="datacollection">
-      <Goal>create</Goal>
-      <Options/> 
-    </Step>
-  </Steps>
-  <Questionnaires>
-    <Questionnaire idModele="simpsons">
-      <!--[WEB]<Questionnaire idModele="SIMPSON" idVague="1" idLot="1">-->
-      <InformationsGenerales>
-        <UniteEnquetee>
-          <Identifiant>SIM1234</Identifiant>
-          <Prioritaire>true</Prioritaire> 
-          <LocalisationGeographique>32220</LocalisationGeographique>
-          <IdentifiantsInsee>
-            <Bs>0</Bs>
-            <Ec>0</Ec>
-            <Le>0</Le>
-            <Noi>4</Noi>
-            <Numfa>1</Numfa>
-            <Rges>10</Rges>
-            <Ssech>1</Ssech>
-            <Nolog>1</Nolog>
-            <Nole>0</Nole>
-            <Autre>autre</Autre>
-            <Nograp>nograp</Nograp>
-          </IdentifiantsInsee>
-          <Affectation>
-            <UniteOrganisationnelleId>OU-NORTH</UniteOrganisationnelleId> 
-            <EnqueteurId>AB11ED</EnqueteurId>
-          </Affectation>
-        </UniteEnquetee>
-        <Contacts>
-          <Contact>
-            <Principal>true</Principal>
-            <CiviliteReferent>M.</CiviliteReferent> <!-- ==> normaliser ?  -->
-            <NomReferent>Doe</NomReferent>
-            <PrenomReferent>John</PrenomReferent>
-            <MailReferent>test@test.fr</MailReferent>
-            <DateNaissance>01/01/2000</DateNaissance>            
-            <Telephones>
-              <Telephone>
-                <Source>fiscal</Source>
-                <Favori>true</Favori>  <!--  ===> défaut = false -->
-                <Numero>0101010101</Numero>
-              </Telephone>
-            </Telephones>
-            <Adresse>
-              <NumeroVoie>75</NumeroVoie>
-              <IndiceRepetition>TER</IndiceRepetition>
-              <TypeVoie>...</TypeVoie>
-              <LibelleVoie>string</LibelleVoie>
-              <ComplementAdresse>...</ComplementAdresse>
-              <MentionSpeciale>...</MentionSpeciale>
-              <CodePostal>32220</CodePostal>
-              <LibelleCommune>...</LibelleCommune>
-              <CodeCommune>LUPPE VIOLLES</CodeCommune>
-              <LibellePays>...</LibellePays>
-            </Adresse>
-          </Contact>
-          <Contact>
-            <Principal>false</Principal>
-            <CiviliteReferent>M.</CiviliteReferent>
-            <NomReferent>Doe</NomReferent>
-            <PrenomReferent>Jane</PrenomReferent>
-            <MailReferent>test2@test.fr</MailReferent>
-            <DateNaissance>01/01/2000</DateNaissance>
-            <Telephones>
-              <Telephone>
-                <Source>fiscal</Source>
-                <Numero>0101010101</Numero>
-              </Telephone>
-            </Telephones>
-          </Contact>
-        </Contacts>
-      </InformationsGenerales>
-      <InformationsPersonnalisees>
-        <Data>
-		  <EXTERNAL/>
-		  <COLLECTED/> 
-		</Data>
-      </InformationsPersonnalisees>  
-    </Questionnaire>
-  </Questionnaires>
+	<Steps>
+		<Step name="pilotage">
+			<Goal>create</Goal>
+			<Options />
+		</Step>
+		<Step name="datacollection">
+			<Goal>create</Goal>
+			<Options />
+		</Step>
+	</Steps>
+	<Questionnaires>
+		<Questionnaire idModele="simpsons">
+			<!--[WEB]<Questionnaire idModele="SIMPSON" idVague="1" idLot="1"> -->
+			<InformationsGenerales>
+				<UniteEnquetee>
+					<test></test>
+					<Identifiant>SIM1234</Identifiant>
+					<Prioritaire>true</Prioritaire>
+					<LocalisationGeographique>32220</LocalisationGeographique>
+					<IdentifiantsInsee>
+						<Bs>0</Bs>
+						<Ec>0</Ec>
+						<Le>0</Le>
+						<Noi>4</Noi>
+						<Numfa>1</Numfa>
+						<Rges>10</Rges>
+						<Ssech>1</Ssech>
+						<Nolog>1</Nolog>
+						<Nole>0</Nole>
+						<Autre>autre</Autre>
+						<Nograp>nograp</Nograp>
+					</IdentifiantsInsee>
+					<Affectation>
+						<UniteOrganisationnelleId>OU-NORTH</UniteOrganisationnelleId>
+						<EnqueteurId>AB11ED</EnqueteurId>
+					</Affectation>
+				</UniteEnquetee>
+				<Contacts>
+					<Contact>
+						<Principal>true</Principal>
+						<CiviliteReferent>M.</CiviliteReferent> <!-- ==> normaliser ? -->
+						<NomReferent>Doe</NomReferent>
+						<PrenomReferent>John</PrenomReferent>
+						<MailReferent>test@test.fr</MailReferent>
+						<DateNaissance>01/01/2000</DateNaissance>
+						<Telephones>
+							<Telephone>
+								<Source>fiscal</Source>
+								<Favori>true</Favori>  <!-- ===> défaut = false -->
+								<Numero>0101010101</Numero>
+							</Telephone>
+						</Telephones>
+						<Adresse>
+							<NumeroVoie>75</NumeroVoie>
+							<IndiceRepetition>TER</IndiceRepetition>
+							<TypeVoie>...</TypeVoie>
+							<LibelleVoie>string</LibelleVoie>
+							<ComplementAdresse>...</ComplementAdresse>
+							<MentionSpeciale>...</MentionSpeciale>
+							<CodePostal>32220</CodePostal>
+							<LibelleCommune>...</LibelleCommune>
+							<CodeCommune>LUPPE VIOLLES</CodeCommune>
+							<LibellePays>...</LibellePays>
+						</Adresse>
+					</Contact>
+					<Contact>
+						<Principal>false</Principal>
+						<CiviliteReferent>M.</CiviliteReferent>
+						<NomReferent>Doe</NomReferent>
+						<PrenomReferent>Jane</PrenomReferent>
+						<MailReferent>test2@test.fr</MailReferent>
+						<DateNaissance>01/01/2000</DateNaissance>
+						<Telephones>
+							<Telephone>
+								<Source>fiscal</Source>
+								<Numero>0101010101</Numero>
+							</Telephone>
+						</Telephones>
+					</Contact>
+				</Contacts>
+			</InformationsGenerales>
+			<InformationsPersonnalisees>
+				<Data>
+					<EXTERNAL />
+					<COLLECTED />
+				</Data>
+			</InformationsPersonnalisees>
+		</Questionnaire>
+	</Questionnaires>
 </Campagne>

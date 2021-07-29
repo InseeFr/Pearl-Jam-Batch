@@ -7,8 +7,7 @@
 			<Id>OU-NORTH</Id>
 			<CollectionStartDate>03/01/2021 10:20:45</CollectionStartDate>
 			<CollectionEndDate>01/09/2021 10:20:45</CollectionEndDate>
-			<IdentificationPhaseStartDate>02/01/2021 10:20:46
-			</IdentificationPhaseStartDate>
+			<IdentificationPhaseStartDate>02/01/2021 10:20:46</IdentificationPhaseStartDate>
 			<InterviewerStartDate>02/01/2021 10:20:45</InterviewerStartDate>
 			<ManagementStartDate>01/01/2021 10:20:45</ManagementStartDate>
 			<EndDate>01/10/2021 10:20:45</EndDate>
@@ -17,8 +16,7 @@
 			<Id>OU-SOUTH</Id>
 			<CollectionStartDate>03/01/2021 10:20:45</CollectionStartDate>
 			<CollectionEndDate>01/09/2021 10:20:45</CollectionEndDate>
-			<IdentificationPhaseStartDate>02/01/2021 10:20:46
-			</IdentificationPhaseStartDate>
+			<IdentificationPhaseStartDate>02/01/2021 10:20:46</IdentificationPhaseStartDate>
 			<InterviewerStartDate>02/01/2021 10:20:45</InterviewerStartDate>
 			<ManagementStartDate>01/01/2021 10:20:45</ManagementStartDate>
 			<EndDate>01/10/2021 10:20:45</EndDate>
@@ -27,7 +25,7 @@
 	<SurveyUnits>
 		<SurveyUnit>
 			<Id>11</Id>
-			<InterwieverId>INTW3</InterwieverId>
+			<InterviewerId>INTW3</InterviewerId>
 			<OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
 			<Persons>
 				<Person>
@@ -49,12 +47,7 @@
 					</PhoneNumbers>
 				</Person>
 			</Persons>
-
 			<Priority>true</Priority>
-
-
-
-
 			<InseeAddress>
 				<GeographicalLocationId>29024</GeographicalLocationId>
 				<L1>Math Muth</L1>
@@ -81,7 +74,7 @@
 		</SurveyUnit>
 		<SurveyUnit>
 			<Id>12</Id>
-			<InterwieverId>INTW4</InterwieverId>
+			<InterviewerId>INTW4</InterviewerId>
 			<OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
 			<Persons>
 				<Person>
@@ -103,12 +96,7 @@
 					</PhoneNumbers>
 				</Person>
 			</Persons>
-
 			<Priority>true</Priority>
-
-
-
-
 			<InseeAddress>
 				<GeographicalLocationId>29024</GeographicalLocationId>
 				<L1>Anne Rich</L1>

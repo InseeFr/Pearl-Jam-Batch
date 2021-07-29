@@ -10,6 +10,7 @@ INSERT INTO public.address (dtype, l1, l2, l3, l4, l5, l6, l7, geographical_loca
 INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('SIMPSONS2020X00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Survey on the Simpsons tv show 2020');
 INSERT INTO public.campaign (id, collection_end_date, collection_start_date, label) VALUES ('VQS2021X00', (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '2 DAY'))*1000), (SELECT extract(epoch from (LOCALTIMESTAMP - INTERVAL '1 DAY'))*1000), 'Everyday life and health survey 2021');
 
+
 INSERT INTO public.organization_unit (id, label, type, organization_unit_parent_id) VALUES ('OU-NATIONAL', 'National organizational unit', 'NATIONAL', null);
 INSERT INTO public.organization_unit (id, label, type, organization_unit_parent_id) VALUES ('OU-NORTH', 'North region organizational unit', 'LOCAL', 'OU-NATIONAL');
 INSERT INTO public.organization_unit (id, label, type, organization_unit_parent_id) VALUES ('OU-SOUTH', 'South region organizational unit', 'LOCAL', 'OU-NATIONAL');

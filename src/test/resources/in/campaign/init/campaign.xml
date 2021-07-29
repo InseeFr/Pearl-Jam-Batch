@@ -25,7 +25,7 @@
     <SurveyUnits>
         <SurveyUnit>
             <Id>simpsons2022_1</Id>
-            <InterwieverId>INTW1</InterwieverId>
+            <InterviewerId>INTW1</InterviewerId>
       <OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
             <Persons>
               <Person>
@@ -78,7 +78,7 @@
         </SurveyUnit>
         <SurveyUnit>
             <Id>simpsons2022_2</Id>
-            <InterwieverId>INTW4</InterwieverId>
+            <InterviewerId>INTW4</InterviewerId>
       <OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
             <Persons>
               <Person>

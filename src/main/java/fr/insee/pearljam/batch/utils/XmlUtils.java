@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -115,7 +116,9 @@ public class XmlUtils {
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			xmlEncoding = XMLInputFactory.newInstance().createXMLStreamReader(fr);
-			validator.validate(new StreamSource(fis));
+			if(xmlEncoding.getCharacterEncodingScheme().equals("UTF8") || xmlEncoding.getCharacterEncodingScheme().equals(StandardCharsets.UTF_8.toString())) {
+				validator.validate(new StreamSource(fis));
+			}
 		} catch (Exception e) {
 			ve = new ValidateException("Error during validation : " + e.getMessage());
 		} finally {

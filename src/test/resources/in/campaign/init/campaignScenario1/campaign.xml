@@ -24,7 +24,7 @@
 	<SurveyUnits>
 		<SurveyUnit>
 			<Id>su1234</Id>
-			<InterwieverId>INTW1</InterwieverId>
+			<InterviewerId>INTW1</InterviewerId>
       <OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
 			<Persons>
           <Person>
@@ -78,7 +78,7 @@
 		</SurveyUnit>
 		<SurveyUnit>
 			<Id>su5678</Id>
-			<InterwieverId>INTW4</InterwieverId>
+			<InterviewerId>INTW4</InterviewerId>
       <OrganizationalUnitId>OU-NORTH</OrganizationalUnitId>
 			      <Persons>
         <Person>

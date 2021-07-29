@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Campagne idSource="VQS" millesime="2021" idPeriode="X00">
+<Campagne idSource="SIMPSONS" millesime="2020" idPeriode="X00">
 	<Steps>
 		<Step name="pilotage">
 			<Goal>create</Goal>
