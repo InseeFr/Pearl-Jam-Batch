@@ -87,7 +87,6 @@ public class ApplicationContext {
 		ApplicationConfig.ldapServiceUrlScheme=envSpring.getProperty("fr.insee.pearljam.ldap.service.url.scheme");
 		ApplicationConfig.ldapServiceUrlHost=envSpring.getProperty("fr.insee.pearljam.ldap.service.url.host");
 		ApplicationConfig.ldapServiceUrlPort=envSpring.getProperty("fr.insee.pearljam.ldap.service.url.port");
-		ApplicationConfig.ldapServiceUrlPath=envSpring.getProperty("fr.insee.pearljam.ldap.service.url.path");
 	}
 
 	/**
@@ -140,9 +139,8 @@ public class ApplicationContext {
 	 */
 	@Bean(name = "habilitationApiBaseUrl")
 	public String getHabilitationApiBaseUrl() {
-		return String.format("%s://%s:%s/%s", ApplicationConfig.ldapServiceUrlScheme,
-				ApplicationConfig.ldapServiceUrlHost, ApplicationConfig.ldapServiceUrlPort,
-				ApplicationConfig.ldapServiceUrlPath);
+		return String.format("%s://%s:%s", ApplicationConfig.ldapServiceUrlScheme,
+				ApplicationConfig.ldapServiceUrlHost, ApplicationConfig.ldapServiceUrlPort);
 	}
 
 	@Bean

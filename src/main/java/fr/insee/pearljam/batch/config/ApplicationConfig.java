@@ -30,7 +30,6 @@ public class ApplicationConfig {
 	public static String ldapServiceUrlScheme;
 	public static String ldapServiceUrlHost;
 	public static String ldapServiceUrlPort;
-	public static String ldapServiceUrlPath;
 
 	public ApplicationConfig() {
 		super();
