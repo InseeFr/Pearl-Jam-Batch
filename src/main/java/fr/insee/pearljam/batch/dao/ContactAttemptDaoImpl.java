@@ -37,6 +37,7 @@ public class ContactAttemptDaoImpl implements ContactAttemptDao {
         public ContactAttemptType mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	ContactAttemptType cont = new ContactAttemptType();
         	cont.setDate(String.valueOf(rs.getLong("date")));
+			cont.setMedium(rs.getString("medium"));
         	cont.setStatus(rs.getString("status"));
             return cont;
         }
