@@ -6,7 +6,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="Id" type="xs:string" />
-				<xs:element name="IdentificationConfiguration">
+				<xs:element name="IdentificationConfiguration" minOccurs="0" maxOccurs="1">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="NOIDENT" />
@@ -14,7 +14,7 @@
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
-				<xs:element name="ContactAttemptsConfiguration">
+				<xs:element name="ContactAttemptsConfiguration" minOccurs="0" maxOccurs="1">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="F2F" />
@@ -22,7 +22,7 @@
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
-				<xs:element name="ContactOutcomeConfiguration">
+				<xs:element name="ContactOutcomeConfiguration" minOccurs="0" maxOccurs="1">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="F2F" />

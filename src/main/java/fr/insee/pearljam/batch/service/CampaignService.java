@@ -39,6 +39,7 @@ import fr.insee.pearljam.batch.dao.ClosingCauseDao;
 import fr.insee.pearljam.batch.dao.CommentDao;
 import fr.insee.pearljam.batch.dao.ContactAttemptDao;
 import fr.insee.pearljam.batch.dao.ContactOutcomeDao;
+import fr.insee.pearljam.batch.dao.IdentificationDao;
 import fr.insee.pearljam.batch.dao.InterviewerTypeDao;
 import fr.insee.pearljam.batch.dao.MessageDao;
 import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
@@ -104,6 +105,8 @@ public class CampaignService {
 	MessageDao messageDao;
 	@Autowired
 	InterviewerTypeDao interviewerTypeDao;
+	@Autowired
+	IdentificationDao identificationDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -170,6 +173,10 @@ public class CampaignService {
 		List<OrganizationalUnitType> listOrganizationalUnit = visibilityDao
 				.getAllVisibilitiesByCampaignId(campaign.getId());
 		ou.getOrganizationalUnit().addAll(listOrganizationalUnit);
+		Campaign dbCampaign = campaignDao.findById(campaign.getId());
+		campaign.setContactAttemptsConfiguration(dbCampaign.getContactAttemptsConfiguration());
+		campaign.setContactOutcomeConfiguration(dbCampaign.getContactOutcomeConfiguration());
+		campaign.setIdentificationConfiguration(dbCampaign.getIdentificationConfiguration());
 		campaign.setOrganizationalUnits(ou);
 		if (campaign.getSurveyUnits() == null || campaign.getSurveyUnits().getSurveyUnit() == null
 				|| campaign.getSurveyUnits().getSurveyUnit().isEmpty() || checkListAllSurveyUnit(campaign)) {
@@ -232,6 +239,8 @@ public class CampaignService {
 					// InseeSampleIdentifiers
 					surveyUnitType.setInseeSampleIdentiers(
 							sampleIdentifierDao.getSampleIdentiersBySurveyUnitId(surveyUnitType.getId()));
+
+					surveyUnitType.setIdentification(identificationDao.getIdentificationTypeBySurveyUnitId(surveyUnitType.getId()));
 
 				} catch (Exception e) {
 					throw new DataBaseException("Error during the archiving of the file campaign."
