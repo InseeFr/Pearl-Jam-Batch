@@ -1,6 +1,5 @@
 package fr.insee.pearljam.batch.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,167 +30,178 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.ContextReferentialService;
 import fr.insee.pearljam.batch.service.KeycloakService;
 
-
 // Class to call Context referential endpoints
 
 @Service
 public class ContextReferentialServiceImpl implements ContextReferentialService {
 	private static final Logger logger = LogManager.getLogger(ContextReferentialServiceImpl.class);
-	
+
 	@Autowired
 	@Qualifier("contextReferentialBaseUrl")
-	String getContextReferentialBaseUrl ;
-	
+	String getContextReferentialBaseUrl;
+
 	@Autowired
 	KeycloakService keycloakService;
-	
+
 	@Autowired
 	RestTemplate restTemplate;
-	
+
 	private static final String NO_RESPONSE_MSG = "Could not get response from contextReferential";
-		
+
+	private void printUri(String uri) {
+		logger.info("Calling {}", uri);
+	}
+
+	private void printResponse(String response) {
+		logger.info("Response {}", response);
+	}
+
 	public List<InterviewerDto> getInterviewersFromOpale() throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_INTERVIEWERS;
-	
-	 	HttpHeaders headers = getHeaders();
+		printUri(uri);
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<InterviewersResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, InterviewersResponseDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
+
+		ResponseEntity<InterviewersResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity,
+				InterviewersResponseDto.class);
+		printResponse(response.getStatusCode().toString());
 
 		InterviewersResponseDto body = response.getBody();
-		
-		if(body==null) {
+
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
 		return body.getEnqueteurs();
 	}
-	
-	public List<OrganizationUnitDto> getOrganizationUnitsFromOpale() throws SynchronizationException{		
+
+	public List<OrganizationUnitDto> getOrganizationUnitsFromOpale() throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_ORGANIZATION_UNITS;
-		
-	 	HttpHeaders headers = getHeaders();
+		printUri(uri);
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<OrganizationUnitsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, OrganizationUnitsResponseDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+
+		ResponseEntity<OrganizationUnitsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity,
+				OrganizationUnitsResponseDto.class);
+		printResponse(response.getStatusCode().toString());
+
 		OrganizationUnitsResponseDto body = response.getBody();
-		if(body==null) {
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+
 		return body.getOrganizationUnits();
-		
+
 	}
-	
+
 	public List<InterviewerAffectationsDto> getInterviewersAffectationsFromOpale() throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_INTERVIEWERS_AFFECTATIONS;
-		
-	 	HttpHeaders headers = getHeaders();
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<InterviewersAffectationsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, InterviewersAffectationsResponseDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+
+		ResponseEntity<InterviewersAffectationsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET,
+				entity, InterviewersAffectationsResponseDto.class);
+		printUri(uri);
+		printResponse(response.getStatusCode().toString());
+
 		InterviewersAffectationsResponseDto body = response.getBody();
-		if(body==null) {
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+		logger.info("{} attributions returned", body.getInterviewers().size());
 		return body.getInterviewers();
 	}
-	
-	public List<OrganizationUnitAffectationsDto> getOrganizationUnitsAffectationsFromOpale() throws SynchronizationException{		
+
+	public List<OrganizationUnitAffectationsDto> getOrganizationUnitsAffectationsFromOpale()
+			throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_ORGANIZATION_UNITS_AFFECTATIONS;
-		
-	 	HttpHeaders headers = getHeaders();
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<OrganizationUnitsAffectationsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, OrganizationUnitsAffectationsResponseDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+
+		ResponseEntity<OrganizationUnitsAffectationsResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET,
+				entity, OrganizationUnitsAffectationsResponseDto.class);
+		printUri(uri);
+		printResponse(response.getStatusCode().toString());
+
 		OrganizationUnitsAffectationsResponseDto body = response.getBody();
-		if(body==null) {
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+
 		return body.getOrganizationUnits();
 	}
-	
+
 	@Override
-	public SimpleIdDto getSurveyUnitOUAffectation(String suId) throws SynchronizationException{		
+	public SimpleIdDto getSurveyUnitOUAffectation(String suId) throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_SURVEY_UNIT_OU_AFFECTATION;
-		
-	 	HttpHeaders headers = getHeaders();
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<SimpleIdDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET, entity, SimpleIdDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+
+		ResponseEntity<SimpleIdDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET, entity,
+				SimpleIdDto.class);
+		printUri(uri);
+		printResponse(response.getStatusCode().toString());
+
 		SimpleIdDto body = response.getBody();
-		if(body==null) {
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+
 		return body;
 	}
-	
+
 	@Override
-	public InterviewerDto getSurveyUnitInterviewerAffectation(String suId) throws SynchronizationException{		
+	public InterviewerDto getSurveyUnitInterviewerAffectation(String suId) throws SynchronizationException {
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_SURVEY_UNIT_INTERVIEWER_AFFECTATION;
-		
-	 	HttpHeaders headers = getHeaders();
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<InterviewerDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET, entity, InterviewerDto.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+
+		ResponseEntity<InterviewerDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET,
+				entity, InterviewerDto.class);
+		printUri(uri);
+		printResponse(response.getStatusCode().toString());
+
 		InterviewerDto body = response.getBody();
-		if(body==null) {
+		if (body == null) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+
 		return body;
-		
+
 	}
-	
+
 	@Override
 	public void contextReferentialServiceIsAvailable() throws SynchronizationException {
-		
+
 		String uri = getContextReferentialBaseUrl + Constants.API_OPALE_HEALTHCHECK;
-		
-	 	HttpHeaders headers = getHeaders();
+		printUri(uri);
+
+		HttpHeaders headers = getHeaders();
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
+
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-		logger.info("Calling {}",uri);
-		logger.info("Response {}",response.getStatusCode().toString());
-		
+		printResponse(response.getStatusCode().toString());
+
 		HttpStatus returnedCode = response.getStatusCode();
-		if(!returnedCode.is2xxSuccessful()) {
+		if (!returnedCode.is2xxSuccessful()) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
-		
+
 	}
 
 	private HttpHeaders getHeaders() throws SynchronizationException {
 		String token = keycloakService.getContextReferentialToken();
-		List<MediaType> accepted = new ArrayList<>();
-		accepted.add(MediaType.APPLICATION_JSON);
-		
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setAccept(accepted);
-		
+		headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 		headers.setBearerAuth(token);
-		
+
 		return headers;
 	}
 }
