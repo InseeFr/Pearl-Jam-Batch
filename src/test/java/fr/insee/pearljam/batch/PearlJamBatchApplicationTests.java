@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.mockito.Mockito;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -29,7 +31,7 @@ import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.FileSystemResourceAccessor;
+import liquibase.resource.DirectoryResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 
 /**
@@ -39,6 +41,7 @@ import liquibase.resource.ResourceAccessor;
  * @author scorcaud
  *
  */
+@Configuration
 @RunWith(Suite.class)
 @SuiteClasses({
 		UnitTests.class,
@@ -130,7 +133,7 @@ public class PearlJamBatchApplicationTests {
 		dsPilotage.setUser(postgreSQLContainerPilotage.getUsername());
 		dsPilotage.setPassword(postgreSQLContainerPilotage.getPassword());
 		DatabaseConnection dbconnPilotage = new JdbcConnection(dsPilotage.getConnection());
-		ResourceAccessor raPilotage = new FileSystemResourceAccessor("src/test/resources/sql");
+		ResourceAccessor raPilotage = new DirectoryResourceAccessor(Paths.get("src/test/resources/sql"));
 		Liquibase liquibasePilotage = new Liquibase("masterPilotage.xml", raPilotage, dbconnPilotage);
 		liquibasePilotage.dropAll();
 		liquibasePilotage.update(new Contexts());
@@ -144,7 +147,7 @@ public class PearlJamBatchApplicationTests {
 		dsDataCollection.setUser(postgreSQLContainerDataCollection.getUsername());
 		dsDataCollection.setPassword(postgreSQLContainerDataCollection.getPassword());
 		DatabaseConnection dbconnDataCollection = new JdbcConnection(dsDataCollection.getConnection());
-		ResourceAccessor raDataCollection = new FileSystemResourceAccessor("src/test/resources/sql");
+		ResourceAccessor raDataCollection = new DirectoryResourceAccessor(Paths.get("src/test/resources/sql"));
 		Liquibase liquibaseDataCollection = new Liquibase("masterDataCollection.xml", raDataCollection, dbconnDataCollection);
 		liquibaseDataCollection.dropAll();
 		liquibaseDataCollection.update(new Contexts());
