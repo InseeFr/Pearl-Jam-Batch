@@ -2,27 +2,18 @@ package fr.insee.pearljam.batch.dto;
 
 public class HabilitationActionResponseDto {
 
-    private String action;
-    private String erreur;
+    private String message;
 
     public HabilitationActionResponseDto() {
         super();
     }
 
-    public String getAction() {
-        return action;
+    public String getMessage() {
+        return message;
     }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getErreur() {
-        return erreur;
-    }
-
-    public void setErreur(String erreur) {
-        this.erreur = erreur;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
 }
