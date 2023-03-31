@@ -74,9 +74,9 @@ public class Constants {
 	// public static final String API_OPALE_HEALTHCHECK = "/healthCheck";
 
 	// LDAP service endpoints
-	public static final String API_LDAP_ADD_APP_GROUP_USERID = "/gestion/ajout/personne/application/%s/groupe/%s/utilisateur/%s";
-	public static final String API_LDAP_GET_APP_GROUP_USERS = "/recherche/application/%s/groupe/%s";
-	public static final String API_LDAP_HEALTHCHECK = "/healthcheck";
+	public static final String API_LDAP_REALM_APP_GROUP_USERID = "/v2/realms/%s/applications/%s/groups/%s/members/%s";
+	public static final String API_LDAP_REALM_APP_GROUPID = "/v2/realms/%s/applications/%s/groups/%s";
+	public static final String API_LDAP_HEALTHCHECK = "/actuator/health";
 
 	private Constants() {
 	}

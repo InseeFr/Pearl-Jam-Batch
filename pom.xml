@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.0.4</version>
+	<version>3.0.5</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -17,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<saxon.version>9.7.0-8</saxon.version>
-		<queenbatch.version>4.1.11</queenbatch.version>
+		<queenbatch.version>4.1.12</queenbatch.version>
 	</properties>
 
 	<dependencyManagement>
@@ -64,7 +66,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.8.9</version>
+			<version>4.20.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -325,7 +327,8 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/classes/fr/insee/pearljam/batch/context</outputDirectory>
+							<outputDirectory>
+								${project.build.directory}/classes/fr/insee/pearljam/batch/context</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/src/main/jaxb</directory>
@@ -345,7 +348,8 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/classes/fr/insee/pearljam/batch/campaign</outputDirectory>
+							<outputDirectory>
+								${project.build.directory}/classes/fr/insee/pearljam/batch/campaign</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/src/main/jaxb</directory>
@@ -364,7 +368,8 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/classes/fr/insee/pearljam/batch/sampleprocessing</outputDirectory>
+							<outputDirectory>
+								${project.build.directory}/classes/fr/insee/pearljam/batch/sampleprocessing</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/src/main/jaxb</directory>
