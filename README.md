@@ -64,7 +64,6 @@ keycloak.client.secret=XXXXXX
 fr.insee.pearljam.context.synchronization.log.elements=YES
 
 # Queen-batch configuration
-fr.insee.queen.application.persistenceType=JPA
 
 fr.insee.queen.persistence.database.host = localhost
 fr.insee.queen.persistence.database.port = 5432
