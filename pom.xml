@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.0.5</version>
+	<version>3.0.6</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -19,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<saxon.version>9.7.0-8</saxon.version>
-		<queenbatch.version>4.1.12</queenbatch.version>
+		<queenbatch.version>4.1.15</queenbatch.version>
 	</properties>
 
 	<dependencyManagement>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.4</version>
+			<version>42.5.5</version>
 		</dependency>
 
 		<!-- Calling APIs -->
