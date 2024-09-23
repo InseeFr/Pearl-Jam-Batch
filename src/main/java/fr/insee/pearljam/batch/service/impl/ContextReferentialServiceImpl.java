@@ -7,12 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -187,7 +182,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
 		printResponse(response.getStatusCode().toString());
 
-		HttpStatus returnedCode = response.getStatusCode();
+		HttpStatusCode returnedCode = response.getStatusCode();
 		if (!returnedCode.is2xxSuccessful()) {
 			throw new SynchronizationException(NO_RESPONSE_MSG);
 		}
