@@ -10,12 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,7 +29,7 @@ public class HabilitationServiceImpl implements HabilitationService {
         LOGGER.info("Calling {}", uriToLog);
     }
 
-    private static final void logResponse(HttpStatus statusCode) {
+    private static final void logResponse(HttpStatusCode statusCode) {
         LOGGER.info("Response {}", statusCode);
     }
 
@@ -112,7 +107,7 @@ public class HabilitationServiceImpl implements HabilitationService {
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-        HttpStatus returnedCode = response.getStatusCode();
+        HttpStatusCode returnedCode = response.getStatusCode();
         logUri(uri);
         logResponse(response.getStatusCode());
 

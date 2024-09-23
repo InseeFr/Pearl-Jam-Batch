@@ -3,20 +3,17 @@ package fr.insee.pearljam.batch.config;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -25,14 +22,9 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-
-import fr.insee.queen.batch.config.ConditonJpa;
-import fr.insee.queen.batch.config.ConditonMongo;
 import fr.insee.queen.batch.service.FolderService;
+
+import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = {"fr.insee.pearljam.*", "fr.insee.queen.batch.*"}, excludeFilters={
@@ -197,7 +189,6 @@ public class ApplicationContext {
 	 * @return new Datasource
 	 */
 	@Bean
-	@Conditional(value= ConditonJpa.class)
 	public DataSource dataSource() {
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(ApplicationConfig.dbDriver);
@@ -214,7 +205,6 @@ public class ApplicationContext {
 	 * @throws SQLException
 	 */
 	@Bean("connection")
-	@Conditional(value= ConditonJpa.class)
 	public Connection connection(@Autowired @Qualifier("dataSource") DataSource dataSource) throws SQLException {
 		return DataSourceUtils.getConnection(dataSource);
 	}
@@ -225,7 +215,6 @@ public class ApplicationContext {
 	 * @return JdbcTemplate
 	 */
 	@Bean("jdbcTemplate")
-	@Conditional(value= ConditonJpa.class)
 	public JdbcTemplate jdbcTemplate(@Autowired @Qualifier("dataSource") DataSource dataSource) throws SQLException {
 		JdbcTemplate jdbcTemplate = null;
 		try {
@@ -236,28 +225,6 @@ public class ApplicationContext {
 		}
 		jdbcTemplate.setResultsMapCaseInsensitive(true);
 		return jdbcTemplate;
-	}
-	
-	
-	@Bean
-	@Conditional(value= ConditonMongo.class)
-	public MongoClient mongo() {
-		ConnectionString connectionString = new ConnectionString(String.format("mongodb://%s:%s/%s", ApplicationConfig.pilotageDbHost, ApplicationConfig.pilotageDbPort, ApplicationConfig.pilotageDbSchema));
-		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-				.applyConnectionString(connectionString)
-				.build();
-		return MongoClients.create(mongoClientSettings);
-	}
-
-	/**
-	 * Method used to create the mongoTemplate
-	 * @return
-	 * @throws Exception
-	 */
-	@Conditional(value= ConditonMongo.class)
-	@Bean
-	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(mongo(), "queen_api");
 	}
 
 	@Bean

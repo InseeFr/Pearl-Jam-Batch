@@ -11,10 +11,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -94,7 +94,6 @@ public class XmlUtils {
 	/**
 	 * Validate an XML file by XSD validator
 	 * 
-	 * @param xsdPath xsd path
 	 * @param xmlPath xml path
 	 * @return true if XML is valid
 	 * @throws IOException 
