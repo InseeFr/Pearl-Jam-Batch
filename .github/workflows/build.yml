@@ -17,24 +17,15 @@ jobs:
       - name: Get queen-batch version
         id: queenbatch
         run: echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)"
+
       - name: Clone queen-batch
-        run: git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{steps.queenbatch.outputs.prop}}-rc
-      - name: Get lunatic-model version    
-        id: lunaticmodel
-        run:  |
-              cd Queen-Batch 
-              echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=lunatic.model.version -q -DforceStdout)"
-      - name: Clone lunatic-model
-        run:  |
-              git clone https://github.com/InseeFr/Lunatic-Model.git --depth 1 --branch ${{steps.lunaticmodel.outputs.prop}}-rc
-      - name: Install lunatic-model
-        run:  |
-              cd Lunatic-Model                      
-              mvn clean install -DskipTests --batch-mode --no-transfer-progress
+        run: git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{steps.queenbatch.outputs.prop}}
+
       - name: Install queen-batch
         run:  |
               cd Queen-Batch                                         
               mvn clean install -DskipTests --batch-mode --no-transfer-progress
+
       - name: Build with Maven
         timeout-minutes: 15
         run: mvn clean install --batch-mode --no-transfer-progress
