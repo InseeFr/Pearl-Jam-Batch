@@ -9,7 +9,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
+import fr.insee.pearljam.batch.communication.Courrier;
+import fr.insee.pearljam.batch.communication.Courriers;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,10 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -41,6 +44,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -216,6 +220,64 @@ public class XmlUtils {
 			logger.log(Level.ERROR, e.getMessage());
 		}
 	}
-	
+
+	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) {
+		try {
+			// Convert Courriers to Document
+			JAXBContext jaxbContext = JAXBContext.newInstance(Courriers.class);
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			Document document = factory.newDocumentBuilder().newDocument();
+			marshaller.marshal(courriersToPrint, document);
+
+			// In each Courrier : Sort then add Variables dynamic fields
+			NodeList courrierNodes = document.getElementsByTagName("Courrier");
+			for (int i = 0; i < courrierNodes.getLength(); i++) {
+				Element courrierElement = (Element) courrierNodes.item(i);
+				Element variablesElement = (Element) courrierElement.getElementsByTagName("Variables").item(0);
+
+				if (variablesElement != null) { // will never be null
+					Courrier courrier = courriersToPrint.getCourriers().get(i);
+					Map<String, String> additionalFields = courrier.getVariables().getAdditionalFields();
+
+					// Create Element for each Map entry and append to the Variables node
+					additionalFields.entrySet().stream().sorted((entryA, entryB) -> entryA.getKey().compareToIgnoreCase(entryB.getKey()))
+							.forEach(
+									entry -> {
+										// Check if the element already exists
+										NodeList existingNodes = variablesElement.getElementsByTagName(entry.getKey());
+										if (existingNodes.getLength() > 0) {
+											// If the node exists, update its text content
+											existingNodes.item(0).setTextContent(entry.getValue());
+										} else {
+											// Otherwise, create a new element and append it
+											Element additionalElement = document.createElement(entry.getKey());
+											additionalElement.setTextContent(entry.getValue());
+											variablesElement.appendChild(additionalElement);
+										}
+									}
+							);
+				}
+			}
+
+			// Step 5: Write the Courriers XML file with expected name
+			String fileName = String.format("xml_d_%s_%s.xml", courriersToPrint.getCommunicationModel(), courriersToPrint.getEditionId());
+			Path outDirComm = Paths.get(outputDir + "/communication");
+			Path tempFilePath = outDirComm.resolve(fileName);
+
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			transformer.transform(new DOMSource(document), new StreamResult(Files.newOutputStream(tempFilePath)));
+
+			return tempFilePath;
+
+		} catch (JAXBException | IOException | ParserConfigurationException |
+				 javax.xml.transform.TransformerException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 }
