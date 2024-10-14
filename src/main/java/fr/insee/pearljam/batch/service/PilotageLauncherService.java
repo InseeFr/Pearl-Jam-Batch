@@ -173,12 +173,16 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, SynchronizationException, IOException, BatchException, ParserConfigurationException, SAXException {
 		switch(batchOption) {
+			// Delete campaign
 			case DELETECAMPAIGN:
 				return deleteCampaign(in, out);
+			// extract campaign data
 			case EXTRACT:
 				return extractCampaign(in, out);
+			// Create context when empty database
 			case LOADCONTEXT:
 				return loadContext(in);
+			// Create/Update survey units
 			case SAMPLEPROCESSING:
 				return loadSampleProcessing(in, processing);
 			default:
@@ -391,7 +395,12 @@ public class PilotageLauncherService {
 		// Extract campaignId, list of steps and list of survey-unit id from sampleprocessing
 		String campaignId = sampleProcessing.getIdSource() + sampleProcessing.getMillesime() + sampleProcessing.getIdPeriode();
 		List<String> steps = sampleProcessing.getSteps().getStep().stream().map(Step::getName).collect(Collectors.toList());
-		List<String> surveyUnits = sampleProcessing.getQuestionnaires().getQuestionnaire().stream().map(su -> su.getInformationsGenerales().getUniteEnquetee().getIdentifiant()).collect(Collectors.toList());
+		List<String> surveyUnits = sampleProcessing
+				.getQuestionnaires()
+				.getQuestionnaire()
+				.stream()
+				.map(Campagne.Questionnaires.Questionnaire::getIdInterrogation)
+				.toList();
 		
 		logger.log(Level.INFO, "Start split sample processing content");
 		Map<String, SurveyUnit> mapDataCollectionSu = extractAndValidateDatacollectionFromSamplProcessing(steps, campaignId, sampleProcessing);

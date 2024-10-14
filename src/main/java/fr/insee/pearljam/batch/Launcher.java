@@ -164,8 +164,11 @@ public class Launcher {
         logger.log(Level.INFO, "Batch is running with option {}", batchOption.getLabel());
 
         return switch (batchOption) {
+            // Update states of survey units based on the visibility dates
             case DAILYUPDATE -> triggerService.updateStates();
+            // synchronize interviewers and survey unit affectations for the interviewers
             case SYNCHRONIZE -> triggerService.synchronizeWithOpale(FOLDER_OUT);
+            // send communications
             case COMMUNICATION -> {
                 try {
                     yield communicationService.handleCommunications();
@@ -173,6 +176,7 @@ public class Launcher {
                     yield BatchErrorCode.KO_TECHNICAL_ERROR;
                 }
             }
+            // use pilotage launcher
             default -> pilotageLauncherService.validateLoadClean(batchOption, FOLDER_IN, FOLDER_OUT);
         };
 
