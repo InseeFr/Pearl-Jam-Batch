@@ -62,4 +62,7 @@
 
 	<!-- move mail/tel to visibility  -->
 	<include file="pilotage/546_update_communication_information.xml" relativeToChangelogFile="true" />
+
+	<!-- add business id  -->
+	<include file="pilotage/550_add_business_id.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>

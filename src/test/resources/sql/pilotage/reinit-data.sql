@@ -136,20 +136,20 @@ INSERT INTO public.state ("date","type",survey_unit_id) VALUES
 	 (1590504478334,'NVM','26'),
 	 (1590504478334,'NVM','27'),
 	 (1590504478334,'NVM','28');
-INSERT INTO public.survey_unit (id,priority,address_id,campaign_id,interviewer_id,sample_identifier_id,organization_unit_id,viewed,"move") VALUES
-	 ('11',true,1,'SIMPSONS2020X00','INTW1',1,'OU-NORTH',false,NULL),
-	 ('12',true,2,'SIMPSONS2020X00','INTW1',2,'OU-NORTH',false,NULL),
-	 ('13',false,3,'SIMPSONS2020X00','INTW2',3,'OU-SOUTH',false,NULL),
-	 ('14',false,4,'SIMPSONS2020X00','INTW3',4,'OU-SOUTH',false,NULL),
-	 ('20',true,5,'VQS2021X00','INTW1',5,'OU-NORTH',false,NULL),
-	 ('21',true,6,'VQS2021X00','INTW2',6,'OU-NORTH',false,NULL),
-	 ('22',false,7,'VQS2021X00','INTW4',7,'OU-NORTH',false,NULL),
-	 ('23',true,8,'VQS2021X00','INTW4',8,'OU-NORTH',false,NULL),
-	 ('24',false,9,'STATE2020X00','INTW1',9,'OU-NORTH',false,NULL),
-	 ('25',true,10,'STATE2021X00','INTW1',10,'OU-NORTH',false,NULL),
-	 ('26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
-	 ('27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
-	 ('28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
+INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_id,interviewer_id,sample_identifier_id,organization_unit_id,viewed,"move") VALUES
+	 ('11','business-id-11',true,1,'SIMPSONS2020X00','INTW1',1,'OU-NORTH',false,NULL),
+	 ('12','business-id-12',true,2,'SIMPSONS2020X00','INTW1',2,'OU-NORTH',false,NULL),
+	 ('13','business-id-13',false,3,'SIMPSONS2020X00','INTW2',3,'OU-SOUTH',false,NULL),
+	 ('14','business-id-14',false,4,'SIMPSONS2020X00','INTW3',4,'OU-SOUTH',false,NULL),
+	 ('20','business-id-20',true,5,'VQS2021X00','INTW1',5,'OU-NORTH',false,NULL),
+	 ('21','business-id-21',true,6,'VQS2021X00','INTW2',6,'OU-NORTH',false,NULL),
+	 ('22','business-id-22',false,7,'VQS2021X00','INTW4',7,'OU-NORTH',false,NULL),
+	 ('23','business-id-23',true,8,'VQS2021X00','INTW4',8,'OU-NORTH',false,NULL),
+	 ('24','business-id-24',false,9,'STATE2020X00','INTW1',9,'OU-NORTH',false,NULL),
+	 ('25','business-id-25',true,10,'STATE2021X00','INTW1',10,'OU-NORTH',false,NULL),
+	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
+	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
+	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
 	 ('ABC','Melinda','Webb','OU-NORTH'),
 	 ('DEF','Everett','Juste','OU-NORTH'),
