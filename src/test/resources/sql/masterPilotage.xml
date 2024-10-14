@@ -28,5 +28,6 @@
 	<!-- Identification data-model changes -->
 	<include file="pilotage/400_data_model_changes.xml" relativeToChangelogFile="true" />
 	<include file="pilotage/401_update_data.xml" relativeToChangelogFile="true" />
+	<include file="pilotage/550_add_business_id.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

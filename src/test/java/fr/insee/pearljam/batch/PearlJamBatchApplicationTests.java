@@ -8,23 +8,30 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports;
+import fr.insee.pearljam.batch.config.ApplicationContext;
+import fr.insee.pearljam.batch.service.TriggerService;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import fr.insee.pearljam.batch.service.ContextReferentialService;
 import fr.insee.pearljam.batch.service.HabilitationService;
 import liquibase.Contexts;
@@ -34,6 +41,8 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * This class implements the two classes of test It also initialize the testing
  * part.
@@ -41,47 +50,44 @@ import liquibase.resource.ResourceAccessor;
  * @author scorcaud
  *
  */
-@Configuration
-@RunWith(Suite.class)
-@SuiteClasses({
-		UnitTests.class,
-		TestsEndToEndDeleteCampaign.class, 
-		TestsEndToEndSampleProcessing.class,
-		TestsEndToEndContext.class, 
-		TestsEndToEndSynchro.class,
-		TestsEndToEndDailyUpdate.class,
-		TestsEndToEndExtractCampaign.class
-	})
-public class PearlJamBatchApplicationTests {
+
+abstract class PearlJamBatchApplicationTests {
 
 	private static final Logger logger = LogManager.getLogger(PearlJamBatchApplicationTests.class);
 
-	/**
-	 * This ClassRule create a PostgresSQL container that represents our database
-	 * for the tests
-	 */
-	@SuppressWarnings("rawtypes")
-	@ClassRule
-	public static PostgreSQLContainer postgreSQLContainerPilotage = new PostgreSQLContainer("postgres")
-	.withDatabaseName("pearljam").withUsername("pearljam").withPassword("pearljam");
-	
-	@SuppressWarnings("rawtypes")
-	@ClassRule
-	public static PostgreSQLContainer postgreSQLContainerDataCollection = new PostgreSQLContainer("postgres")
-			.withDatabaseName("queen").withUsername("queen").withPassword("queen");
+	static final PostgreSQLContainer<?> postgreSQLContainerPilotage;
 
-	/**
-	 * This method initialize the test by starting the PostgreSQL container. It also
-	 * set all the properties correctly from the property file.
-	 * 
-	 * @throws IOException
-	 */
-	@BeforeClass
-	public static void init() throws IOException {
+	static final PostgreSQLContainer<?> postgreSQLContainerDataCollection;
+
+	static {
+		postgreSQLContainerPilotage = new PostgreSQLContainer<>("postgres")
+				.withExtraHost("localhost", "127.0.0.1")
+				.withExposedPorts(PostgreSQLContainer.POSTGRESQL_PORT)
+				.withDatabaseName("XXXXXXXX")
+				.withUsername("XXXXXXXX")
+				.withPassword("XXXXXXXX")
+				.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+						new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(5433), new ExposedPort(PostgreSQLContainer.POSTGRESQL_PORT)))
+				));
+		postgreSQLContainerPilotage.start();
+
+		postgreSQLContainerDataCollection = new PostgreSQLContainer<>("postgres")
+				.withExtraHost("localhost", "127.0.0.1")
+				.withExposedPorts(PostgreSQLContainer.POSTGRESQL_PORT)
+				.withDatabaseName("YYYYYYY")
+				.withUsername("YYYYYYY")
+				.withPassword("YYYYYYY")
+				.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+						new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(5434), new ExposedPort(PostgreSQLContainer.POSTGRESQL_PORT)))
+				));
+		postgreSQLContainerDataCollection.start();
+	}
+
+	@BeforeAll
+	public static void datasourceProperties() throws IOException {
 		logger.warn("Test TestsEndToEndExtractCampaign is ignored");
 		logger.info("Tests starts");
-		postgreSQLContainerPilotage.start();
-		// tempFolder("sample.xml");
+
 		System.setProperty("fr.insee.pearljam.persistence.database.host", postgreSQLContainerPilotage.getContainerIpAddress());
 		System.setProperty("fr.insee.pearljam.persistence.database.port",
 				Integer.toString(postgreSQLContainerPilotage.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT)));
@@ -91,7 +97,7 @@ public class PearlJamBatchApplicationTests {
 		System.setProperty("fr.insee.pearljam.persistence.database.driver", "org.postgresql.Driver");
 		System.setProperty("fr.insee.pearljam.folder.in", "src/test/resources/in");
 		System.setProperty("fr.insee.pearljam.folder.out", "src/test/resources/out");
-		
+
 		System.setProperty("fr.insee.queen.persistence.database.host", postgreSQLContainerDataCollection.getContainerIpAddress());
 		System.setProperty("fr.insee.queen.persistence.database.port",
 				Integer.toString(postgreSQLContainerDataCollection.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT)));
@@ -103,7 +109,7 @@ public class PearlJamBatchApplicationTests {
 		System.setProperty("fr.insee.queen.folder.out", "src/test/resources/out");
 		System.setProperty("fr.insee.pearljam.folder.queen.in", "src/test/resources/in");
 		System.setProperty("fr.insee.pearljam.folder.queen.out", "src/test/resources/out");
-		
+
 		System.setProperty(
 				"fr.insee.pearljam.context.synchronization.interviewers.reaffectation.threshold.absolute",
 				"2");
@@ -114,7 +120,7 @@ public class PearlJamBatchApplicationTests {
 				"fr.insee.pearljam.context.synchronization.organization.reaffectation.threshold.absolute",
 				"2");
 		System.setProperty(
-				"fr.insee.pearljam.context.synchronization.organization.reaffectation.threshold.relative", 
+				"fr.insee.pearljam.context.synchronization.organization.reaffectation.threshold.relative",
 				"50");
 
 		Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.WARN);
@@ -126,7 +132,7 @@ public class PearlJamBatchApplicationTests {
 	 * 
 	 * @throws Exception
 	 */
-	public static void initData() throws Exception {
+	static void initData() throws Exception {
 		PGSimpleDataSource dsPilotage = new PGSimpleDataSource();
 		// Datasource initialization
 		dsPilotage.setUrl(postgreSQLContainerPilotage.getJdbcUrl());
@@ -161,7 +167,7 @@ public class PearlJamBatchApplicationTests {
 	 * 
 	 * @throws IOException
 	 */
-	public static void copyFiles(String name) throws IOException {
+	static void copyFiles(String name) throws IOException {
 		File initInDir = new File("src/test/resources/in/" + name + "/init");
 		File testScenarioInDir = new File("src/test/resources/in/" + name + "/testScenarios");
 		if (!testScenarioInDir.exists()) {
@@ -227,16 +233,16 @@ public class PearlJamBatchApplicationTests {
 			dirOutCampaign.mkdir();
 		}
 	}
-		
+
 	@Bean
     @Primary
-    public ContextReferentialService contextReferentialService() {
+    ContextReferentialService contextReferentialService() {
         return Mockito.mock(ContextReferentialService.class);
     }
 
 	@Bean
 	@Primary
-	public HabilitationService habilitationService() {
+	HabilitationService habilitationService() {
 		return Mockito.mock(HabilitationService.class);
 	}
 }

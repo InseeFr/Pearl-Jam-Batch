@@ -1,16 +1,17 @@
 package fr.insee.pearljam.batch;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import fr.insee.pearljam.batch.config.ApplicationContext;
@@ -23,14 +24,12 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 import fr.insee.pearljam.batch.utils.XmlUtils;
 import fr.insee.queen.batch.service.DatasetService;
 
-
-
-public class UnitTests {
+class UnitTests extends PearlJamBatchApplicationTests {
 
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
 	
 	/* Instantiate the Launcher class via Lanceur.class */
-	public Lanceur launcher = new Lanceur();
+	Lanceur launcher = new Lanceur();
 	
 	/* Create a temporary service for the tests*/	
     private PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
@@ -44,42 +43,41 @@ public class UnitTests {
 	 * It setup the environment by inserting the data and copying the necessaries files.
 	 * @throws Exception 
 	 */
-	@Before
-	public void setUp() throws Exception {
-		PearlJamBatchApplicationTests.initData();
-		PearlJamBatchApplicationTests.copyFiles("sampleprocessing");
-		
+	@BeforeEach
+	void setUp() throws Exception {
+		initData();
+		copyFiles("sampleprocessing");
 	}
 		
 	/* Tests for PathUtils.java */
 	
 	@Test
-	public void directoryShouldExist() throws IOException {
+	void directoryShouldExist() throws IOException {
 		assertEquals(true, PathUtils.isDirectoryExist("src/test/resources/in"));
 	}
 	
 	@Test
-	public void directoryShouldntExist() throws IOException {
+	void directoryShouldntExist() throws IOException {
 		assertEquals(false, PathUtils.isDirectoryExist("src/test/resources/test"));
 	}
 	
 	@Test
-	public void directoryShouldContainsExtension() throws IOException {
+	void directoryShouldContainsExtension() throws IOException {
 		assertEquals(true, PathUtils.isDirContainsFileExtension(Path.of("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5"), "sampleProcessing.xml"));
 	}
 	
 	@Test
-	public void fileShouldExist() throws IOException {
+	void fileShouldExist() throws IOException {
 		assertEquals(true, PathUtils.isFileExist("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml"));
 	}
 	
 	/* Run Batch */
 	
 	@SuppressWarnings("static-access")
-	@Test(expected = ArgumentException.class)
-	public void noOptionDefine() throws Exception {
-		String[] options= {}; 
-		assertEquals(BatchErrorCode.KO_TECHNICAL_ERROR, launcher.runBatch(options));
+	@Test
+	void noOptionDefine() throws Exception {
+		String[] options= {};
+		assertThrows(ArgumentException.class, () -> launcher.runBatch(options));
 	}
  			
 	/* Validation */
@@ -89,7 +87,7 @@ public class UnitTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void shouldValidateCampaignWithoutError() throws Exception {
+	void shouldValidateCampaignWithoutError() throws Exception {
 		boolean error = false;
 		try {
 			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml");
@@ -104,7 +102,7 @@ public class UnitTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void shouldValidateCampaignWithError() throws Exception {
+	void shouldValidateCampaignWithError() throws Exception {
 		boolean error = false;
 		try {
 			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1/sampleProcessing.xml");
@@ -117,13 +115,13 @@ public class UnitTests {
 	/* Load */
 	
 	@Test
-	public void loadSampleProcessingWithoutError() throws Exception {
+	void loadSampleProcessingWithoutError() throws Exception {
 			datasetService.createDataSet();
 			assertEquals(BatchErrorCode.OK, pilotageLauncherService.load(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING));
 	}
 	
 	@Test
-	public void loadSampleProcessingWithError() throws Exception {
+	void loadSampleProcessingWithError() throws Exception {
 
 		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
@@ -147,7 +145,7 @@ public class UnitTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void cleandAndResetCampaignWithoutError() throws Exception {
+	void cleandAndResetCampaignWithoutError() throws Exception {
 		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
@@ -161,7 +159,7 @@ public class UnitTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void cleandAndResetCampaignWithError() throws Exception {
+	void cleandAndResetCampaignWithError() throws Exception {
 		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
@@ -169,8 +167,8 @@ public class UnitTests {
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/sampleprocessing/testScenarios"), "sampleProcessing",".error.xml"));
 	}
 
-	@After
-	public void cleanOutFolder() {
+	@AfterEach
+	void cleanOutFolder() {
 		purgeDirectory(new File("src/test/resources/out/sampleprocessing/testScenarios"));
 		purgeDirectory(new File(PROCESSING));
 	}
@@ -182,8 +180,8 @@ public class UnitTests {
 	    }
 	}
 	
-	@AfterClass
-	public static void deleteFiles() throws IOException {
+	@AfterAll
+	static void deleteFiles() throws IOException {
 		File deleteUnitTestsOutDir = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.deleteDirectory(deleteUnitTestsOutDir);
 	}

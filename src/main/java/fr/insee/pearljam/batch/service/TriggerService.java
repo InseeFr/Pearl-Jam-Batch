@@ -279,6 +279,7 @@ public class TriggerService {
 
 			pilotageConnection.commit();
 		} catch (Exception e) {
+			e.printStackTrace();
 			pilotageConnection.setAutoCommit(true);
 			throw new ValidateException("Error during process, error update states : " + e.getMessage());
 		}

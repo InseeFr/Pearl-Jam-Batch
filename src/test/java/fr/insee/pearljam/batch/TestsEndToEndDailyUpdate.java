@@ -1,8 +1,5 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
@@ -14,11 +11,12 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.util.FileSystemUtils;
 
 import fr.insee.pearljam.batch.campaign.StateType;
@@ -27,7 +25,10 @@ import fr.insee.pearljam.batch.dao.MessageDao;
 import fr.insee.pearljam.batch.dao.StateDao;
 import fr.insee.pearljam.batch.service.TriggerService;
 
-public class TestsEndToEndDailyUpdate {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class TestsEndToEndDailyUpdate extends PearlJamBatchApplicationTests {
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
 	TriggerService triggerService = context.getBean(TriggerService.class);
 	
@@ -36,14 +37,14 @@ public class TestsEndToEndDailyUpdate {
 	 * It setup the environment by inserting the data
 	 * @throws Exception 
 	 */
-	@Before
-	public void setUp() throws Exception {
-		PearlJamBatchApplicationTests.initData();
+	@BeforeEach
+	void setUp() throws Exception {
+		initData();
 	}
 	
 	//Testing update of states and delete of noifications
 	@Test
-	public void testScenario1() throws Exception {
+	void testScenario1() throws Exception {
 		MessageDao messageDao = context.getBean(MessageDao.class);
 		StateDao stateDao = context.getBean(StateDao.class); 
 		TimeZone utcTimeZone =TimeZone.getTimeZone("UTC");
@@ -65,8 +66,8 @@ public class TestsEndToEndDailyUpdate {
 		assertEquals(List.of("NVM","ANV","VIN","NVA"), stateDao.getStateBySurveyUnitId("28").stream().map(StateType::getType).collect(Collectors.toList()));
 	}
 	
-	@After
-	public void cleanOutFolder() {
+	@AfterEach
+	void cleanOutFolder() {
 		purgeDirectory(new File("src/test/resources/out/context/testScenarios"));
 	}
 	
@@ -77,8 +78,8 @@ public class TestsEndToEndDailyUpdate {
 	    }
 	}
 	
-	@AfterClass
-	public static void deleteFiles() throws IOException {
+	@AfterAll
+	static void deleteFiles() throws IOException {
 		File deleteFolderInContextForTest = new File("src/test/resources/in/context/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInContextForTest);
 	}
