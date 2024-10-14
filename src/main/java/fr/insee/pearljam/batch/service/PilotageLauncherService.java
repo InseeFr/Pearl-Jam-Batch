@@ -389,7 +389,12 @@ public class PilotageLauncherService {
 		// Extract campaignId, list of steps and list of survey-unit id from sampleprocessing
 		String campaignId = sampleProcessing.getIdSource() + sampleProcessing.getMillesime() + sampleProcessing.getIdPeriode();
 		List<String> steps = sampleProcessing.getSteps().getStep().stream().map(Step::getName).collect(Collectors.toList());
-		List<String> surveyUnits = sampleProcessing.getQuestionnaires().getQuestionnaire().stream().map(su -> su.getInformationsGenerales().getUniteEnquetee().getIdentifiant()).collect(Collectors.toList());
+		List<String> surveyUnits = sampleProcessing
+				.getQuestionnaires()
+				.getQuestionnaire()
+				.stream()
+				.map(Campagne.Questionnaires.Questionnaire::getIdInterrogation)
+				.toList();
 		
 		logger.log(Level.INFO, "Start split sample processing content");
 		Map<String, SurveyUnit> mapDataCollectionSu = extractAndValidateDatacollectionFromSamplProcessing(steps, campaignId, sampleProcessing);

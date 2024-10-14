@@ -8,11 +8,7 @@
         <addColumn tableName="survey_unit">
             <column name="display_name" type="VARCHAR(50)"/>
         </addColumn>
-    </changeSet>
 
-    <changeSet author="davdar" id="550-2">
-        <update tableName="survey_unit">
-            <column name="display_name" valueComputed="id"/>
-        </update>
+        <sql>UPDATE survey_unit SET display_name = CONCAT('business-id-', id)</sql>
     </changeSet>
 </databaseChangeLog>
