@@ -25,7 +25,15 @@ public interface VisibilityDao {
      * @return List of visibility
      */
 	List<OrganizationalUnitType> getAllVisibilitiesByCampaignId(String campaignId);
-	
+
+	/**
+	 * Get a Visibility by CampaignId and OrganizationUnitId in database
+	 * @param campaignId campaign id
+	 * @param organizationUnitId campaign id
+	 * @return A visibility
+	 */
+	OrganizationalUnitType getVisibilityByCampaignIdAndOrganizationUnitId(String campaignId,String organizationUnitId);
+
 	/**
      * Create a Visibility in database
      * @param campaign
