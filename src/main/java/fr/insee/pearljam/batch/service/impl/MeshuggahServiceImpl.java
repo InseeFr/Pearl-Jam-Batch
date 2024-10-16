@@ -2,6 +2,7 @@ package fr.insee.pearljam.batch.service.impl;
 
 import fr.insee.pearljam.batch.communication.CommunicationTemplate;
 import fr.insee.pearljam.batch.exception.MissingCommunicationException;
+import fr.insee.pearljam.batch.exception.PublicationException;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.KeycloakService;
 import fr.insee.pearljam.batch.service.MeshuggahService;
@@ -91,7 +92,7 @@ public class MeshuggahServiceImpl implements MeshuggahService {
     private record EditionNumber(String editionNumber) {
     }
 
-    public boolean postPublication(File fileToPublish, String communicationModele) {
+    public boolean postPublication(File fileToPublish, String communicationModele) throws PublicationException{
         boolean apiCallSuccesfull = false;
         try {
             // Step 1: Prepare the file resource
@@ -119,7 +120,7 @@ public class MeshuggahServiceImpl implements MeshuggahService {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new PublicationException(communicationModele,e);
         }
 
 
@@ -133,7 +134,7 @@ public class MeshuggahServiceImpl implements MeshuggahService {
             Path destinationPath = destinationDir.resolve(fileToPublish.getName());
             Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new PublicationException(communicationModele,e);
         }
 
         return apiCallSuccesfull;

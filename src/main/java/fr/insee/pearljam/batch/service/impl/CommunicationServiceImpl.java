@@ -3,7 +3,6 @@ package fr.insee.pearljam.batch.service.impl;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import fr.insee.pearljam.batch.communication.*;
 import fr.insee.pearljam.batch.context.InterviewerType;
 import fr.insee.pearljam.batch.dao.*;
 import fr.insee.pearljam.batch.exception.MissingCommunicationException;
+import fr.insee.pearljam.batch.exception.PublicationException;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.MeshuggahService;
 import fr.insee.pearljam.batch.utils.XmlUtils;
@@ -238,7 +238,12 @@ public class CommunicationServiceImpl implements CommunicationService {
 
             //print to XML file here
             Path communicationPath = XmlUtils.printToXmlFile(courriers,FOLDER_OUT);
-            boolean result = meshuggahService.postPublication(communicationPath.toFile(),courriers.getCommunicationModel());
+            boolean result ;
+            try {
+                result = meshuggahService.postPublication(communicationPath.toFile(),courriers.getCommunicationModel());
+            } catch (PublicationException e) {
+                result = false;
+            }
 
 
             // add SEND status to commRequestStatus
@@ -290,7 +295,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         StringBuilder barcode = new StringBuilder("IS");
 
         // Segment 2: Date de dépôt du courrier
-        int dayOfYear = LocalDate.now().get(ChronoField.DAY_OF_YEAR);
+        int dayOfYear = LocalDate.now().getDayOfYear();
         barcode.append(String.format("%03d", dayOfYear));  // Ensure it's 3 digits long
 
         // Segment 3: Édition (id_edition with the first two characters removed, up to 11 characters)

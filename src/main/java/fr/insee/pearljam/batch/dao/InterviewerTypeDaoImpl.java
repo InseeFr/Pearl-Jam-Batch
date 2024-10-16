@@ -47,14 +47,16 @@ public class InterviewerTypeDaoImpl implements InterviewerTypeDao {
 	
 	@Override
 	public void updateInterviewerFromDto(InterviewerDto interviewer) {
+		String titleValue = convertSexeToTitle(interviewer.getSexe());
 		String qString = "UPDATE public.interviewer SET email=?, first_name=?, last_name=?, phone_number=?, title=?  WHERE id=?";
-		pilotageJdbcTemplate.update(qString, interviewer.getMailInsee(), interviewer.getPrenom(), interviewer.getNom(), interviewer.getTelInsee(), interviewer.getSexe() , interviewer.getIdep());
+		pilotageJdbcTemplate.update(qString, interviewer.getMailInsee(), interviewer.getPrenom(), interviewer.getNom(), interviewer.getTelInsee(), titleValue, interviewer.getIdep());
 	}
 	
 	@Override
 	public boolean isDifferentFromDto(InterviewerDto interviewer) {
-		String qString = "SELECT count(1) FROM public.interviewer WHERE  id=? AND email=? AND first_name=? AND last_name=? AND phone_number=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{ interviewer.getIdep(), interviewer.getMailInsee(), interviewer.getPrenom(), interviewer.getNom(), interviewer.getTelInsee()}, Long.class);
+		String titleValue = convertSexeToTitle(interviewer.getSexe());
+		String qString = "SELECT count(1) FROM public.interviewer WHERE  id=? AND email=? AND first_name=? AND last_name=? AND phone_number=? AND title=? ";
+		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{ interviewer.getIdep(), interviewer.getMailInsee(), interviewer.getPrenom(), interviewer.getNom(), interviewer.getTelInsee(), titleValue }, Long.class);
 		return nbRes<1;	
 	}
 
@@ -103,6 +105,8 @@ public class InterviewerTypeDaoImpl implements InterviewerTypeDao {
 		}
 	}
 
-
+	private String convertSexeToTitle(String sexe){
+		return sexe.equals("1")?"MISTER":"MISS";
+	}
 
 }
