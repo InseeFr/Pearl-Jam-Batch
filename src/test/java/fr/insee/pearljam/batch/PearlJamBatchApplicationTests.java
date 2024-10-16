@@ -129,9 +129,9 @@ abstract class PearlJamBatchApplicationTests {
 	 */
 	static void reinitData() throws Exception {
 		executeSql("src/test/resources/sql/pilotage/reinit-data.sql", postgreSQLContainerPilotage);
-		logger.error("DB pilotage resetted");
+		logger.info("DB pilotage resetted");
 		executeSql("src/test/resources/sql/datacollection/reinit-data.sql", postgreSQLContainerDataCollection);
-		logger.error("DB data collection resetted");
+		logger.info("DB data collection resetted");
 	}
 
 	private static void executeSql(String sqlFilePath, PostgreSQLContainer container) throws Exception {
