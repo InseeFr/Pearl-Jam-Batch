@@ -1,5 +1,6 @@
 package fr.insee.pearljam.batch.utils;
 
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,10 +18,7 @@ import java.util.Map;
 import fr.insee.pearljam.batch.communication.Courrier;
 import fr.insee.pearljam.batch.communication.Courriers;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -104,7 +102,7 @@ public class XmlUtils {
 	 * @throws XMLStreamException 
 	 * @throws BatchException
 	 */
-	public static void validateXMLSchema(URL model, String xmlPath) throws ValidateException, IOException, XMLStreamException {
+	public static void validateXMLSchema(URL model, String xmlPath) throws ValidateException, XMLStreamException {
 		ValidateException ve = null;
 		
 		XMLStreamReader xmlEncoding= null;
@@ -147,7 +145,7 @@ public class XmlUtils {
 	        TransformerFactory.newInstance().newTransformer().transform(domSource, streamResult);
 			StreamSource xmlStream = new StreamSource(new StringReader(strWriter.getBuffer().toString()));
 			
-			JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{clazz}, null);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			return clazz.cast(unmarshaller.unmarshal(xmlStream));
 		} catch (ParserConfigurationException | SAXException | IOException | TransformerException | JAXBException e) {
@@ -224,7 +222,7 @@ public class XmlUtils {
 	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) {
 		try {
 			// Convert Courriers to Document
-			JAXBContext jaxbContext = JAXBContext.newInstance(Courriers.class);
+			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{Courriers.class}, null);
 			Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
