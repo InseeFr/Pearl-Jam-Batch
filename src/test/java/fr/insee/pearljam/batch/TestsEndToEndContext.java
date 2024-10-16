@@ -276,13 +276,6 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		purgeDirectory(new File("src/test/resources/out/context/testScenarios"));
 	}
 
-	void purgeDirectory(File dir) {
-	    for (File file: dir.listFiles()) {
-	        if (file.isFile())
-	            file.delete();
-	    }
-	}
-
 	@AfterAll
 	static void deleteFiles() throws IOException {
 		File deleteFolderInContextForTest = new File("src/test/resources/in/context/testScenarios");

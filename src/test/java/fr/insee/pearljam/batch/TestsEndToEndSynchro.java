@@ -661,13 +661,6 @@ class TestsEndToEndSynchro extends PearlJamBatchApplicationTests {
 		return ouSuResp;
 	}
 
-	void purgeDirectory(File dir) {
-		for (File file : dir.listFiles()) {
-			if (file.isFile())
-				file.delete();
-		}
-	}
-
 	private void expectExternalCallWithToken(String url, Object resp) throws JsonProcessingException {
 		KeycloakResponseDto keycloackResp = new KeycloakResponseDto();
 		keycloackResp.setAccess_token("token");

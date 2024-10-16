@@ -171,13 +171,6 @@ class TestsEndToEndDeleteCampaign extends PearlJamBatchApplicationTests {
 		purgeDirectory(new File(OUT));
 	}
 	
-	void purgeDirectory(File dir) {
-	    for (File file: dir.listFiles()) {
-	        if (file.isFile())
-	            file.delete();
-	    }
-	}
-	
 	@AfterAll
 	static void deleteFiles() throws IOException {
 		File deleteFolderInDeleteForTest = new File("src/test/resources/in/delete/testScenarios");

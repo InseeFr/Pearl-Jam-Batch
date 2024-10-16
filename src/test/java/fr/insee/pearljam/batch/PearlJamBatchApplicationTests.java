@@ -234,6 +234,17 @@ abstract class PearlJamBatchApplicationTests {
 		}
 	}
 
+	void purgeDirectory(File dir) {
+		if(dir == null || !dir.exists() || !dir.isDirectory() || dir.listFiles() == null) {
+			return;
+		}
+
+		for (File file: dir.listFiles()) {
+			if (file.isFile())
+				file.delete();
+		}
+	}
+
 	@Bean
     @Primary
     ContextReferentialService contextReferentialService() {
