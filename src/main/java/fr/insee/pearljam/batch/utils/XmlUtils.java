@@ -157,7 +157,8 @@ public class XmlUtils {
 	public static File objectToXML(String filename, Object object) throws BatchException{
 		try {
             //Create JAXB Context
-            JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
+			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{object.getClass()}, null);
+
             //Create Marshaller
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
