@@ -1,6 +1,6 @@
 package fr.insee.pearljam.batch.communication;
 
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 
