@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.0.7</version>
+	<version>3.1.1</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -80,24 +80,25 @@
 					<groupId>org.eclipse.persistence</groupId>
 					<artifactId>eclipselink</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>jakarta.xml.bind</groupId>
-					<artifactId>jaxb-api</artifactId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 
 		<dependency>
-			<groupId>jakarta.xml.bind</groupId>
-			<artifactId>jakarta.xml.bind-api</artifactId>
-			<version>4.0.2</version>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
-			<version>4.0.5</version>
-			<scope>runtime</scope>
+			<version>2.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.moxy</artifactId>
+			<version>2.5.0</version>
 		</dependency>
 
 		<!--Dependency for jars version logging -->
@@ -156,7 +157,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>2.5.0</version>
 				<executions>
 					<execution>
 						<id>xjc-schema-context</id>
