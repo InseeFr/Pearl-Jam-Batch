@@ -101,6 +101,12 @@
 			<version>2.5.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.sun.istack</groupId>
+			<artifactId>istack-commons-runtime</artifactId>
+			<version>3.0.12</version>
+		</dependency>
+
 		<!--Dependency for jars version logging -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
