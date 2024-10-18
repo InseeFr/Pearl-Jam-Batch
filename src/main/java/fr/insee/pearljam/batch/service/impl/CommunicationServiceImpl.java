@@ -107,8 +107,9 @@ public class CommunicationServiceImpl implements CommunicationService {
 
             String additionalAddress = String.join(" ", address.getL2(), address.getL3()).trim();
             if (additionalAddress.length() > 38) {
-                data.setBddL2(additionalAddress.substring(0, 38));
-                data.setBddL3(additionalAddress.substring(38));
+                int splittingSpace = additionalAddress.substring(0, 38).lastIndexOf(" ");
+                data.setBddL2(additionalAddress.substring(0, splittingSpace));
+                data.setBddL3(additionalAddress.substring(splittingSpace).trim());
             } else {
                 data.setBddL2(additionalAddress);
                 data.setBddL3("");
@@ -221,7 +222,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                         variables.setBarcode(barCode);
 
                         // Set InitAccuseReception based on some business logic
-                        variables.setInitAccuseReception(template.isInitAccuseReception());
+                        variables.setInitAccuseReception(template.isInitAccuseReception()?"oui":"non");
 
 
                         // handle metadata from template

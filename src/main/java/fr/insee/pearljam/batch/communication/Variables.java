@@ -24,25 +24,26 @@ public class Variables {
     private String bddIdentifiantUniteEnquetee;
     @XmlElement(name = "CodePostalDestinataire")
     private String codePostalDestinataire;
-    @XmlElement(name = "BddAdressePosteeL1")
+    @XmlElement(name = "BddAdressePosteeL1", defaultValue="")
     private String bddAdressePosteeL1;
-    @XmlElement(name = "BddAdressePosteeL2")
+    @XmlElement(name = "BddAdressePosteeL2", defaultValue="")
     private String bddAdressePosteeL2;
-    @XmlElement(name = "BddAdressePosteeL3")
+    @XmlElement(name = "BddAdressePosteeL3", defaultValue="")
     private String bddAdressePosteeL3;
-    @XmlElement(name = "BddAdressePosteeL4")
+    @XmlElement(name = "BddAdressePosteeL4", defaultValue="")
     private String bddAdressePosteeL4;
-    @XmlElement(name = "BddAdressePosteeL5")
+    @XmlElement(name = "BddAdressePosteeL5", defaultValue="")
     private String bddAdressePosteeL5;
-    @XmlElement(name = "BddAdressePosteeL6")
+    @XmlElement(name = "BddAdressePosteeL6", defaultValue="")
     private String bddAdressePosteeL6;
-    @XmlElement(name = "BddAdressePosteeL7")
+    @XmlElement(name = "BddAdressePosteeL7", defaultValue="")
     private String bddAdressePosteeL7;
 
     @XmlElement(name = "Barcode")
     private String barcode;
+
     @XmlElement(name = "InitAccuseReception")
-    private boolean initAccuseReception;
+    private String initAccuseReception;
 
     // Dynamic key-value pairs, for construction needs, not to be XMLed
     @XmlTransient
