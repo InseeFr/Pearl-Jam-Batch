@@ -28,7 +28,7 @@ public class DataCollectionMapper {
 		campaign.getSurveyUnits().getSurveyUnit().addAll(
 				c.getQuestionnaires().getQuestionnaire().stream().map(su -> {
 					fr.insee.queen.batch.sample.SurveyUnitType surveyUnitType = new fr.insee.queen.batch.sample.SurveyUnitType();
-					surveyUnitType.setId(su.getInformationsGenerales().getUniteEnquetee().getIdentifiant());
+					surveyUnitType.setId(su.getIdInterrogation());
 					surveyUnitType.setQuestionnaireModelId(su.getIdModele());
 					surveyUnitType.setData(su.getInformationsPersonnalisees().getData());
 					return surveyUnitType;

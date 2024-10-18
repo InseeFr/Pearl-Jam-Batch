@@ -9,5 +9,4 @@
 	    </sql>
 	</changeSet>
 	<include file="datacollection/dbinit.sql" relativeToChangelogFile="true"/>
-		
 </databaseChangeLog>

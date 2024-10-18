@@ -152,15 +152,18 @@ public abstract class Launcher {
 		}
 		logger.log(Level.INFO, "Batch is running with option {}", batchOption.getLabel());
 		switch(batchOption) {
-		case DAILYUPDATE: 
-			triggerService = context.getBean(TriggerService.class);
-			return triggerService.updateStates();
-		case SYNCHRONIZE:
-			logger.log(Level.INFO, "Running synchronization with context referential");
-			triggerService = context.getBean(TriggerService.class);
-			return triggerService.synchronizeWithOpale(FOLDER_OUT);
-		default:
-			return pilotageLauncherService.validateLoadClean(batchOption, FOLDER_IN, FOLDER_OUT);
+			// Update states of survey units based on the visibility dates
+			case DAILYUPDATE:
+				triggerService = context.getBean(TriggerService.class);
+				return triggerService.updateStates();
+			// synchronize interviewers and survey unit affectations for the interviewers
+			case SYNCHRONIZE:
+				logger.log(Level.INFO, "Running synchronization with context referential");
+				triggerService = context.getBean(TriggerService.class);
+				return triggerService.synchronizeWithOpale(FOLDER_OUT);
+			// use pilotage launcher
+			default:
+				return pilotageLauncherService.validateLoadClean(batchOption, FOLDER_IN, FOLDER_OUT);
 		}
 		
 

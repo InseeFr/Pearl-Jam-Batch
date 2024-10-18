@@ -165,6 +165,7 @@ public class XmlUtils {
             jaxbMarshaller.marshal(object, file); 
             return file;
 		}catch (JAXBException e) {
+			e.printStackTrace();
 			throw new BatchException("Error during transfo object to xml : " + e.getMessage());
 		}
     }

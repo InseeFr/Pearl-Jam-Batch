@@ -166,6 +166,7 @@
 										</xs:element>
 									</xs:sequence>
 									<xs:attribute name="idModele" type="xs:string" use="required" />
+									<xs:attribute name="idInterrogation" type="xs:string" use="required" />
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>

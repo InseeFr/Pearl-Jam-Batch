@@ -46,7 +46,8 @@ public class PilotageMapper {
 		campaign.getSurveyUnits().getSurveyUnit().addAll(
 				c.getQuestionnaires().getQuestionnaire().stream().map(su -> {
 					SurveyUnitType surveyUnitType = new SurveyUnitType();
-					surveyUnitType.setId(su.getInformationsGenerales().getUniteEnquetee().getIdentifiant());
+					surveyUnitType.setId(su.getIdInterrogation());
+					surveyUnitType.setDisplayName(su.getInformationsGenerales().getUniteEnquetee().getIdentifiant());
 					surveyUnitType.setPriority(su.getInformationsGenerales().getUniteEnquetee().isPrioritaire());
 					surveyUnitType.setInterviewerId(
 							su.getInformationsGenerales().getUniteEnquetee().getAffectation().getEnqueteurId());
