@@ -69,10 +69,11 @@ public class VisibilityDaoImpl implements VisibilityDao {
     }
 
     public void createVisibility(Campaign campaign, OrganizationalUnitType organizationalUnitType) {
-        String qString = new StringBuilder("INSERT INTO visibility (campaign_id, organization_unit_id, collection_end_date, ")
-                .append("collection_start_date, end_date, identification_phase_start_date, ")
-                .append("interviewer_start_date, management_start_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-                .toString();
+        String qString = """
+                INSERT INTO visibility (campaign_id, organization_unit_id, collection_end_date,
+                collection_start_date, end_date, identification_phase_start_date,
+                interviewer_start_date, management_start_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         Long collectionStartDate;
         Long collectionEndDate;
         Long endDate;
@@ -101,10 +102,11 @@ public class VisibilityDaoImpl implements VisibilityDao {
     }
 
     public void updateDateVisibilityByCampaignIdAndOrganizationalUnitId(Campaign campaign, OrganizationalUnitType organizationalUnitType) throws BatchException {
-        String qString = new StringBuilder("UPDATE visibility SET collection_end_date=?, collection_start_date=?, ")
-                .append("end_date=?, identification_phase_start_date=?, interviewer_start_date=?, management_start_date=? ")
-                .append("WHERE campaign_id=? and organization_unit_id=?")
-                .toString();
+        String qString = """
+                UPDATE visibility SET collection_end_date=?, collection_start_date=?,
+                end_date=?, identification_phase_start_date=?, interviewer_start_date=?, management_start_date=?
+                WHERE campaign_id=? and organization_unit_id=?
+                """;
         long collectionStartDate;
         long collectionEndDate;
         long endDate;
@@ -129,10 +131,11 @@ public class VisibilityDaoImpl implements VisibilityDao {
 
     @Transactional
     public void updateVisibilityByCampaignIdAndOrganizationalUnitId(Campaign campaign, OrganizationalUnitType organizationalUnitType) throws BatchException {
-        String qString = new StringBuilder("UPDATE visibility SET organization_unit_id=?, collection_end_date=?, collection_start_date=?, ")
-                .append("end_date=?, identification_phase_start_date=?, interviewer_start_date=?, management_start_date=? ")
-                .append("WHERE campaign_id=? ")
-                .toString();
+        String qString = """
+                UPDATE visibility SET organization_unit_id=?, collection_end_date=?, collection_start_date=?,
+                end_date=?, identification_phase_start_date=?, interviewer_start_date=?, management_start_date=?
+                WHERE campaign_id=?
+                """;
         long collectionStartDate;
         long collectionEndDate;
         long endDate;
@@ -148,7 +151,7 @@ public class VisibilityDaoImpl implements VisibilityDao {
             interviewerStartDate = sdf.parse(organizationalUnitType.getInterviewerStartDate()).getTime();
             managementStartDate = sdf.parse(organizationalUnitType.getManagementStartDate()).getTime();
         } catch (Exception e) {
-            logger.log(Level.ERROR, e.getMessage());
+            logger.error( e.getMessage(),e);
             throw new BatchException("Error during update of the visibility for campaign " + campaign.getId() + " : " + e.getMessage());
         }
         pilotageJdbcTemplate.update(qString, organizationalUnitType.getId(), collectionEndDate, collectionStartDate, endDate, identificationPhaseStartDate,

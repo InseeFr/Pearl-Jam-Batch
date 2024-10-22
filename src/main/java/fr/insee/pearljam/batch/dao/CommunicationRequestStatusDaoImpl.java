@@ -17,7 +17,7 @@ public class CommunicationRequestStatusDaoImpl implements CommunicationRequestSt
         String qString = """
                 INSERT INTO communication_request_status
                 (communication_request_id, status, "date")
-                VALUES( ?, ?, ?);
+                VALUES( ?, ?, ?)
                 """;
         pilotageJdbcTemplate.update(qString, Long.parseLong(communicationRequestId), status, timestamp);
     }

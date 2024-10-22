@@ -1,6 +1,10 @@
 package fr.insee.pearljam.batch.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
@@ -45,26 +49,26 @@ public class CommunicationServiceImpl implements CommunicationService {
 
     @Override
     public BatchErrorCode handleCommunications() throws SynchronizationException, MissingCommunicationException {
-
+        BatchErrorCode batchResult = BatchErrorCode.OK;
         // What to do for Communications?
 
         // #1 get all communicationRequests and filter by status
-        List<String> toBeSentStatus = List.of("READY", "FAILED");
+        List<String> toBeSentStatus = List.of("READY");
         List<CommunicationRequestType> communicationsToSend =
-                communicationRequestDao.findAll().stream().filter(cr -> toBeSentStatus.contains(cr.getStatus())).toList();
-
+                communicationRequestDao.findAll().stream()
+                        .filter(cr -> toBeSentStatus.contains(cr.getStatus())).toList();
         List<String> surveyUnitIds =
                 communicationsToSend.stream().map(CommunicationRequestType::getSurveyUnitId).toList();
 
         // retrieve all matching SU
         Map<String, SurveyUnitType> surveyUnits =
-                surveyUnitDao.getSurveyUnitsById(surveyUnitIds).stream().collect(Collectors.toMap(SurveyUnitType::getId,
-                        su -> su));
+                surveyUnitDao.getSurveyUnitsById(surveyUnitIds).stream()
+                        .collect(Collectors.toMap(SurveyUnitType::getId, su -> su));
 
         // retrieve all matching template IDs
         List<Long> templateIds = communicationsToSend.stream()
                 .map(CommunicationRequestType::getCommunicationTemplateId)
-                .collect(Collectors.toSet()).stream().toList();
+                .distinct().toList();
 
 
         // collect template from communicationService
@@ -73,7 +77,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         for (Long templateId : templateIds) {
             CommunicationTemplateType templateType = communicationTemplateDao.findById(templateId);
             String meshuggahId = templateType.getMeshuggahId();
-            CommunicationTemplate communicationTemplate =  getCommunicationTemplate(meshuggahId);
+            CommunicationTemplate communicationTemplate = getCommunicationTemplate(meshuggahId);
             communicationTemplates.put(templateId.toString(), communicationTemplate);
         }
 
@@ -91,54 +95,9 @@ public class CommunicationServiceImpl implements CommunicationService {
             String reason = cr.getReason().equals("REFUSAL") ? "REF" : "IAJ";
             data.setReminderReason(reason);
 
-            // privilegedContact or firstFound
-            List<PersonType> persons =
-                    personDao.getPersonsBySurveyUnitId(su.getId()).stream().map(Map.Entry::getValue).toList();
-
-            PersonType privilegedPerson =
-                    persons.stream().filter(PersonType::isPrivileged).findFirst().orElse(persons.getFirst());
-
-            String recipient = generateRecipientName(privilegedPerson);
-            data.setBddL1(recipient);
-
-            //surveyUnit address for remapping
-            InseeAddressType address = addressDao.getAddressBySurveyUnitId(su.getId());
-
-
-            String additionalAddress = String.join(" ", address.getL2(), address.getL3()).trim();
-            if (additionalAddress.length() > 38) {
-                int splittingSpace = additionalAddress.substring(0, 38).lastIndexOf(" ");
-                data.setBddL2(additionalAddress.substring(0, splittingSpace));
-                data.setBddL3(additionalAddress.substring(splittingSpace).trim());
-            } else {
-                data.setBddL2(additionalAddress);
-                data.setBddL3("");
-            }
-
-            data.setBddL4(address.getL4());
-            data.setBddL5(address.getL5());
-            data.setBddL6(address.getL6());
-            data.setBddL7(address.getL7());
-
-            data.setRecipientPostCode(address.getL6().split(" ")[0]);
-
-            String ouId = su.getOrganizationalUnitId();
-            String campaignId = su.getCampaignId();
-            OrganizationalUnitType ou = visibilityDao.getVisibilityByCampaignIdAndOrganizationUnitId(campaignId, ouId);
-
-            data.setMailAssistance(ou.getMailCourrier());
-            data.setTelAssistance(ou.getTelephoneCourrier());
-
-            // interviewer data
-            InterviewerType interviewer = interviewerTypeDao.findById(su.getInterviewerId());
-
-            String title = interviewer.getTitle().equals("MISS") ? "Madame" : "Monsieur";
-            data.setInterviewerTitle(title);
-
-            data.setInterviewerFirstName(interviewer.getFirstName());
-            data.setInterviewerLastName(interviewer.getLastName());
-            data.setInterviewerEmail(interviewer.getEmail());
-            data.setInterviewerTel(interviewer.getPhoneNumber());
+            dispatchAddressData(su, data);
+            dispatchOuData(su, data);
+            dispatchInterviewerData(su, data);
 
             // communicationTemplate data
             data.setCommunicationTemplateId(cr.getCommunicationTemplateId());
@@ -176,92 +135,164 @@ public class CommunicationServiceImpl implements CommunicationService {
             List<CommunicationData> filteredComData =
                     communicationDataList.stream().filter(comData -> comTemplId.equals(Long.toString(comData.getCommunicationTemplateId()))).toList();
 
-            List<Courrier> courrierList =
-                    filteredComData.stream().map(comData -> {
-                        Courrier courrier = new Courrier();
+            List<Courrier> courrierList = filteredComData.stream().map(comData -> {
+                Courrier courrier = new Courrier();
 
-                        // Set NumeroDocument with leading zeros, format the index to 8 digits
-                        String numeroDocument = String.format("%08d", numeroDocumentIndex.getAndIncrement());
+                // Set NumeroDocument with leading zeros, format the index to 8 digits
+                String numeroDocument = String.format("%08d", numeroDocumentIndex.getAndIncrement());
 
-                        // Create a Variables object
-                        Variables variables = new Variables();
-                        courrier.setVariables(variables);
+                // Create a Variables object
+                Variables variables = new Variables();
+                courrier.setVariables(variables);
 
-                        variables.setNumeroDocument(numeroDocument);
-                        variables.setBddIdentifiantUniteEnquetee(comData.getCommunicationRequestId());
-                        variables.setCodePostalDestinataire(comData.getRecipientPostCode());
-
-
-                        // Map other fields from CommunicationData to Courrier
-                        variables.setBddAdressePosteeL1(comData.getBddL1());
-                        variables.setBddAdressePosteeL2(comData.getBddL2());
-                        variables.setBddAdressePosteeL3(comData.getBddL3());
-                        variables.setBddAdressePosteeL4(comData.getBddL4());
-                        variables.setBddAdressePosteeL5(comData.getBddL5());
-                        variables.setBddAdressePosteeL6(comData.getBddL6());
-                        variables.setBddAdressePosteeL7(comData.getBddL7());
-
-                        variables.addAdditionalField("Ue_DateEdition", comData.getEditionDate());
-                        variables.addAdditionalField("Ue_CiviliteEnqueteur", comData.getInterviewerTitle());
-                        variables.addAdditionalField("Ue_NomEnqueteur", comData.getInterviewerLastName());
-                        variables.addAdditionalField("Ue_PrenomEnqueteur", comData.getInterviewerFirstName());
-                        variables.addAdditionalField("Ue_MailEnqueteur", comData.getInterviewerEmail());
-                        variables.addAdditionalField("Ue_TelEnqueteur", comData.getInterviewerTel());
-
-                        // DB always has reminderReason => check if template is REMINDER type else set to null
-                        CommunicationTemplate communicationTemplate =
-                                communicationTemplates.get(Long.toString(comData.getCommunicationTemplateId()));
-                        if (communicationTemplate.getCommunicationType().equals("REMINDER")) {
-                            variables.addAdditionalField("Ue_TypeRelance", comData.getReminderReason());
-                        }
-
-                        variables.addAdditionalField("Ue_MailAssistance", comData.getMailAssistance());
-                        variables.addAdditionalField("Ue_TelAssistance", comData.getTelAssistance());
-
-                        String barCode = generateBarCode(idEdition, comData.getCommunicationRequestId());
-                        variables.setBarcode(barCode);
-
-                        // Set InitAccuseReception based on some business logic
-                        variables.setInitAccuseReception(template.isInitAccuseReception()?"oui":"non");
+                variables.setNumeroDocument(numeroDocument);
+                variables.setBddIdentifiantUniteEnquetee(comData.getCommunicationRequestId());
+                variables.setCodePostalDestinataire(comData.getRecipientPostCode());
 
 
-                        // handle metadata from template
-                        // keep in mind merge with surveyUnit metadata coming later
+                // Map other fields from CommunicationData to Courrier
+                variables.setBddAdressePosteeL1(comData.getBddL1());
+                variables.setBddAdressePosteeL2(comData.getBddL2());
+                variables.setBddAdressePosteeL3(comData.getBddL3());
+                variables.setBddAdressePosteeL4(comData.getBddL4());
+                variables.setBddAdressePosteeL5(comData.getBddL5());
+                variables.setBddAdressePosteeL6(comData.getBddL6());
+                variables.setBddAdressePosteeL7(comData.getBddL7());
 
-                        comData.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(),
-                                meta.getValue()));
+                variables.addAdditionalField("Ue_DateEdition", comData.getEditionDate());
+                variables.addAdditionalField("Ue_CiviliteEnqueteur", comData.getInterviewerTitle());
+                variables.addAdditionalField("Ue_NomEnqueteur", comData.getInterviewerLastName());
+                variables.addAdditionalField("Ue_PrenomEnqueteur", comData.getInterviewerFirstName());
+                variables.addAdditionalField("Ue_MailEnqueteur", comData.getInterviewerEmail());
+                variables.addAdditionalField("Ue_TelEnqueteur", comData.getInterviewerTel());
+
+                // DB always has reminderReason => check if template is REMINDER type else set to null
+                CommunicationTemplate communicationTemplate =
+                        communicationTemplates.get(Long.toString(comData.getCommunicationTemplateId()));
+                if (communicationTemplate.getCommunicationType().equals("REMINDER")) {
+                    variables.addAdditionalField("Ue_TypeRelance", comData.getReminderReason());
+                }
+
+                variables.addAdditionalField("Ue_MailAssistance", comData.getMailAssistance());
+                variables.addAdditionalField("Ue_TelAssistance", comData.getTelAssistance());
+
+                String barCode = generateBarCode(idEdition, comData.getCommunicationRequestId());
+                variables.setBarcode(barCode);
+
+                // Set InitAccuseReception based on some business logic
+                variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
 
 
-                        return courrier;
-                    }).toList();
+                // handle metadata from template
+                // keep in mind merge with surveyUnit metadata coming later
+
+                comData.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(),
+                        meta.getValue()));
+
+
+                return courrier;
+            }).toList();
             courriers.setCourriers(courrierList);
 
 
-            //print to XML file here
-            Path communicationPath = XmlUtils.printToXmlFile(courriers,FOLDER_OUT);
-            boolean result ;
+            //print to XML file or die trying
+
+            Path communicationPath;
             try {
-                result = meshuggahService.postPublication(communicationPath.toFile(),courriers.getCommunicationModel());
+                communicationPath = XmlUtils.printToXmlFile(courriers, FOLDER_OUT);
             } catch (PublicationException e) {
-                result = false;
+                // hard stop here
+                return BatchErrorCode.KO_TECHNICAL_ERROR;
             }
 
+            // try to publish communication
+            boolean result = meshuggahService.postPublication(communicationPath.toFile(),
+                    courriers.getCommunicationModel());
+
+            // move file accordingly
+            try {
+                moveFileAfterPublish(result, communicationPath.toFile(), courriers.getCommunicationModel());
+            } catch (PublicationException e) {
+                batchResult = BatchErrorCode.KO_TECHNICAL_ERROR;
+            }
 
             // add SEND status to commRequestStatus
             long msDate = nowDate.getTime();
             String newStatus = result ? "SUBMITTED" : "FAILED";
             filteredComData.forEach(communicationData ->
-                    communicationRequestStatusDao.addStatus(communicationData.getCommunicationRequestId(),
-                            newStatus, msDate)
+                    communicationRequestStatusDao.addStatus(
+                            communicationData.getCommunicationRequestId(),
+                            newStatus,
+                            msDate
+                    )
             );
 
-            LOGGER.info("CommunIcation {} => {}", courriers.getEditionId(), result ? "OK" : "KO");
+            LOGGER.info("Communication {} => {}", courriers.getEditionId(), result ? "OK" : "KO");
 
         }
 
 
-        // TODO Auto-generated method stub
-        return BatchErrorCode.OK;
+        return batchResult;
+    }
+
+    private void dispatchAddressData(SurveyUnitType su, CommunicationData data) {
+        // privilegedContact or firstFound
+        List<PersonType> persons =
+                personDao.getPersonsBySurveyUnitId(su.getId()).stream().map(Map.Entry::getValue).toList();
+
+        PersonType privilegedPerson =
+                persons.stream().filter(PersonType::isPrivileged).findFirst().orElse(persons.getFirst());
+
+        String recipient = generateRecipientName(privilegedPerson);
+        data.setBddL1(recipient);
+
+        //surveyUnit address for remapping
+        InseeAddressType address = addressDao.getAddressBySurveyUnitId(su.getId());
+
+
+        String additionalAddress = String.join(" ", address.getL2(), address.getL3()).trim();
+        if (additionalAddress.length() > 38) {
+            int splittingSpace = additionalAddress.substring(0, 38).lastIndexOf(" ");
+            data.setBddL2(additionalAddress.substring(0, splittingSpace));
+            data.setBddL3(additionalAddress.substring(splittingSpace).trim());
+        } else {
+            data.setBddL2(additionalAddress);
+            data.setBddL3("");
+        }
+
+        data.setBddL4(keep38FirstChars(address.getL4()));
+        data.setBddL5(keep38FirstChars(address.getL5()));
+        data.setBddL6(keep38FirstChars(address.getL6()));
+        data.setBddL7(keep38FirstChars(address.getL7()));
+
+        // specific field for postCode
+        data.setRecipientPostCode(address.getL6().split(" ")[0]);
+    }
+
+    private String keep38FirstChars(String strToTruncate) {
+        return strToTruncate.substring(0, Math.min(strToTruncate.length(), 38));
+    }
+
+    private void dispatchOuData(SurveyUnitType su, CommunicationData data) {
+        String ouId = su.getOrganizationalUnitId();
+        String campaignId = su.getCampaignId();
+        OrganizationalUnitType ou = visibilityDao.getVisibilityByCampaignIdAndOrganizationUnitId(campaignId, ouId);
+
+        data.setMailAssistance(ou.getMailCourrier());
+        data.setTelAssistance(ou.getTelephoneCourrier());
+    }
+
+    private void dispatchInterviewerData(SurveyUnitType su, CommunicationData data) {
+        // interviewer data
+        InterviewerType interviewer = interviewerTypeDao.findById(su.getInterviewerId());
+
+        String title = interviewer.getTitle().equals("MISS") ? "Madame" : "Monsieur";
+        data.setInterviewerTitle(title);
+
+        data.setInterviewerFirstName(interviewer.getFirstName());
+        data.setInterviewerLastName(interviewer.getLastName());
+        data.setInterviewerEmail(interviewer.getEmail());
+        data.setInterviewerTel(interviewer.getPhoneNumber());
     }
 
     @Override
@@ -288,7 +319,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         String recipientShorterName = String.join(" ", title, firstNameAcronym, lastName);
         if (recipientShorterName.length() <= 38) return recipientShorterName;
 
-        return String.join(" ", title, lastName);
+        return String.join(" ", title, lastName).substring(0, 38);
     }
 
     public String generateBarCode(String idEdition, String communicationRequestId) {
@@ -315,6 +346,24 @@ public class CommunicationServiceImpl implements CommunicationService {
         barcode.append("   ");
 
         return barcode.toString();
+    }
+
+    public void moveFileAfterPublish(boolean publishResult, File fileToPublish, String communicationModele) throws PublicationException {
+        Path sourcePath = fileToPublish.toPath();
+        String subFolder = publishResult ? "/success/" : "/fail/";
+
+        Path destinationDir = Path.of(fileToPublish.getParent(), subFolder, communicationModele);
+
+        try {
+            Files.createDirectories(destinationDir);
+            Path destinationPath = destinationDir.resolve(fileToPublish.getName());
+            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            String warnMessage = String.format("Can't move %s to %s after publication", sourcePath, destinationDir);
+            LOGGER.warn(warnMessage, e);
+            throw new PublicationException(warnMessage, e);
+        }
+
     }
 
 }

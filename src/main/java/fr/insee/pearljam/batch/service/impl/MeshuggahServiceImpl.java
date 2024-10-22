@@ -2,7 +2,6 @@ package fr.insee.pearljam.batch.service.impl;
 
 import fr.insee.pearljam.batch.communication.CommunicationTemplate;
 import fr.insee.pearljam.batch.exception.MissingCommunicationException;
-import fr.insee.pearljam.batch.exception.PublicationException;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.KeycloakService;
 import fr.insee.pearljam.batch.service.MeshuggahService;
@@ -19,10 +18,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 
 @Service
@@ -92,8 +87,7 @@ public class MeshuggahServiceImpl implements MeshuggahService {
     private record EditionNumber(String editionNumber) {
     }
 
-    public boolean postPublication(File fileToPublish, String communicationModele) throws PublicationException{
-        boolean apiCallSuccesfull = false;
+    public boolean postPublication(File fileToPublish, String communicationModele) {
         try {
             // Step 1: Prepare the file resource
             FileSystemResource fileResource = new FileSystemResource(fileToPublish);
@@ -116,28 +110,12 @@ public class MeshuggahServiceImpl implements MeshuggahService {
 
             // Step 6: Check the response and move file to archive sub folder
 
-            apiCallSuccesfull = response.getStatusCode().is2xxSuccessful();
-
-
-        } catch (Exception e) {
-            throw new PublicationException(communicationModele,e);
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (RestClientException | SynchronizationException e) {
+            LOGGER.warn(String.format("Can't retrieve communicationModele: %s",
+                    communicationModele), e);
+            return false;
         }
-
-
-        Path sourcePath = fileToPublish.toPath();
-        String subFolder = apiCallSuccesfull ? "/success/" : "/fail/";
-
-        Path destinationDir = Path.of(fileToPublish.getParent(), subFolder, communicationModele);
-
-        try {
-            Files.createDirectories(destinationDir);
-            Path destinationPath = destinationDir.resolve(fileToPublish.getName());
-            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new PublicationException(communicationModele,e);
-        }
-
-        return apiCallSuccesfull;
     }
 
 }

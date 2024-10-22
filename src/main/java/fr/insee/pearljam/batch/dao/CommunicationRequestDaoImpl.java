@@ -27,7 +27,7 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
                 FROM communication_request cr
                 LEFT JOIN communication_request_status crs
                 ON cr.id = crs.communication_request_id
-                ORDER BY cr.id, crs.date DESC;""";
+                ORDER BY cr.id, crs.date DESC""";
         return pilotageJdbcTemplate.query(qString, new CommunicationRequestDaoImpl.CommunicationRequestTypeMapper());
     }
 

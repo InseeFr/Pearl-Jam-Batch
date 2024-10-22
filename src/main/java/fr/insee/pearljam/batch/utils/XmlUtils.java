@@ -1,5 +1,6 @@
 package fr.insee.pearljam.batch.utils;
 
+import fr.insee.pearljam.batch.exception.PublicationException;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import java.io.File;
 import java.io.FileInputStream;
@@ -98,9 +99,7 @@ public class XmlUtils {
 	 * 
 	 * @param xmlPath xml path
 	 * @return true if XML is valid
-	 * @throws IOException 
-	 * @throws XMLStreamException 
-	 * @throws BatchException
+	 * @throws XMLStreamException
 	 */
 	public static void validateXMLSchema(URL model, String xmlPath) throws ValidateException, XMLStreamException {
 		ValidateException ve = null;
@@ -200,15 +199,15 @@ public class XmlUtils {
 	/**
 	 * This method update an error file for the sample steps. It writes all the objects
 	 * in the sample.xml that created errors
-	 * @param sr
-	 * @param fileName
+	 * @param sr streamResult
+	 * @param fileName file name
 	 */
 	public static void updateSampleFileErrorList(StreamResult sr, String fileName) {
 		// writing to file
 		File fileNew = new File(fileName);
-		try (FileOutputStream fop = new FileOutputStream(fileNew);){
+		try (FileOutputStream fop = new FileOutputStream(fileNew)){
 			if (!fileNew.exists() && !fileNew.createNewFile()) {
-				logger.log(Level.ERROR, "Failed to create file %s", fileName);
+				logger.error( "Failed to create file {}", fileName);
 			}
 			// get the content in bytes
 			String xmlString = sr.getWriter().toString();
@@ -220,7 +219,7 @@ public class XmlUtils {
 		}
 	}
 
-	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) {
+	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) throws PublicationException {
 		try {
 			// Convert Courriers to Document
 			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{Courriers.class}, null);
@@ -274,8 +273,9 @@ public class XmlUtils {
 
 		} catch (JAXBException | IOException | ParserConfigurationException |
 				 javax.xml.transform.TransformerException e) {
-			e.printStackTrace();
-			return null;
+			String errorMessage = String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
+			logger.warn("Error when printing courriers file",e);
+			throw new PublicationException(errorMessage,e);
 		}
 	}
 
