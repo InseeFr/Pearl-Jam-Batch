@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.communication.*;
@@ -250,11 +251,14 @@ public class CommunicationServiceImpl implements CommunicationService {
         InseeAddressType address = addressDao.getAddressBySurveyUnitId(su.getId());
 
 
-        String additionalAddress = String.join(" ", address.getL2(), address.getL3()).trim();
+        String additionalAddress = Stream.of(address.getL2(), address.getL3())
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(" "))
+                .trim();
         if (additionalAddress.length() > 38) {
             int splittingSpace = additionalAddress.substring(0, 38).lastIndexOf(" ");
             data.setBddL2(additionalAddress.substring(0, splittingSpace));
-            data.setBddL3(additionalAddress.substring(splittingSpace).trim());
+            data.setBddL3(keep38FirstChars(additionalAddress.substring(splittingSpace).trim()));
         } else {
             data.setBddL2(additionalAddress);
             data.setBddL3("");
