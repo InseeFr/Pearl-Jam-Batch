@@ -119,12 +119,6 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
         }
     }
 
-    public SurveyUnitType getSurveyUnitByIdTest(String surveyUnitId) {
-        String qString = "SELECT su.* FROM survey_unit su INNER JOIN comment com on com.survey_unit_id = su.id WHERE id=?";
-        return pilotageJdbcTemplate.queryForObject(qString, new SurveyUnitTypeMapper(), surveyUnitId);
-    }
-
-
     public void deleteSurveyUnitById(String surveyUnitId) {
         String qString = "DELETE FROM survey_unit WHERE id=?";
         pilotageJdbcTemplate.update(qString, surveyUnitId);
@@ -145,13 +139,13 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     public List<String> getSurveyUnitNVM(long instantDate) {
         String qString = """
                 SELECT t.id FROM
-                "(SELECT su.id as id, v.management_start_date,
-                "(SELECT s.type FROM state s WHERE s.survey_unit_id=su.id ORDER BY s.date DESC LIMIT 1) as lastState
-                "FROM survey_unit su
-                "JOIN campaign c ON su.campaign_id=c.id
-                "JOIN visibility v ON v.campaign_id=c.id AND su.organization_unit_id=v.organization_unit_id) t
-                "WHERE t.lastState='NVM'
-                "AND t.management_start_date<=?
+                (SELECT su.id as id, v.management_start_date,
+                (SELECT s.type FROM state s WHERE s.survey_unit_id=su.id ORDER BY s.date DESC LIMIT 1) as lastState
+                FROM survey_unit su
+                JOIN campaign c ON su.campaign_id=c.id
+                JOIN visibility v ON v.campaign_id=c.id AND su.organization_unit_id=v.organization_unit_id) t
+                WHERE t.lastState='NVM'
+                AND t.management_start_date<=?
                 """;
         return pilotageJdbcTemplate.queryForList(qString, String.class, instantDate);
     }
