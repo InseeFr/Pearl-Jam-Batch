@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
+import fr.insee.pearljam.batch.dto.HabilitatedUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,11 @@ import fr.insee.pearljam.batch.service.KeycloakService;
 public class HabilitationServiceImpl implements HabilitationService {
     private static final Logger LOGGER = LogManager.getLogger(HabilitationServiceImpl.class);
 
-    private static final void logUri(String uriToLog) {
+    private static void logUri(String uriToLog) {
         LOGGER.info("Calling {}", uriToLog);
     }
 
-    private static final void logResponse(HttpStatusCode statusCode) {
+    private static void logResponse(HttpStatusCode statusCode) {
         LOGGER.info("Response {}", statusCode);
     }
 
@@ -74,7 +75,6 @@ public class HabilitationServiceImpl implements HabilitationService {
         String parametrizedUrl = String.format(realmAppGroupUserIdFormat, realm, appName, interviewerGroup,
                 interviewerIdep);
         String uri = habilitationApiRootUrl + parametrizedUrl;
-        logUri(uri);
 
         HttpHeaders headers = getHabilitationHeaders();
 
@@ -95,7 +95,6 @@ public class HabilitationServiceImpl implements HabilitationService {
         if ((response != null && !response.hasBody()) || (body != null && body.getMessage() != null)) {
             throw new SynchronizationException("Can't add interviewer habilitation : " + body.getMessage());
         }
-        logResponse(response.getStatusCode());
     }
 
     @Override
@@ -137,6 +136,6 @@ public class HabilitationServiceImpl implements HabilitationService {
 
         HabilitationGroup habilitatedUsers = Optional.ofNullable(response.getBody())
                 .orElse(new HabilitationGroup(Collections.emptyList()));
-        return habilitatedUsers.getUsers().stream().map(user -> user.getUsername()).collect(Collectors.toList());
+        return habilitatedUsers.getUsers().stream().map(HabilitatedUser::getUsername).collect(Collectors.toList());
     }
 }

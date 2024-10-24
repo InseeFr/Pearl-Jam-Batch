@@ -99,14 +99,14 @@ public class PersonDaoImpl implements PersonDao{
 	private static final class PersonTypeTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
-        	Integer title = rs.getInt("title");
+        	int title = rs.getInt("title");
         	if(!rs.wasNull()) {
-                person.setTitle(title == 0 ? "Mister" : "Miss");
+                person.setTitle(title == 0 ? "MISTER" : "MISS");
         	}
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
             person.setEmail(rs.getString("email"));
-            Long dateTime = rs.getLong("birthdate");
+            long dateTime = rs.getLong("birthdate");
             if(!rs.wasNull()) {
             	DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT_2);
                 person.setDateOfBirth(df.format(new Date(dateTime)));

@@ -33,9 +33,6 @@ import javax.sql.DataSource;
 public class ApplicationContext {
 
 	@Autowired
-	ApplicationConfig applicationReception;
-
-	@Autowired
 	ConfigurableEnvironment envSpring;
 
 	@Value("${fr.insee.queen.key.paradata.id}")
