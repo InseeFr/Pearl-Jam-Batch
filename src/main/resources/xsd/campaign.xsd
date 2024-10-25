@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 	<xs:element name="Campaign">
 		<xs:complexType>
@@ -36,6 +37,8 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="CommunicationTemplates" type="CommunicationTemplatesType"/>
+	<xs:element name="CommunicationTemplate" type="CommunicationTemplateType"/>
 	<xs:element name="OrganizationalUnits" type="OrganizationalUnitsType" />
 	<xs:element name="OrganizationalUnit" type="OrganizationalUnitType" />
 	<xs:element name="SurveyUnits" type="SurveyUnitsType">
@@ -58,6 +61,8 @@
 	<xs:element name="ContactAttempts" type="ContactAttemptsType" />
 	<xs:element name="ContactAttempt" type="ContactAttemptType" />
 	<xs:element name="Identification" type="IdentificationType" />
+	<xs:element name="CommunicationRequests" type="CommunicationRequestsType" />
+	<xs:element name="CommunicationRequest" type="CommunicationRequestType" />
 
 	<xs:element name="Persons" type="PersonsType" />
 
@@ -119,6 +124,9 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
+			<xs:element name="MailCourrier" type="xs:string" />
+			<xs:element name="TelephoneCourrier" type="xs:string" />
+			<xs:element name="UtilisationCourrier" type="xs:boolean" />
 		</xs:all>
 	</xs:complexType>
 
@@ -133,11 +141,13 @@
 			<xs:element name="Id" type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="InterviewerId" type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="OrganizationalUnitId" type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="1" name="CampaignId" type="xs:string" />
 			<xs:element name="Priority" type="xs:boolean" />
 			<xs:element ref="InseeAddress" />
 			<xs:element ref="InseeSampleIdentiers" />
 			<xs:element ref="Persons" />
 			<xs:element ref="States" minOccurs="0" />
+			<xs:element ref="CommunicationRequests" />
 			<xs:element ref="Comments" minOccurs="0" />
 			<xs:element ref="ContactOutcome" minOccurs="0" />
 			<xs:element ref="ContactAttempts" minOccurs="0" />
@@ -307,6 +317,39 @@
 			<xs:element name="category" type="xs:string" minOccurs="0" />
 			<xs:element name="occupant" type="xs:string" minOccurs="0" />
 
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CommunicationTemplatesType">
+		<xs:sequence>
+			<xs:element ref="CommunicationTemplate" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CommunicationTemplateType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:long" />
+			<xs:element name="meshuggahId" type="xs:string" />
+			<xs:element name="type" type="xs:string" />
+			<xs:element name="medium" type="xs:string" />
+			<xs:element name="campaignId" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CommunicationRequestsType">
+		<xs:sequence>
+			<xs:element ref="CommunicationRequest" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CommunicationRequestType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="communicationTemplateId" type="xs:long" />
+			<xs:element name="surveyUnitId" type="xs:string" />
+			<xs:element name="emitter" type="xs:string" />
+			<xs:element name="reason" type="xs:string" />
+			<xs:element name="date" type="xs:long" />
+			<xs:element name="status" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 

@@ -6,16 +6,17 @@ public enum BatchOption {
 	DAILYUPDATE("DAILYUPDATE"),
 	SYNCHRONIZE("SYNCHRONIZE"),
 	EXTRACT("EXTRACT"),
+	COMMUNICATION("COMMUNICATION"),
 	SAMPLEPROCESSING("SAMPLEPROCESSING");
 
 	/**
 	 * label of the BatchOption
 	 */
-	private String label;
+	private final String label;
 
 	/**
 	 * Defaut constructor for BatchOption
-	 * 
+	 *
 	 * @param label
 	 */
 	BatchOption(String label) {
@@ -24,7 +25,7 @@ public enum BatchOption {
 
 	/**
 	 * Get the label for BatchOption
-	 * 
+	 *
 	 * @return label
 	 */
 	public String getLabel() {

@@ -1,6 +1,7 @@
 package fr.insee.pearljam.batch.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import fr.insee.pearljam.batch.context.InterviewerType;
 import fr.insee.pearljam.batch.dto.InterviewerDto;
@@ -20,7 +21,7 @@ public interface InterviewerTypeDao {
 	
 	/**
      * Create an Interviewer in database
-     * @param id
+     * @param interviewer
      */
 	void createInterviewer(InterviewerType interviewer);
 	/**
@@ -31,7 +32,7 @@ public interface InterviewerTypeDao {
 	/**
      * check if at least one interviewer is already associated in database
      * @param List of interviewerId
-     * @param organizationalUnitId
+     * @param organizationUnitId ouId
      * @return boolean
      */
 	boolean interviewerAlreadyAssociated(List<String> interviewerId, String organizationUnitId);
@@ -51,4 +52,6 @@ public interface InterviewerTypeDao {
 	void updateInterviewerFromDto(InterviewerDto interviewer);
 
 	boolean isDifferentFromDto(InterviewerDto interviewer);
+
+	InterviewerType findById(String interviewerId);
 }

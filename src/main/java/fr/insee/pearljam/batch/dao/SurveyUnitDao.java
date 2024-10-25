@@ -44,7 +44,12 @@ public interface SurveyUnitDao {
      * @param surveyUnitId
      * @return SurveyUnitType
      */
-	SurveyUnitType getSurveyUnitById(String surveyUnitId);
+	SurveyUnitType getSurveyUnitById(String surveyUnitId);/**
+     * Get SurveyUnits in database
+     * @param surveyUnitIds
+     * @return List<SurveyUnitType>
+     */
+	List<SurveyUnitType> getSurveyUnitsById(List<String> surveyUnitIds);
 	/**
      * Delete a SurveyUnit in database
      * @param surveyUnitId
