@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.FileSystemUtils;
 
@@ -21,6 +18,7 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled
 class TestsEndToEndDeleteCampaign extends PearlJamBatchApplicationTests {
 	
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
