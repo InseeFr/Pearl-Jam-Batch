@@ -55,6 +55,7 @@
 			<xs:element name="LastName" type="xs:string" />
 			<xs:element name="Email" type="xs:string" />
 			<xs:element name="PhoneNumber" type="xs:string" />
+			<xs:element name="Title" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 
