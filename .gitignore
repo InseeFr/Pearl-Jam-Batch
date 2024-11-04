@@ -26,7 +26,8 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-
+src/test/resources/out
+src/test/resources/**/testScenarios
 ### VS Code ###
 .vscode/
 

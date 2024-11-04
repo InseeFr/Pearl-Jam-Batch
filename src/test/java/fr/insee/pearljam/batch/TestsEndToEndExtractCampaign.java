@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.FileSystemUtils;
 
@@ -21,8 +19,7 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled
-class TestsEndToEndExtractCampaign {
+class TestsEndToEndExtractCampaign extends PearlJamBatchApplicationTests {
 	
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
 	
@@ -35,14 +32,12 @@ class TestsEndToEndExtractCampaign {
 	 * It setup the environment by inserting the data and copying the necessaries files.
 	 * @throws Exception 
 	 */
-	/*@BeforeEach
+	@BeforeEach
 	void setUp() throws Exception {
 		reinitData();
 		copyFiles("extract");
-	}*/
-	
-	static UnitTests unitTests = new UnitTests();
-	
+	}
+
 	/**
 	 * Scenario 1 : XML file is not valid
 	 * @throws ValidateException
