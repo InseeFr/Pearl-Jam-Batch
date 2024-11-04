@@ -1,7 +1,6 @@
 package fr.insee.pearljam.batch;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
@@ -69,8 +68,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 		}
 
 	}
-
-	static UnitTests unitTests = new UnitTests();
 
 	/**
 	 * Scenario 1 : XML file is not valid
@@ -186,7 +183,7 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	}
 
 	@AfterAll
-	static void deleteFiles() throws IOException {
+	static void deleteFiles() {
 		File deleteFolderInDeleteForTest = new File("src/test/resources/in/sampleprocessing/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInDeleteForTest);
 	}

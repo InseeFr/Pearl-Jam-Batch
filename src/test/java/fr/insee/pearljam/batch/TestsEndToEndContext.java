@@ -3,7 +3,6 @@ package fr.insee.pearljam.batch;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
@@ -31,8 +30,6 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		reinitData();
 		copyFiles("context");
 	}
-
-	static UnitTests unitTests = new UnitTests();
 
 	/**
 	 * This method represent a scenario when the validate context part has errors A
@@ -277,7 +274,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	}
 
 	@AfterAll
-	static void deleteFiles() throws IOException {
+	static void deleteFiles() {
 		File deleteFolderInContextForTest = new File("src/test/resources/in/context/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInContextForTest);
 	}

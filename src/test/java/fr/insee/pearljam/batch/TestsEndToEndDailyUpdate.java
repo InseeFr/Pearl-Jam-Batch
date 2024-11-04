@@ -1,7 +1,6 @@
 package fr.insee.pearljam.batch;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -68,7 +67,7 @@ class TestsEndToEndDailyUpdate extends PearlJamBatchApplicationTests {
 	}
 	
 	@AfterAll
-	static void deleteFiles() throws IOException {
+	static void deleteFiles() {
 		File deleteFolderInContextForTest = new File("src/test/resources/in/context/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInContextForTest);
 	}

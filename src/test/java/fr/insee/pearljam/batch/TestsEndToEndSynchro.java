@@ -5,14 +5,12 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -683,7 +681,7 @@ class TestsEndToEndSynchro {
 	}
 */
 	@AfterAll
-	static void deleteFiles() throws IOException {
+	static void deleteFiles() {
 		File deleteFolderInCampaignForTest = new File("src/test/resources/in/campaign/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInCampaignForTest);
 	}

@@ -52,22 +52,22 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	/* Tests for PathUtils.java */
 	
 	@Test
-	void directoryShouldExist() throws IOException {
+	void directoryShouldExist() {
 		assertEquals(true, PathUtils.isDirectoryExist("src/test/resources/in"));
 	}
 	
 	@Test
-	void directoryShouldntExist() throws IOException {
+	void directoryShouldntExist() {
 		assertEquals(false, PathUtils.isDirectoryExist("src/test/resources/test"));
 	}
 	
 	@Test
-	void directoryShouldContainsExtension() throws IOException {
+	void directoryShouldContainsExtension() {
 		assertEquals(true, PathUtils.isDirContainsFileExtension(Path.of("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5"), "sampleProcessing.xml"));
 	}
 	
 	@Test
-	void fileShouldExist() throws IOException {
+	void fileShouldExist() {
 		assertEquals(true, PathUtils.isFileExist("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml"));
 	}
 	
@@ -75,7 +75,7 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	
 	@SuppressWarnings("static-access")
 	@Test
-	void noOptionDefine() throws Exception {
+	void noOptionDefine() {
 		String[] options= {};
 		assertThrows(ArgumentException.class, () -> launcher.runBatch(options));
 	}
@@ -87,7 +87,7 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 * @throws Exception
 	 */
 	@Test
-	void shouldValidateCampaignWithoutError() throws Exception {
+	void shouldValidateCampaignWithoutError() {
 		boolean error = false;
 		try {
 			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml");
@@ -102,7 +102,7 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 * @throws Exception
 	 */
 	@Test
-	void shouldValidateCampaignWithError() throws Exception {
+	void shouldValidateCampaignWithError() {
 		boolean error = false;
 		try {
 			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1/sampleProcessing.xml");

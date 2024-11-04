@@ -1,10 +1,10 @@
 package fr.insee.pearljam.batch;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -74,15 +74,14 @@ class TestsEndToEndExtractCampaign extends PearlJamBatchApplicationTests {
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.done.xml"));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.xml"));
 	}
-	
-	/*
+
 	@AfterEach
 	void cleanOutFolder() {
 		purgeDirectory(new File(OUT));
-	}*/
+	}
 	
 	@AfterAll
-	static void deleteFiles() throws IOException {
+	static void deleteFiles() {
 		File deleteFolderInDeleteForTest = new File("src/test/resources/in/extract/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInDeleteForTest);
 	}
