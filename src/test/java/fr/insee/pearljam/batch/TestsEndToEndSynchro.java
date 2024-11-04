@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.util.FileSystemUtils;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,8 +49,6 @@ class TestsEndToEndSynchro {
 
 	TriggerService triggerService = context.getBean(TriggerService.class);
 
-	private RestTemplate restTemplate = context.getBean(RestTemplate.class);
-
 	private String keycloakTokenUrl = (String) context.getBean("keycloakAuthUrl");
 	private String contextReferentialBaseUrl = (String) context.getBean("contextReferentialBaseUrl");
 
@@ -75,24 +72,6 @@ class TestsEndToEndSynchro {
 		System.setProperty("fr.insee.pearljam.ldap.service.login", "login");
 
 	}
-
-	/**
-	 * This method is executed before each test in this class.
-	 * It setup the environment by inserting the data and copying the necessaries
-	 * files.
-	 * 
-	 * @throws Exception
-	 */
-	/*@BeforeEach
-	void setUp() throws Exception {
-		reinitData();
-		copyFiles("campaign");
-
-		MockitoAnnotations.initMocks(this);
-		mockServer = MockRestServiceServer.createServer(restTemplate);
-	}*/
-
-	static UnitTests unitTests = new UnitTests();
 
 	/**
 	 * Scenario 1 : all OK
@@ -674,12 +653,7 @@ class TestsEndToEndSynchro {
 						.contentType(MediaType.APPLICATION_JSON)
 						.body(mapper.writeValueAsString(resp)));
 	}
-/*
-	@AfterEach
-	void cleanOutFolder() {
-		purgeDirectory(new File(outFolder + "/synchro"));
-	}
-*/
+
 	@AfterAll
 	static void deleteFiles() {
 		File deleteFolderInCampaignForTest = new File("src/test/resources/in/campaign/testScenarios");
