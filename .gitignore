@@ -28,6 +28,10 @@ target/
 build/
 src/test/resources/out
 src/test/resources/**/testScenarios
+
+application-*.properties
+application-*.yaml
+application-*.yml
 ### VS Code ###
 .vscode/
 

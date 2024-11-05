@@ -50,14 +50,14 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
         pilotageJdbcTemplate.update(qString, campaignId);
     }
 
-    @Override
-    public void createSurveyUnit(String campaignId, SurveyUnitType surveyUnit, Long addressId,
-                                 Long sampleIdentifierId, String interviewerId, String organizationUnitId) {
-        String qString = "INSERT INTO survey_unit (id, priority, address_id, campaign_id, interviewer_id, sample_identifier_id, organization_unit_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	@Override
+	public void createSurveyUnit(String campaignId, SurveyUnitType surveyUnit, Long addressId,
+			Long sampleIdentifierId, String interviewerId, String organizationUnitId) {
+		String qString = "INSERT INTO survey_unit (id, display_name, priority, address_id, campaign_id, interviewer_id, sample_identifier_id, organization_unit_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        pilotageJdbcTemplate.update(qString, surveyUnit.getId(), surveyUnit.isPriority(),
-                addressId, campaignId, interviewerId, sampleIdentifierId, organizationUnitId);
-    }
+		pilotageJdbcTemplate.update(qString, surveyUnit.getId(), surveyUnit.getDisplayName(), surveyUnit.isPriority(),
+				addressId, campaignId, interviewerId, sampleIdentifierId, organizationUnitId);
+	}
 
     @Override
     public List<String> getAllSurveyUnitByCampaignId(String campaignId) {
@@ -111,6 +111,7 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
         public SurveyUnitType mapRow(ResultSet rs, int rowNum) throws SQLException {
             SurveyUnitType su = new SurveyUnitType();
             su.setId(rs.getString("id"));
+            su.setDisplayName(rs.getString("display_name"));
             su.setPriority(rs.getBoolean("priority"));
             su.setInterviewerId(rs.getString("interviewer_id"));
             su.setOrganizationalUnitId(rs.getString("organization_unit_id"));

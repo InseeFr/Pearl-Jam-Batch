@@ -11,11 +11,11 @@
 		</Step>
 	</Steps>
 	<Questionnaires>
-		<Questionnaire idModele="simpsons">
+		<Questionnaire idModele="simpsons" idInterrogation="SIM1234">
 			<!--[WEB]<Questionnaire idModele="SIMPSON" idVague="1" idLot="1"> -->
 			<InformationsGenerales>
 				<UniteEnquetee>
-					<Identifiant>SIM1234</Identifiant>
+					<Identifiant>business-id-SIM1234</Identifiant>
 					<Prioritaire>true</Prioritaire>
 					<IdentifiantsInsee>
 						<Bs>0</Bs>
