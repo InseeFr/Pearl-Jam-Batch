@@ -90,8 +90,10 @@ public class PilotageLauncherService {
 						XmlUtils.validateXMLSchema(Constants.MODEL_CONTEXT, folderIn + "/" + name +".xml");
 						break;
 					case DELETECAMPAIGN:
+						XmlUtils.validateXMLSchema(Constants.MODEL_DELETE_CAMPAIGN, folderIn + "/" + name +".xml");
+						break;
 					case EXTRACT:
-						XmlUtils.validateXMLSchema(Constants.MODEL_CAMPAIGN, folderIn + "/" + name +".xml");
+						XmlUtils.validateXMLSchema(Constants.MODEL_EXTRACT_CAMPAIGN, folderIn + "/" + name +".xml");
 						break;
 					case SAMPLEPROCESSING:
 						XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, folderIn + "/" + name +".xml");

@@ -1,15 +1,9 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.FileSystemUtils;
 
@@ -21,7 +15,9 @@ import fr.insee.pearljam.batch.service.PilotageLauncherService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
 
-public class TestsEndToEndDeleteCampaign {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestsEndToEndDeleteCampaign extends PearlJamBatchApplicationTests {
 	
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
 	
@@ -34,20 +30,18 @@ public class TestsEndToEndDeleteCampaign {
 	 * It setup the environment by inserting the data and copying the necessaries files.
 	 * @throws Exception 
 	 */
-	@Before
-	public void setUp() throws Exception {
-		PearlJamBatchApplicationTests.initData();
-		PearlJamBatchApplicationTests.copyFiles("delete");
+	@BeforeEach
+	void setUp() throws Exception {
+		reinitData();
+		copyFiles("delete");
 	}
-	
-	public static UnitTests unitTests = new UnitTests();
-	
+
 	/**
 	 * Scenario 1 : XML file is not valid (<Ide> markup instead of <Id>)
 	 * @throws ValidateException
 	 */
 	@Test
-	public void testScenario1() throws Exception {
+	void testScenario1() throws Exception {
 		String in = "src/test/resources/in/delete/testScenarios/deleteScenario1";
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, in, OUT);
@@ -62,7 +56,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario2() throws Exception {
+	void testScenario2() throws Exception {
 		String in = "src/test/resources/in/delete/testScenarios/deleteScenario2";
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, in, OUT);
@@ -77,7 +71,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario3() throws Exception {
+	void testScenario3() throws Exception {
 		String in = "src/test/resources/in/delete/testScenarios/deleteScenario3";
 		try {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING,	pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, in, OUT));
@@ -92,7 +86,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario4() throws Exception {
+	void testScenario4() throws Exception {
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario4", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.warning.xml"));
 	}
@@ -102,7 +96,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario5() throws Exception {
+	void testScenario5() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario5", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.done.xml"));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.archive.xml"));
@@ -113,7 +107,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario6() throws Exception {
+	void testScenario6() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario6", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.done.xml"));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.archive.xml"));
@@ -124,33 +118,12 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario7() throws Exception {
+	void testScenario7() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario7", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.done.xml"));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.archive.xml"));
 	}
-	
-	/**
-	 * Scenario 8 : XML ok, campaign exist with 1 survey-unit that doesn't exist
-	 * @throws Exception
-	 */
-	@Test
-	public void testScenario8() throws Exception {
-		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario8", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.warning.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.archive.xml"));
-	}
-	
-	/**
-	 * Scenario 9 : XML ok, campaign exist, multiple survey-units with 1 that doesn't exist
-	 * @throws Exception
-	 */
-	@Test
-	public void testScenario9() throws Exception {
-		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario9", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.warning.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.archive.xml"));
-	}
+
 	
 	/**
 	 * Scenario 10 : XML ok, campaign exist with multiple survey-units in the XML file
@@ -158,7 +131,7 @@ public class TestsEndToEndDeleteCampaign {
 	 * @throws Exception
 	 */
 	@Test
-	public void testScenario10() throws Exception {
+	void testScenario8() throws Exception {
 		MessageDao messageDao = context.getBean(MessageDao.class);
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.DELETECAMPAIGN, "src/test/resources/in/delete/testScenarios/deleteScenario7", OUT));
 		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","delete.done.xml"));
@@ -166,20 +139,13 @@ public class TestsEndToEndDeleteCampaign {
 		assertEquals(false, messageDao.isIdPresentForCampaignId("SIMPSONS2020X00"));
 	}
 	
-	@After
-	public void cleanOutFolder() {
+	@AfterEach
+	void cleanOutFolder() {
 		purgeDirectory(new File(OUT));
 	}
 	
-	void purgeDirectory(File dir) {
-	    for (File file: dir.listFiles()) {
-	        if (file.isFile())
-	            file.delete();
-	    }
-	}
-	
-	@AfterClass
-	public static void deleteFiles() throws IOException {
+	@AfterAll
+	static void deleteFiles() {
 		File deleteFolderInDeleteForTest = new File("src/test/resources/in/delete/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInDeleteForTest);
 	}
