@@ -31,7 +31,13 @@
 													<xs:element name="UniteEnquetee">
 														<xs:complexType>
 															<xs:sequence>
-																<xs:element name="Identifiant" type="xs:string" />
+																<xs:element name="Identifiant">
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:pattern value="\S+" />
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
 																<xs:element name="Prioritaire" type="xs:boolean" />
 																<xs:element name="IdentifiantsInsee">
 																	<xs:complexType>
