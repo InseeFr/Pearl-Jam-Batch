@@ -89,6 +89,42 @@
 															</xs:sequence>
 														</xs:complexType>
 													</xs:element>
+													<xs:element name="MetadonneesCommunication">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="CommunicationTemplate" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Metadata" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="key" type="xs:string" use="required" />
+																					<xs:attribute name="value" type="xs:string" use="required" />
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																		<xs:attribute name="type" use="required">
+																			<xs:simpleType>
+																				<xs:restriction base="xs:string">
+																					<xs:enumeration value="reminder"/>
+																					<xs:enumeration value="notice"/>
+																				</xs:restriction>
+																			</xs:simpleType>
+																		</xs:attribute>
+																		<xs:attribute name="medium" use="required">
+																			<xs:simpleType>
+																				<xs:restriction base="xs:string">
+																					<xs:enumeration value="letter"/>
+																					<xs:enumeration value="email"/>
+																				</xs:restriction>
+																			</xs:simpleType>
+																		</xs:attribute>
+																		<xs:attribute name="meshuggahId" type="xs:string" use="required" />
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+
 													<xs:element name="Contacts">
 														<xs:complexType>
 															<xs:sequence>
@@ -160,8 +196,10 @@
 															</xs:sequence>
 														</xs:complexType>
 													</xs:element>
+
 												</xs:sequence>
 											</xs:complexType>
+
 										</xs:element>
 										<xs:element maxOccurs="1" name="InformationsPersonnalisees">
 											<xs:complexType>
