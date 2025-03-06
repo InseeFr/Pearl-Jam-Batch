@@ -1,6 +1,8 @@
 package fr.insee.pearljam.batch.service;
 
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -19,21 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.CommentType;
-import fr.insee.pearljam.batch.campaign.CommentsType;
-import fr.insee.pearljam.batch.campaign.ContactAttemptType;
-import fr.insee.pearljam.batch.campaign.ContactAttemptsType;
-import fr.insee.pearljam.batch.campaign.OrganizationalUnitType;
-import fr.insee.pearljam.batch.campaign.OrganizationalUnitsType;
-import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.campaign.PersonsType;
-import fr.insee.pearljam.batch.campaign.PhoneNumberType;
-import fr.insee.pearljam.batch.campaign.PhoneNumbersType;
-import fr.insee.pearljam.batch.campaign.StateType;
-import fr.insee.pearljam.batch.campaign.StatesType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitsType;
 import fr.insee.pearljam.batch.dao.AddressDao;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.ClosingCauseDao;
@@ -60,9 +47,8 @@ import fr.insee.pearljam.batch.utils.XmlUtils;
 
 /**
  * CampaignService : Contains all functions needed to load or delete a Campaign
- * 
- * @author bclaudel
  *
+ * @author bclaudel
  */
 @Service
 public class CampaignService {
@@ -138,14 +124,13 @@ public class CampaignService {
 
 	/**
 	 * Delete Campaign : delete and archive a campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param in
-	 * @param out
+	 *
+	 * @param campaign input campaign
+	 * @param out      folder
 	 * @return BatchErrorCode
-	 * @throws BatchException
-	 * @throws SQLException
-	 * @throws DataBaseException
+	 * @throws BatchException    batchE
+	 * @throws SQLException      sqlE
+	 * @throws DataBaseException dbE
 	 */
 	public BatchErrorCode deleteCampaign(Campaign campaign, String out)
 			throws BatchException, SQLException, DataBaseException {
@@ -161,12 +146,12 @@ public class CampaignService {
 
 	/**
 	 * Archive Campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param returnCode
-	 * @param delete
+	 *
+	 * @param campaign   c
+	 * @param returnCode r
+	 * @param delete     should it delete
 	 * @return BatchErrorCode
-	 * @throws DataBaseException
+	 * @throws DataBaseException dbE
 	 */
 	private BatchErrorCode archiveCampaign(Campaign campaign, BatchErrorCode returnCode, boolean delete)
 			throws DataBaseException {
@@ -285,11 +270,11 @@ public class CampaignService {
 
 	/**
 	 * Delete Campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param allSurveyUnitAndCampaign
-	 * @throws SQLException
-	 * @throws DataBaseException
+	 *
+	 * @param campaign                 c
+	 * @param allSurveyUnitAndCampaign boolean
+	 * @throws SQLException      sqlE
+	 * @throws DataBaseException dbE
 	 */
 	private void deleteCampaign(Campaign campaign, boolean allSurveyUnitAndCampaign)
 			throws SQLException, DataBaseException {
@@ -322,10 +307,10 @@ public class CampaignService {
 
 	/**
 	 * Delete Survey unit and all data associated
-	 * 
-	 * @param campaign
-	 * @param allSurveyUnit
-	 * @throws SQLException
+	 *
+	 * @param campaign      c
+	 * @param allSurveyUnit boolean
+	 * @throws SQLException sqlE
 	 */
 	private void deleteSurveyUnit(Campaign campaign, boolean allSurveyUnit) throws SQLException {
 		messageDao.deleteByCampaign(campaign.getId());
@@ -357,8 +342,8 @@ public class CampaignService {
 
 	/**
 	 * Check if delete concern all survey unit or not
-	 * 
-	 * @param campaign
+	 *
+	 * @param campaign c
 	 * @return true if all survey unit have to be deleted
 	 */
 	private boolean checkListAllSurveyUnit(Campaign campaign) {
@@ -393,7 +378,7 @@ public class CampaignService {
 		return oldSu;
 	}
 
-	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SynchronizationException {
+	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId)  {
 		// Create address
 		Long addressId = addressDao.createAddress(surveyUnitType.getInseeAddress());
 		// Create sample identifier
@@ -427,11 +412,11 @@ public class CampaignService {
 			}
 		}
 
-		//TODO Create CommunicationMetadata
-
 		// Create communication_metadata
-		if (surveyUnitType.getCommunicationMetadata() != null) {
-			communicationMetadataDao.createMetadata(surveyUnitType.getCommunicationMetadata());
+		if (surveyUnitType.getCommunicationMetadatas() != null) {
+			for (CommunicationMetadataType metadata :
+					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata())
+				communicationMetadataDao.createMetadata(metadata,surveyUnitType.getId());
 		}
 
 
@@ -459,15 +444,15 @@ public class CampaignService {
 		//TODO Update CommunicationMetadata
 
 		// Update communication_metadata
-		if (surveyUnitType.getCommunicationMetadata() != null) {
-			communicationMetadataDao.updateMetadata(surveyUnitType.getCommunicationMetadata());
+		if (surveyUnitType.getCommunicationMetadatas() != null) {
+			for (CommunicationMetadataType metadata :
+					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata())
+				communicationMetadataDao.updateMetadata(metadata);
 		}
 
 	}
 
-	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) throws SynchronizationException {
-		String affectation = null;
-
+	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) {
 		if (surveyUnitType.getInterviewerId() != null && surveyUnitType.getInterviewerId().equalsIgnoreCase("none")) {
 			return null;
 		}
@@ -475,12 +460,10 @@ public class CampaignService {
 			return surveyUnitType.getInterviewerId();
 		}
 
-		return affectation;
+		return null;
 	}
 
-	private String getOrganizationUnitAffectation(SurveyUnitType surveyUnitType) throws SynchronizationException {
-		String affectation = null;
-
+	private String getOrganizationUnitAffectation(SurveyUnitType surveyUnitType) {
 		if (surveyUnitType.getOrganizationalUnitId() != null
 				&& surveyUnitType.getOrganizationalUnitId().equalsIgnoreCase("none")) {
 			return null;
@@ -489,12 +472,12 @@ public class CampaignService {
 			return surveyUnitType.getOrganizationalUnitId();
 		}
 
-		return affectation;
+		return null;
 	}
 
 	/**
 	 * Get the current date with a specific format for path
-	 * 
+	 *
 	 * @return the current date
 	 */
 	public static String getTimestampForPath() {

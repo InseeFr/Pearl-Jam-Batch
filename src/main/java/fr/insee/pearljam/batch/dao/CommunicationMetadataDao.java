@@ -4,9 +4,9 @@ import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
 
 public interface CommunicationMetadataDao {
 
-    void createMetadata(CommunicationMetadataType metadata);
+	void createMetadata(CommunicationMetadataType metadata, String surveyUnitId);
 
-    void updateMetadata(CommunicationMetadataType metadata);
+	void updateMetadata(CommunicationMetadataType metadata);
 
 
 }

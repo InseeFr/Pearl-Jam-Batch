@@ -1,19 +1,7 @@
 package fr.insee.pearljam.batch.utils;
 
-import java.util.stream.Collectors;
-
 import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.CommentType;
-import fr.insee.pearljam.batch.campaign.CommentsType;
-import fr.insee.pearljam.batch.campaign.InseeAddressType;
-import fr.insee.pearljam.batch.campaign.InseeSampleIdentiersType;
-import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.campaign.PersonsType;
-import fr.insee.pearljam.batch.campaign.PhoneNumberType;
-import fr.insee.pearljam.batch.campaign.PhoneNumbersType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitsType;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact;
@@ -21,6 +9,8 @@ import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Question
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact.Telephones.Telephone;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.Commentaires;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.IdentifiantsInsee;
+
+import java.util.stream.Collectors;
 
 /**
  * Operation on XML Content
@@ -30,9 +20,8 @@ import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Question
  * - objectToXML
  * - removeSurveyUnitNode
  * - updateSampleFileErrorList
- * 
+ *
  * @author Claudel Benjamin
- * 
  */
 public class PilotageMapper {
 	private PilotageMapper() {
@@ -41,7 +30,8 @@ public class PilotageMapper {
 
 	public static Campaign mapSampleProcessingToPilotageCampaign(Campagne c) {
 		Campaign campaign = new Campaign();
-		campaign.setId(c.getIdSource() + c.getMillesime() + c.getIdPeriode());
+		String campaignId = c.getIdSource() + c.getMillesime() + c.getIdPeriode();
+		campaign.setId(campaignId);
 		campaign.setSurveyUnits(new SurveyUnitsType());
 		campaign.getSurveyUnits().getSurveyUnit().addAll(
 				c.getQuestionnaires().getQuestionnaire().stream().map(su -> {
@@ -61,13 +51,37 @@ public class PilotageMapper {
 							.setPersons(getPersonsFromSampleProcessing(su.getInformationsGenerales().getContacts()));
 					surveyUnitType.setComments(getCommentsFromSampleProcessing(
 							su.getInformationsGenerales().getUniteEnquetee().getCommentaires()));
-
-
-					surveyUnitType.setCommunicationMetadata(su.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate());
+					surveyUnitType.setCommunicationMetadatas(getMetadataFromSampleProcessing(su.getInformationsGenerales().getMetadonneesCommunication(), campaignId));
 					return surveyUnitType;
 				}).collect(Collectors.toList()));
 		return campaign;
 	}
+
+	private static CommunicationMetadatasType getMetadataFromSampleProcessing(Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication metadonneesCommunication, String campaignId) {
+
+		if (metadonneesCommunication == null || metadonneesCommunication.getCommunicationTemplate().isEmpty()) {
+			return null;
+		}
+		CommunicationMetadatasType communicationMetadatasType = new CommunicationMetadatasType();
+		communicationMetadatasType.getCommunicationMetadata().addAll(
+				metadonneesCommunication.getCommunicationTemplate()
+						.stream()
+						.flatMap(sampleTemplate -> sampleTemplate.getMetadata()
+								.stream()
+								.map(sampleMetadata -> {
+									CommunicationMetadataType dbMetadata = new CommunicationMetadataType();
+									dbMetadata.setKey(sampleMetadata.getKey());
+									dbMetadata.setValue(sampleMetadata.getValue());
+									dbMetadata.setCampaignId(campaignId);
+									dbMetadata.setMeshuggahId(sampleTemplate.getMeshuggahId());
+									return dbMetadata;
+								})
+						)
+						.toList()
+		);
+		return communicationMetadatasType;
+	}
+
 
 	private static CommentsType getCommentsFromSampleProcessing(Commentaires commentaires) {
 		CommentsType comments = new CommentsType();
