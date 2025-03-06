@@ -1,5 +1,6 @@
 package fr.insee.pearljam.batch.service;
 
+import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -107,6 +108,8 @@ public class CampaignService {
 	InterviewerTypeDao interviewerTypeDao;
 	@Autowired
 	IdentificationDao identificationDao;
+	@Autowired
+	CommunicationMetadataDao communicationMetadataDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -423,6 +426,15 @@ public class CampaignService {
 				commentDao.createComment(comment, surveyUnitType.getId());
 			}
 		}
+
+		//TODO Create CommunicationMetadata
+
+		// Create communication_metadata
+		if (surveyUnitType.getCommunicationMetadata() != null) {
+			communicationMetadataDao.createMetadata(surveyUnitType.getCommunicationMetadata());
+		}
+
+
 	}
 
 	private void updateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SynchronizationException {
@@ -442,6 +454,13 @@ public class CampaignService {
 			for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
 				phoneNumberDao.createPhoneNumber(phoneNumber, personId);
 			}
+		}
+
+		//TODO Update CommunicationMetadata
+
+		// Update communication_metadata
+		if (surveyUnitType.getCommunicationMetadata() != null) {
+			communicationMetadataDao.updateMetadata(surveyUnitType.getCommunicationMetadata());
 		}
 
 	}

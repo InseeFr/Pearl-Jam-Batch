@@ -480,6 +480,10 @@ public class PilotageLauncherService {
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
+
+		//TODO vérification de l'existence des CommunicationTemplate et le lien avec la campagne
+
+
 		logger.log(Level.INFO, "Extract Pilotage content");
 		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
 		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN, pilotageCampaign);

@@ -61,6 +61,9 @@ public class PilotageMapper {
 							.setPersons(getPersonsFromSampleProcessing(su.getInformationsGenerales().getContacts()));
 					surveyUnitType.setComments(getCommentsFromSampleProcessing(
 							su.getInformationsGenerales().getUniteEnquetee().getCommentaires()));
+
+
+					surveyUnitType.setCommunicationMetadata(su.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate());
 					return surveyUnitType;
 				}).collect(Collectors.toList()));
 		return campaign;
