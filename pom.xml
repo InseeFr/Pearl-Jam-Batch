@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.2.1</version>
+	<version>3.2.2</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring.version>6.1.13</spring.version>
-		<queenbatch.version>4.3.0</queenbatch.version>
+		<queenbatch.version>4.3.2</queenbatch.version>
 		<testcontainers.version>1.20.2</testcontainers.version>
 		<jackson.version>2.17.2</jackson.version>
 		<mockito.version>5.13.0</mockito.version>
