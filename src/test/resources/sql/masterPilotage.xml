@@ -65,4 +65,25 @@
 
 	<!-- add business id  -->
 	<include file="pilotage/550_add_business_id.xml" relativeToChangelogFile="true" />
+
+	<!-- add identification attributes -->
+	<include file="pilotage/560_extend_identification.xml" relativeToChangelogFile="true"/>
+
+	<!-- identification inheritance -->
+	<include file="pilotage/561_identification_inheritance.xml" relativeToChangelogFile="true"/>
+
+	<!-- add identification state -->
+	<include file="pilotage/562_add_identification_state.xml" relativeToChangelogFile="true"/>
+
+	<!-- initialisation of identification_state variable -->
+	<include file="pilotage/563_init_identification_state_data.sql" relativeToChangelogFile="true"/>
+
+	<!-- contactOutcome deprecated values removal -->
+	<include file="pilotage/570_remove_unused_contact_outcome_entries.xml" relativeToChangelogFile="true"/>
+
+	<!-- add communication metadata -->
+	<include file="pilotage/580_add_communication_metadata.xml" relativeToChangelogFile="true"/>
+
+	<!-- add a sensitivity field -->
+	<include file="pilotage/590_add_sensitivity_field.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
