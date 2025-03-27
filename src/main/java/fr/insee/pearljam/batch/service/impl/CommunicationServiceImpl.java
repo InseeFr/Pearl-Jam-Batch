@@ -22,6 +22,7 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.MeshuggahService;
 import fr.insee.pearljam.batch.utils.XmlUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,20 +67,22 @@ public class CommunicationServiceImpl implements CommunicationService {
                 surveyUnitDao.getSurveyUnitsById(surveyUnitIds).stream()
                         .collect(Collectors.toMap(SurveyUnitType::getId, su -> su));
 
-        // retrieve all matching template IDs
-        List<Long> templateIds = communicationsToSend.stream()
-                .map(CommunicationRequestType::getCommunicationTemplateId)
-                .distinct().toList();
+// retrieve all matching campaignId and meshuggahId pairs
+        List<Pair<String, String>> campaignMeshuggahPairs = communicationsToSend.stream()
+            .map(communication -> Pair.of(communication.getCampaignId(), communication.getMeshuggahId()))
+            .distinct()
+            .toList();
 
 
-        // collect template from communicationService
         Map<String, CommunicationTemplate> communicationTemplates = new HashMap<>();
 
-        for (Long templateId : templateIds) {
-            CommunicationTemplateType templateType = communicationTemplateDao.findById(templateId);
-            String meshuggahId = templateType.getMeshuggahId();
+        for (Pair<String, String> campaignMeshuggahPair : campaignMeshuggahPairs) {
+            String campaignId = campaignMeshuggahPair.getLeft();  // Get the campaignId
+            String meshuggahId = campaignMeshuggahPair.getRight();  // Get the meshuggahId
+
             CommunicationTemplate communicationTemplate = getCommunicationTemplate(meshuggahId);
-            communicationTemplates.put(templateId.toString(), communicationTemplate);
+            communicationTemplates.put(campaignId.concat(meshuggahId), communicationTemplate);
+
         }
 
         Date nowDate = new Date();
@@ -101,9 +104,9 @@ public class CommunicationServiceImpl implements CommunicationService {
             dispatchInterviewerData(su, data);
 
             // communicationTemplate data
-            data.setCommunicationTemplateId(cr.getCommunicationTemplateId());
+            data.setCommunicationTemplateId(Long.parseLong(cr.getMeshuggahId()));
             CommunicationTemplate communicationTemplate =
-                    communicationTemplates.get(Long.toString(cr.getCommunicationTemplateId()));
+                    communicationTemplates.get(cr.getMeshuggahId());
 
             if (communicationTemplate != null) {
                 data.setTemplateMetadata(communicationTemplate.getMetadatas());

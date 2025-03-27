@@ -6,7 +6,4 @@ public interface CommunicationMetadataDao {
 
 	void createMetadata(CommunicationMetadataType metadata, String surveyUnitId);
 
-	void updateMetadata(CommunicationMetadataType metadata);
-
-
 }

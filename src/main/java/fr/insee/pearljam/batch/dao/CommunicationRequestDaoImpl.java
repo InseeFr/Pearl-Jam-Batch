@@ -42,7 +42,8 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
             CommunicationRequestType commRequest = new CommunicationRequestType();
             commRequest.setId(rs.getString("id"));
             commRequest.setReason(rs.getString("reason"));
-            commRequest.setCommunicationTemplateId(rs.getLong("communication_template_id"));
+            commRequest.setCampaignId(rs.getString("campaign_id"));
+            commRequest.setMeshuggahId(rs.getString("meshuggah_id"));
             commRequest.setStatus(rs.getString("status"));
             commRequest.setEmitter(rs.getString("emitter"));
             commRequest.setDate(rs.getLong("date"));

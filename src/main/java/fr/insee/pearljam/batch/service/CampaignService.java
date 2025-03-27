@@ -443,13 +443,6 @@ public class CampaignService {
 
 		//TODO Update CommunicationMetadata
 
-		// Update communication_metadata
-		if (surveyUnitType.getCommunicationMetadatas() != null) {
-			for (CommunicationMetadataType metadata :
-					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata())
-				communicationMetadataDao.updateMetadata(metadata);
-		}
-
 	}
 
 	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) {

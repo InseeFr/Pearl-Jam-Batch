@@ -15,15 +15,9 @@ public class CommunicationMetadataDaoImpl implements CommunicationMetadataDao {
 
 	@Override
 	public void createMetadata(CommunicationMetadataType metadata, String surveyUnitId) {
-		String qString = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value) VALUES" +
-				" (?, ?, ?)";
+		String qString = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value, campaign_id, meshuggah_id) VALUES" +
+				" (?, ?, ?, ?, ?)";
 
-		pilotageJdbcTemplate.update(qString, surveyUnitId, metadata.getKey(), metadata.getValue());
-	}
-
-
-	@Override
-	public void updateMetadata(CommunicationMetadataType metadata) {
-		// TODO document why this method is empty
+		pilotageJdbcTemplate.update(qString, surveyUnitId, metadata.getKey(), metadata.getValue(), metadata.getCampaignId(), metadata.getMeshuggahId());
 	}
 }

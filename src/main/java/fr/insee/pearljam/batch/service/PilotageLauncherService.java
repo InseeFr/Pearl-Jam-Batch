@@ -1,4 +1,8 @@
 package fr.insee.pearljam.batch.service;
+import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +13,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,6 +67,9 @@ public class PilotageLauncherService {
 	
 	@Autowired
 	PilotageFolderService pilotageFolderService;
+
+	@Autowired
+	private CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
 	
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
@@ -481,7 +490,29 @@ public class PilotageLauncherService {
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
 
-		//TODO vérification de l'existence des CommunicationTemplate et le lien avec la campagne
+		Set<String> meshuggahIds = sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
+				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
+				.map(CommunicationTemplate::getMeshuggahId)
+				.collect(Collectors.toSet());
+
+		Map<String, CommunicationTemplateType> templatesByMeshuggahId =
+				communicationTemplateDaoImpl.findByMeshuggahIds(meshuggahIds).stream()
+						.collect(Collectors.toMap(CommunicationTemplateType::getMeshuggahId, Function.identity()));
+
+		sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
+				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
+				.filter(ct -> {
+					CommunicationTemplateType dbTemplate = templatesByMeshuggahId.get(ct.getMeshuggahId());
+					return dbTemplate == null || !dbTemplate.getCampaignId().equals(campaignId);
+				})
+				.findAny()
+				.ifPresent(ct -> {
+          try {
+            throw new ValidateException("The communication template is not linked to the campaign.");
+          } catch (ValidateException e) {
+            throw new RuntimeException(e);
+          }
+        });
 
 
 		logger.log(Level.INFO, "Extract Pilotage content");
