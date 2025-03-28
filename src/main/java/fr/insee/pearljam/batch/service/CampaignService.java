@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -412,12 +414,19 @@ public class CampaignService {
 			}
 		}
 
-		// Create communication_metadata
+// Regrouper les métadonnées par surveyUnitId
+		Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit = new HashMap<>();
+
 		if (surveyUnitType.getCommunicationMetadatas() != null) {
-			for (CommunicationMetadataType metadata :
-					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata())
-				communicationMetadataDao.createMetadata(metadata,surveyUnitType.getId());
+			metadataBySurveyUnit.put(surveyUnitType.getId(),
+					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata());
 		}
+
+// Exécuter l'insertion en lot si des données existent
+		if (!metadataBySurveyUnit.isEmpty()) {
+			communicationMetadataDao.createAllMetadataForSurveyUnits(metadataBySurveyUnit);
+		}
+
 
 
 	}
@@ -440,9 +449,6 @@ public class CampaignService {
 				phoneNumberDao.createPhoneNumber(phoneNumber, personId);
 			}
 		}
-
-		//TODO Update CommunicationMetadata
-
 	}
 
 	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) {

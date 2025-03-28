@@ -7,5 +7,6 @@ import java.util.Set;
 public interface CommunicationTemplateDao {
 
     List<CommunicationTemplateType> findByMeshuggahIds(Set<String> meshuggahIds);
+    List<CommunicationTemplateType> findByCampaign(String campaignId);
 
 }

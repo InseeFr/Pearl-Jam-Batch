@@ -1,18 +1,15 @@
 package fr.insee.pearljam.batch.dao;
 
-import java.util.HashMap;
+import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-
-import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @Service
 public class CommunicationTemplateDaoImpl implements CommunicationTemplateDao {
@@ -22,25 +19,27 @@ public class CommunicationTemplateDaoImpl implements CommunicationTemplateDao {
 
     @Override
     public List<CommunicationTemplateType> findByMeshuggahIds(Set<String> meshuggahIds) {
-        StringBuilder qString = new StringBuilder("SELECT * FROM communication_template WHERE meshuggah_id IN (");
+        String qString = "SELECT * FROM communication_template WHERE meshuggah_id IN (" +
+            String.join(",", Collections.nCopies(meshuggahIds.size(), "?")) + ")";
 
-        for (int i = 0; i < meshuggahIds.size(); i++) {
-            qString.append("?");
-            if (i < meshuggahIds.size() - 1) {
-                qString.append(", ");
-            }
-        }
-        qString.append(")");
+        String[] meshuggahIdsArray = meshuggahIds.toArray(new String[0]);
 
         return pilotageJdbcTemplate.query(
-            qString.toString(),
-            meshuggahIds.toArray(new String[0]),
+            qString,
+            meshuggahIdsArray,
             new CommunicationTemplateDaoImpl.CommunicationTemplateTypeMapper()
         );
     }
 
-
-
+    @Override
+    public List<CommunicationTemplateType> findByCampaign(String campaignId) {
+        String qString = "SELECT * FROM communication_template WHERE campaign_id = ?";
+        return pilotageJdbcTemplate.query(
+            qString,
+            new CommunicationTemplateDaoImpl.CommunicationTemplateTypeMapper(),
+            campaignId
+        );
+    }
 
     /**
      * Implements the mapping between the result of the query and the ClosingCauseType entity

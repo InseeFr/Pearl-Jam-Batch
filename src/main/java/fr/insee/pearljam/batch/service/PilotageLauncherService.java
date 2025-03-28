@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -490,29 +491,22 @@ public class PilotageLauncherService {
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
 
-		Set<String> meshuggahIds = sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
+		Set<String> expectedMeshuggahIds = sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
 				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
 				.map(CommunicationTemplate::getMeshuggahId)
 				.collect(Collectors.toSet());
 
-		Map<String, CommunicationTemplateType> templatesByMeshuggahId =
-				communicationTemplateDaoImpl.findByMeshuggahIds(meshuggahIds).stream()
-						.collect(Collectors.toMap(CommunicationTemplateType::getMeshuggahId, Function.identity()));
+		Set<String> dbMeshuggahIds = communicationTemplateDaoImpl.findByCampaign(campaignId).stream()
+				.map(CommunicationTemplateType::getMeshuggahId)
+				.collect(Collectors.toSet());
 
-		sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
-				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
-				.filter(ct -> {
-					CommunicationTemplateType dbTemplate = templatesByMeshuggahId.get(ct.getMeshuggahId());
-					return dbTemplate == null || !dbTemplate.getCampaignId().equals(campaignId);
-				})
-				.findAny()
-				.ifPresent(ct -> {
-          try {
-            throw new ValidateException("The communication template is not linked to the campaign.");
-          } catch (ValidateException e) {
-            throw new RuntimeException(e);
-          }
-        });
+		expectedMeshuggahIds.removeAll(dbMeshuggahIds);
+
+		if (!expectedMeshuggahIds.isEmpty()) {
+			logger.warn("The following meshuggahIds are not linked to campaign {}: {}", campaignId, expectedMeshuggahIds);
+			throw new ValidateException("Some communication templates are not linked to the campaign.");
+		}
+
 
 
 		logger.log(Level.INFO, "Extract Pilotage content");

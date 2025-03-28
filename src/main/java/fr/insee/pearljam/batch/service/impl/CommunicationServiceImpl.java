@@ -37,7 +37,6 @@ public class CommunicationServiceImpl implements CommunicationService {
     private static final Logger LOGGER = LogManager.getLogger(CommunicationServiceImpl.class);
 
     private final AddressDao addressDao;
-    private final CommunicationTemplateDao communicationTemplateDao;
     private final CommunicationRequestDao communicationRequestDao;
     private final InterviewerTypeDao interviewerTypeDao;
     private final MeshuggahService meshuggahService;
