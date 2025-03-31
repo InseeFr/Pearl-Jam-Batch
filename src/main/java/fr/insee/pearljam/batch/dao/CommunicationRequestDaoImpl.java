@@ -22,7 +22,7 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
     public List<CommunicationRequestType> findAll() {
         String qString = """
                 SELECT DISTINCT ON (cr.id)
-                cr.id, cr.emitter, cr.reason, cr.communication_template_id, cr.survey_unit_id,
+                cr.id, cr.emitter, cr.reason, cr.campaign_id,cr.meshuggah_id, cr.survey_unit_id,
                 crs.status, crs.date
                 FROM communication_request cr
                 LEFT JOIN communication_request_status crs

@@ -16,17 +16,29 @@ public class CommunicationMetadataDaoImpl implements CommunicationMetadataDao {
 	@Qualifier("pilotageJdbcTemplate")
 	JdbcTemplate pilotageJdbcTemplate;
 
+
+	@Override
 	public void createAllMetadataForSurveyUnits(Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit) {
 		List<Object[]> batchArgs = new ArrayList<>();
-		final String INSERT_METADATA_SQL = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value) VALUES (?, ?, ?)";
+		final String INSERT_METADATA_SQL = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value, campaign_id, meshuggah_id) VALUES (?, ?, ?, ?, ?)";
 
 		for (Map.Entry<String, List<CommunicationMetadataType>> entry : metadataBySurveyUnit.entrySet()) {
 			String surveyUnitId = entry.getKey();
+
 			for (CommunicationMetadataType metadata : entry.getValue()) {
-				batchArgs.add(new Object[]{surveyUnitId, metadata.getKey(), metadata.getValue()});
+
+				batchArgs.add(new Object[]{
+						surveyUnitId,
+						metadata.getKey(),
+						metadata.getValue(),
+						metadata.getCampaignId(),
+						metadata.getMeshuggahId()
+				});
 			}
 		}
 
+		// Exécution du batch insert
 		pilotageJdbcTemplate.batchUpdate(INSERT_METADATA_SQL, batchArgs);
 	}
+
 }

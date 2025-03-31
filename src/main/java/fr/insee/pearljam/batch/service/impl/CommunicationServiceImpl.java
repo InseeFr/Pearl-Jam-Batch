@@ -66,7 +66,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                 surveyUnitDao.getSurveyUnitsById(surveyUnitIds).stream()
                         .collect(Collectors.toMap(SurveyUnitType::getId, su -> su));
 
-// retrieve all matching campaignId and meshuggahId pairs
+        // retrieve all matching campaignId and meshuggahId pairs
         List<Pair<String, String>> campaignMeshuggahPairs = communicationsToSend.stream()
             .map(communication -> Pair.of(communication.getCampaignId(), communication.getMeshuggahId()))
             .distinct()
@@ -80,7 +80,7 @@ public class CommunicationServiceImpl implements CommunicationService {
             String meshuggahId = campaignMeshuggahPair.getRight();  // Get the meshuggahId
 
             CommunicationTemplate communicationTemplate = getCommunicationTemplate(meshuggahId);
-            communicationTemplates.put(campaignId.concat(meshuggahId), communicationTemplate);
+            communicationTemplates.put(meshuggahId, communicationTemplate);
 
         }
 
@@ -103,7 +103,7 @@ public class CommunicationServiceImpl implements CommunicationService {
             dispatchInterviewerData(su, data);
 
             // communicationTemplate data
-            data.setCommunicationTemplateId(Long.parseLong(cr.getMeshuggahId()));
+            data.setCommunicationTemplateId(cr.getMeshuggahId());
             CommunicationTemplate communicationTemplate =
                     communicationTemplates.get(cr.getMeshuggahId());
 
@@ -136,7 +136,7 @@ public class CommunicationServiceImpl implements CommunicationService {
             // Mapping CommunicationData to Courrier and generating sequential NumeroDocument
 
             List<CommunicationData> filteredComData =
-                    communicationDataList.stream().filter(comData -> comTemplId.equals(Long.toString(comData.getCommunicationTemplateId()))).toList();
+                    communicationDataList.stream().filter(comData -> comTemplId.equals(comData.getCommunicationTemplateId())).toList();
 
             List<Courrier> courrierList = filteredComData.stream().map(comData -> {
                 Courrier courrier = new Courrier();
@@ -171,7 +171,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 
                 // DB always has reminderReason => check if template is REMINDER type else set to null
                 CommunicationTemplate communicationTemplate =
-                        communicationTemplates.get(Long.toString(comData.getCommunicationTemplateId()));
+                        communicationTemplates.get(comData.getCommunicationTemplateId());
                 if (communicationTemplate.getCommunicationType().equals("REMINDER")) {
                     variables.addAdditionalField("Ue_TypeRelance", comData.getReminderReason());
                 }
@@ -226,7 +226,8 @@ public class CommunicationServiceImpl implements CommunicationService {
                     communicationRequestStatusDao.addStatus(
                             communicationData.getCommunicationRequestId(),
                             newStatus,
-                            msDate
+                            msDate,
+                            communicationData.getCommunicationTemplateId()
                     )
             );
 
