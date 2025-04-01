@@ -217,10 +217,6 @@ public class CommunicationServiceImpl implements CommunicationService {
                 }).toList();
                 courriers.setCourriers(courrierList);
 
-
-
-
-
             //print to XML file or die trying
 
             Path communicationPath;
