@@ -1,0 +1,59 @@
+{
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":disableRateLimiting"
+  ],
+  "baseBranches": [
+    "develop",
+    "main"
+  ],
+  "packageRules": [
+    {
+      "enabled": false,
+      "matchBaseBranches": ["main"],
+      "matchPackagePatterns": ["*"],
+      "automerge": false
+    },
+    {
+      "matchBaseBranches": ["develop"],
+      "labels": ["dependencies"],
+      "bumpVersion": "patch",
+      "dependencyDashboardApproval": true,
+      "matchPackagePatterns": ["*"],
+      "automerge": false
+    },
+    {
+      "matchBaseBranches": ["develop"],
+      "groupName": "minor dependencies",
+      "groupSlug": "minor",
+      "matchUpdateTypes": ["minor"],
+      "bumpVersion": "minor",
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "matchBaseBranches": ["develop"],
+      "groupName": "patch dependencies",
+      "groupSlug": "patch",
+      "matchUpdateTypes": ["patch"],
+      "bumpVersion": "patch",
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "matchBaseBranches": ["develop"],
+      "groupName": "major dependencies",
+      "groupSlug": "major",
+      "matchUpdateTypes": ["major"],
+      "bumpVersion": "major",
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    }
+  ],
+  "schedule": [
+    "every weekend",
+    "on Wednesday"
+  ],
+  "timezone": "Europe/Paris"
+}
