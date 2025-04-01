@@ -75,6 +75,7 @@ public class CampaignDaoImpl implements CampaignDao {
 		public Campaign mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Campaign c = new Campaign();
 			c.setId(rs.getString("id"));
+			c.setSensitivity(rs.getBoolean("sensitivity"));
 			c.setLabel(rs.getString("label"));
 			c.setOrganizationalUnits(null);
 			c.setSurveyUnits(null);
