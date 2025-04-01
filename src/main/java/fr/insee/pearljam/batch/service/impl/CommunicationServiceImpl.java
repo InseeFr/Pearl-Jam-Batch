@@ -103,10 +103,36 @@ public class CommunicationServiceImpl implements CommunicationService {
                     communicationTemplates.get(cr.getMeshuggahId());
 
             if (communicationTemplate != null) {
-                data.setTemplateMetadata(communicationTemplate.getMetadatas());
+
+                List<Metadata> metadataFromDao = communicationMetadataDao
+                    .findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId(su.getCampaignId(), communicationTemplate.getCommunicationId(), su.getId())
+                    .stream()
+                    .map(meta -> {
+                        Metadata metadata = new Metadata();
+                        metadata.setKey(meta.getKey());
+                        metadata.setValue(meta.getValue());
+                        return metadata;
+                    })
+                    .toList();
+
+                List<Metadata> existingMetadatas = communicationTemplate.getMetadatas();
+
+                List<Metadata> mergedMetadatas = Stream.concat(existingMetadatas.stream(), metadataFromDao.stream())
+                    .collect(Collectors.toMap(
+                        Metadata::getKey,
+                        metadata -> metadata,
+                        (existing, replacement) -> existing)
+                    )
+                    .values()
+                    .stream()
+                    .toList();
+
+                data.setTemplateMetadata(mergedMetadatas);
             } else {
                 data.setTemplateMetadata(List.of());
             }
+
+
 
             return data;
         }).toList();
@@ -133,7 +159,6 @@ public class CommunicationServiceImpl implements CommunicationService {
             List<CommunicationData> filteredComData =
                     communicationDataList.stream().filter(comData -> comTemplId.equals(comData.getCommunicationTemplateId())).toList();
 
-            surveyUnits.forEach((surveyUnitId, surveyUnit) -> {
 
 
                 List<Courrier> courrierList = filteredComData.stream().map(comData -> {
@@ -188,16 +213,9 @@ public class CommunicationServiceImpl implements CommunicationService {
 
                     comData.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(),
                         meta.getValue()));
-
-                    communicationMetadataDao
-                        .findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId(surveyUnit.getCampaignId(), comData.getCommunicationTemplateId(), surveyUnitId)
-                        .forEach(meta -> variables.addAdditionalField(meta.getKey(), meta.getValue()));
-
-
                     return courrier;
                 }).toList();
                 courriers.setCourriers(courrierList);
-            });
 
 
 
