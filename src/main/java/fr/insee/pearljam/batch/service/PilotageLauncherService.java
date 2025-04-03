@@ -1,4 +1,8 @@
 package fr.insee.pearljam.batch.service;
+import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,8 +11,11 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,6 +68,9 @@ public class PilotageLauncherService {
 	
 	@Autowired
 	PilotageFolderService pilotageFolderService;
+
+	@Autowired
+	private CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
 	
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
@@ -480,6 +490,25 @@ public class PilotageLauncherService {
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
+
+		Set<String> expectedMeshuggahIds = sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
+				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
+				.map(CommunicationTemplate::getMeshuggahId)
+				.collect(Collectors.toSet());
+
+		Set<String> dbMeshuggahIds = communicationTemplateDaoImpl.findByCampaign(campaignId).stream()
+				.map(CommunicationTemplateType::getMeshuggahId)
+				.collect(Collectors.toSet());
+
+		expectedMeshuggahIds.removeAll(dbMeshuggahIds);
+
+		if (!expectedMeshuggahIds.isEmpty()) {
+			logger.warn("The following meshuggahIds are not linked to campaign {}: {}", campaignId, expectedMeshuggahIds);
+			throw new ValidateException("Some communication templates are not linked to the campaign.");
+		}
+
+
+
 		logger.log(Level.INFO, "Extract Pilotage content");
 		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
 		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN, pilotageCampaign);

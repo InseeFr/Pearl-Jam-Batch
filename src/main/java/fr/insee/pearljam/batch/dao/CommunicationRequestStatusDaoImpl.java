@@ -13,12 +13,12 @@ public class CommunicationRequestStatusDaoImpl implements CommunicationRequestSt
     JdbcTemplate pilotageJdbcTemplate;
 
     @Override
-    public void addStatus(String communicationRequestId, String status, long timestamp) {
+    public void addStatus(String communicationRequestId, String status, long timestamp, String meshuggahId) {
         String qString = """
                 INSERT INTO communication_request_status
-                (communication_request_id, status, "date")
-                VALUES( ?, ?, ?)
+                (communication_request_id, status, "date", meshuggah_id)
+                VALUES( ?, ?, ?, ?)
                 """;
-        pilotageJdbcTemplate.update(qString, Long.parseLong(communicationRequestId), status, timestamp);
+        pilotageJdbcTemplate.update(qString, Long.parseLong(communicationRequestId), status, timestamp, meshuggahId);
     }
 }

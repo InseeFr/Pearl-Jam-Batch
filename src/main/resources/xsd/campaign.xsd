@@ -64,6 +64,8 @@
 	<xs:element name="Identification" type="IdentificationType" />
 	<xs:element name="CommunicationRequests" type="CommunicationRequestsType" />
 	<xs:element name="CommunicationRequest" type="CommunicationRequestType" />
+	<xs:element name="CommunicationMetadata" type="CommunicationMetadataType" />
+	<xs:element name="CommunicationMetadatas" type="CommunicationMetadatasType" />
 
 	<xs:element name="Persons" type="PersonsType" />
 
@@ -150,6 +152,7 @@
 			<xs:element ref="Persons" />
 			<xs:element ref="States" minOccurs="0" />
 			<xs:element ref="CommunicationRequests" />
+			<xs:element ref="CommunicationMetadatas" />
 			<xs:element ref="Comments" minOccurs="0" />
 			<xs:element ref="ContactOutcome" minOccurs="0" />
 			<xs:element ref="ContactAttempts" minOccurs="0" />
@@ -329,7 +332,6 @@
 
 	<xs:complexType name="CommunicationTemplateType">
 		<xs:sequence>
-			<xs:element name="id" type="xs:long" />
 			<xs:element name="meshuggahId" type="xs:string" />
 			<xs:element name="type" type="xs:string" />
 			<xs:element name="medium" type="xs:string" />
@@ -346,12 +348,30 @@
 	<xs:complexType name="CommunicationRequestType">
 		<xs:sequence>
 			<xs:element name="id" type="xs:string" />
-			<xs:element name="communicationTemplateId" type="xs:long" />
+			<xs:element name="meshuggahId" type="xs:string" />
+			<xs:element name="campaignId" type="xs:string" />
 			<xs:element name="surveyUnitId" type="xs:string" />
 			<xs:element name="emitter" type="xs:string" />
 			<xs:element name="reason" type="xs:string" />
 			<xs:element name="date" type="xs:long" />
 			<xs:element name="status" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CommunicationMetadatasType">
+		<xs:sequence>
+			<xs:element ref="CommunicationMetadata" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CommunicationMetadataType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="meshuggahId" type="xs:string" />
+			<xs:element name="campaignId" type="xs:string" />
+			<xs:element name="key" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+			<xs:element name="surveyUnitId" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 

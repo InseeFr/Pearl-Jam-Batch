@@ -22,6 +22,7 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.MeshuggahService;
 import fr.insee.pearljam.batch.utils.XmlUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,6 @@ public class CommunicationServiceImpl implements CommunicationService {
     private static final Logger LOGGER = LogManager.getLogger(CommunicationServiceImpl.class);
 
     private final AddressDao addressDao;
-    private final CommunicationTemplateDao communicationTemplateDao;
     private final CommunicationRequestDao communicationRequestDao;
     private final InterviewerTypeDao interviewerTypeDao;
     private final MeshuggahService meshuggahService;
@@ -44,6 +44,7 @@ public class CommunicationServiceImpl implements CommunicationService {
     private final SurveyUnitDao surveyUnitDao;
     private final VisibilityDao visibilityDao;
     private final CommunicationRequestStatusDao communicationRequestStatusDao;
+    private final CommunicationMetadataDao communicationMetadataDao;
 
     @Value("${fr.insee.pearljam.folder.out}")
     private String FOLDER_OUT;
@@ -66,20 +67,16 @@ public class CommunicationServiceImpl implements CommunicationService {
                 surveyUnitDao.getSurveyUnitsById(surveyUnitIds).stream()
                         .collect(Collectors.toMap(SurveyUnitType::getId, su -> su));
 
-        // retrieve all matching template IDs
-        List<Long> templateIds = communicationsToSend.stream()
-                .map(CommunicationRequestType::getCommunicationTemplateId)
-                .distinct().toList();
+        // retrieve meshuggahId
+        Set<String> meshuggahIds = communicationsToSend.stream()
+            .map(CommunicationRequestType::getMeshuggahId)
+            .collect(Collectors.toSet());
 
-
-        // collect template from communicationService
         Map<String, CommunicationTemplate> communicationTemplates = new HashMap<>();
 
-        for (Long templateId : templateIds) {
-            CommunicationTemplateType templateType = communicationTemplateDao.findById(templateId);
-            String meshuggahId = templateType.getMeshuggahId();
+        for (String meshuggahId : meshuggahIds) {
             CommunicationTemplate communicationTemplate = getCommunicationTemplate(meshuggahId);
-            communicationTemplates.put(templateId.toString(), communicationTemplate);
+            communicationTemplates.put(meshuggahId, communicationTemplate);
         }
 
         Date nowDate = new Date();
@@ -101,14 +98,37 @@ public class CommunicationServiceImpl implements CommunicationService {
             dispatchInterviewerData(su, data);
 
             // communicationTemplate data
-            data.setCommunicationTemplateId(cr.getCommunicationTemplateId());
+            data.setCommunicationTemplateId(cr.getMeshuggahId());
             CommunicationTemplate communicationTemplate =
-                    communicationTemplates.get(Long.toString(cr.getCommunicationTemplateId()));
+                    communicationTemplates.get(cr.getMeshuggahId());
+
+            data.setTemplateMetadata(List.of());
 
             if (communicationTemplate != null) {
-                data.setTemplateMetadata(communicationTemplate.getMetadatas());
-            } else {
-                data.setTemplateMetadata(List.of());
+                List<Metadata> metadataFromDao = communicationMetadataDao
+                    .findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId(su.getCampaignId(), communicationTemplate.getCommunicationId(), su.getId())
+                    .stream()
+                    .map(meta -> {
+                        Metadata metadata = new Metadata();
+                        metadata.setKey(meta.getKey());
+                        metadata.setValue(meta.getValue());
+                        return metadata;
+                    })
+                    .toList();
+
+                List<Metadata> existingMetadatas = communicationTemplate.getMetadatas();
+
+                List<Metadata> mergedMetadatas = Stream.concat(existingMetadatas.stream(), metadataFromDao.stream())
+                    .collect(Collectors.toMap(
+                        Metadata::getKey,
+                        metadata -> metadata,
+                        (existing, replacement) -> existing)
+                    )
+                    .values()
+                    .stream()
+                    .toList();
+
+                data.setTemplateMetadata(mergedMetadatas);
             }
 
             return data;
@@ -134,67 +154,65 @@ public class CommunicationServiceImpl implements CommunicationService {
             // Mapping CommunicationData to Courrier and generating sequential NumeroDocument
 
             List<CommunicationData> filteredComData =
-                    communicationDataList.stream().filter(comData -> comTemplId.equals(Long.toString(comData.getCommunicationTemplateId()))).toList();
-
-            List<Courrier> courrierList = filteredComData.stream().map(comData -> {
-                Courrier courrier = new Courrier();
-
-                // Set NumeroDocument with leading zeros, format the index to 8 digits
-                String numeroDocument = String.format("%08d", numeroDocumentIndex.getAndIncrement());
-
-                // Create a Variables object
-                Variables variables = new Variables();
-                courrier.setVariables(variables);
-
-                variables.setNumeroDocument(numeroDocument);
-                variables.setBddIdentifiantUniteEnquetee(comData.getCommunicationRequestId());
-                variables.setCodePostalDestinataire(comData.getRecipientPostCode());
+                    communicationDataList.stream().filter(comData -> comTemplId.equals(comData.getCommunicationTemplateId())).toList();
 
 
-                // Map other fields from CommunicationData to Courrier
-                variables.setBddAdressePosteeL1(comData.getBddL1());
-                variables.setBddAdressePosteeL2(comData.getBddL2());
-                variables.setBddAdressePosteeL3(comData.getBddL3());
-                variables.setBddAdressePosteeL4(comData.getBddL4());
-                variables.setBddAdressePosteeL5(comData.getBddL5());
-                variables.setBddAdressePosteeL6(comData.getBddL6());
-                variables.setBddAdressePosteeL7(comData.getBddL7());
 
-                variables.addAdditionalField("Ue_DateEdition", comData.getEditionDate());
-                variables.addAdditionalField("Ue_CiviliteEnqueteur", comData.getInterviewerTitle());
-                variables.addAdditionalField("Ue_NomEnqueteur", comData.getInterviewerLastName());
-                variables.addAdditionalField("Ue_PrenomEnqueteur", comData.getInterviewerFirstName());
-                variables.addAdditionalField("Ue_MailEnqueteur", comData.getInterviewerEmail());
-                variables.addAdditionalField("Ue_TelEnqueteur", comData.getInterviewerTel());
+                List<Courrier> courrierList = filteredComData.stream().map(comData -> {
+                    Courrier courrier = new Courrier();
+                    // Set NumeroDocument with leading zeros, format the index to 8 digits
+                    String numeroDocument = String.format("%08d", numeroDocumentIndex.getAndIncrement());
 
-                // DB always has reminderReason => check if template is REMINDER type else set to null
-                CommunicationTemplate communicationTemplate =
-                        communicationTemplates.get(Long.toString(comData.getCommunicationTemplateId()));
-                if (communicationTemplate.getCommunicationType().equals("REMINDER")) {
-                    variables.addAdditionalField("Ue_TypeRelance", comData.getReminderReason());
-                }
+                    // Create a Variables object
+                    Variables variables = new Variables();
+                    courrier.setVariables(variables);
 
-                variables.addAdditionalField("Ue_MailAssistance", comData.getMailAssistance());
-                variables.addAdditionalField("Ue_TelAssistance", comData.getTelAssistance());
-
-                String barCode = generateBarCode(idEdition, comData.getCommunicationRequestId());
-                variables.setBarcode(barCode);
-
-                // Set InitAccuseReception based on some business logic
-                variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
+                    variables.setNumeroDocument(numeroDocument);
+                    variables.setBddIdentifiantUniteEnquetee(comData.getCommunicationRequestId());
+                    variables.setCodePostalDestinataire(comData.getRecipientPostCode());
 
 
-                // handle metadata from template
-                // keep in mind merge with surveyUnit metadata coming later
+                    // Map other fields from CommunicationData to Courrier
+                    variables.setBddAdressePosteeL1(comData.getBddL1());
+                    variables.setBddAdressePosteeL2(comData.getBddL2());
+                    variables.setBddAdressePosteeL3(comData.getBddL3());
+                    variables.setBddAdressePosteeL4(comData.getBddL4());
+                    variables.setBddAdressePosteeL5(comData.getBddL5());
+                    variables.setBddAdressePosteeL6(comData.getBddL6());
+                    variables.setBddAdressePosteeL7(comData.getBddL7());
 
-                comData.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(),
+                    variables.addAdditionalField("Ue_DateEdition", comData.getEditionDate());
+                    variables.addAdditionalField("Ue_CiviliteEnqueteur", comData.getInterviewerTitle());
+                    variables.addAdditionalField("Ue_NomEnqueteur", comData.getInterviewerLastName());
+                    variables.addAdditionalField("Ue_PrenomEnqueteur", comData.getInterviewerFirstName());
+                    variables.addAdditionalField("Ue_MailEnqueteur", comData.getInterviewerEmail());
+                    variables.addAdditionalField("Ue_TelEnqueteur", comData.getInterviewerTel());
+
+                    // DB always has reminderReason => check if template is REMINDER type else set to null
+                    CommunicationTemplate communicationTemplate =
+                        communicationTemplates.get(comData.getCommunicationTemplateId());
+                    if (communicationTemplate.getCommunicationType().equals("REMINDER")) {
+                        variables.addAdditionalField("Ue_TypeRelance", comData.getReminderReason());
+                    }
+
+                    variables.addAdditionalField("Ue_MailAssistance", comData.getMailAssistance());
+                    variables.addAdditionalField("Ue_TelAssistance", comData.getTelAssistance());
+
+                    String barCode = generateBarCode(idEdition, comData.getCommunicationRequestId());
+                    variables.setBarcode(barCode);
+
+                    // Set InitAccuseReception based on some business logic
+                    variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
+
+
+                    // handle metadata from template
+                    // keep in mind merge with surveyUnit metadata coming later
+
+                    comData.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(),
                         meta.getValue()));
-
-
-                return courrier;
-            }).toList();
-            courriers.setCourriers(courrierList);
-
+                    return courrier;
+                }).toList();
+                courriers.setCourriers(courrierList);
 
             //print to XML file or die trying
 
@@ -224,7 +242,8 @@ public class CommunicationServiceImpl implements CommunicationService {
                     communicationRequestStatusDao.addStatus(
                             communicationData.getCommunicationRequestId(),
                             newStatus,
-                            msDate
+                            msDate,
+                            communicationData.getCommunicationTemplateId()
                     )
             );
 

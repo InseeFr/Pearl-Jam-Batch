@@ -35,6 +35,8 @@
 						<EnqueteurId>AB11ED</EnqueteurId>
 					</Affectation>
 				</UniteEnquetee>
+				<MetadonneesCommunication>
+				</MetadonneesCommunication>
 				<Contacts>
 					<Contact>
 						<Principal>true</Principal>

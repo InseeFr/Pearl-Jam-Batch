@@ -1,11 +1,16 @@
 package fr.insee.pearljam.batch.service;
 
+import fr.insee.pearljam.batch.campaign.*;
+import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -18,21 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.CommentType;
-import fr.insee.pearljam.batch.campaign.CommentsType;
-import fr.insee.pearljam.batch.campaign.ContactAttemptType;
-import fr.insee.pearljam.batch.campaign.ContactAttemptsType;
-import fr.insee.pearljam.batch.campaign.OrganizationalUnitType;
-import fr.insee.pearljam.batch.campaign.OrganizationalUnitsType;
-import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.campaign.PersonsType;
-import fr.insee.pearljam.batch.campaign.PhoneNumberType;
-import fr.insee.pearljam.batch.campaign.PhoneNumbersType;
-import fr.insee.pearljam.batch.campaign.StateType;
-import fr.insee.pearljam.batch.campaign.StatesType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitsType;
 import fr.insee.pearljam.batch.dao.AddressDao;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.ClosingCauseDao;
@@ -59,9 +49,8 @@ import fr.insee.pearljam.batch.utils.XmlUtils;
 
 /**
  * CampaignService : Contains all functions needed to load or delete a Campaign
- * 
- * @author bclaudel
  *
+ * @author bclaudel
  */
 @Service
 public class CampaignService {
@@ -107,6 +96,8 @@ public class CampaignService {
 	InterviewerTypeDao interviewerTypeDao;
 	@Autowired
 	IdentificationDao identificationDao;
+	@Autowired
+	CommunicationMetadataDao communicationMetadataDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -134,15 +125,14 @@ public class CampaignService {
 	}
 
 	/**
-	 * Delete Campaign : delete and archive a campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param in
-	 * @param out
-	 * @return BatchErrorCode
-	 * @throws BatchException
-	 * @throws SQLException
-	 * @throws DataBaseException
+	 * Archives and deletes a campaign, storing its data in an XML file before deletion.
+	 *
+	 * @param campaign The campaign to be archived and deleted.
+	 * @param out      The output directory where the archive XML file will be saved.
+	 * @return         A {@link BatchErrorCode} indicating the success or failure of the operation.
+	 * @throws BatchException    If an error occurs in the batch process.
+	 * @throws SQLException      If a database error occurs.
+	 * @throws DataBaseException If an error occurs during data deletion.
 	 */
 	public BatchErrorCode deleteCampaign(Campaign campaign, String out)
 			throws BatchException, SQLException, DataBaseException {
@@ -157,13 +147,13 @@ public class CampaignService {
 	}
 
 	/**
-	 * Archive Campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param returnCode
-	 * @param delete
-	 * @return BatchErrorCode
-	 * @throws DataBaseException
+	 * Archives a campaign by retrieving and associating related survey units and metadata.
+	 *
+	 * @param campaign     The campaign object to be archived.
+	 * @param returnCode   The initial return code that may be updated based on execution.
+	 * @param delete       Indicates whether survey units should be deleted after archiving.
+	 * @return             The final BatchErrorCode indicating the status of the operation.
+	 * @throws DataBaseException If an error occurs while accessing the database.
 	 */
 	private BatchErrorCode archiveCampaign(Campaign campaign, BatchErrorCode returnCode, boolean delete)
 			throws DataBaseException {
@@ -287,12 +277,13 @@ public class CampaignService {
 	}
 
 	/**
-	 * Delete Campaign and all data associated
-	 * 
-	 * @param campaign
-	 * @param allSurveyUnitAndCampaign
-	 * @throws SQLException
-	 * @throws DataBaseException
+	 * Deletes a campaign and optionally all associated survey units from the database.
+	 *
+	 * @param campaign                    The campaign to be deleted.
+	 * @param allSurveyUnitAndCampaign     If true, deletes all survey units and the campaign itself;
+	 *                                     if false, only deletes specified survey units.
+	 * @throws SQLException                If a database error occurs during the transaction.
+	 * @throws DataBaseException           If an error occurs and a rollback is performed.
 	 */
 	private void deleteCampaign(Campaign campaign, boolean allSurveyUnitAndCampaign)
 			throws SQLException, DataBaseException {
@@ -325,10 +316,10 @@ public class CampaignService {
 
 	/**
 	 * Delete Survey unit and all data associated
-	 * 
-	 * @param campaign
-	 * @param allSurveyUnit
-	 * @throws SQLException
+	 *
+	 * @param campaign      c
+	 * @param allSurveyUnit boolean
+	 * @throws SQLException sqlE
 	 */
 	private void deleteSurveyUnit(Campaign campaign, boolean allSurveyUnit) throws SQLException {
 		messageDao.deleteByCampaign(campaign.getId());
@@ -360,8 +351,8 @@ public class CampaignService {
 
 	/**
 	 * Check if delete concern all survey unit or not
-	 * 
-	 * @param campaign
+	 *
+	 * @param campaign c
 	 * @return true if all survey unit have to be deleted
 	 */
 	private boolean checkListAllSurveyUnit(Campaign campaign) {
@@ -396,7 +387,7 @@ public class CampaignService {
 		return oldSu;
 	}
 
-	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SynchronizationException {
+	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId)  {
 		// Create address
 		Long addressId = addressDao.createAddress(surveyUnitType.getInseeAddress());
 		// Create sample identifier
@@ -429,6 +420,22 @@ public class CampaignService {
 				commentDao.createComment(comment, surveyUnitType.getId());
 			}
 		}
+
+// Regrouper les métadonnées par surveyUnitId
+		Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit = new HashMap<>();
+
+		if (surveyUnitType.getCommunicationMetadatas() != null) {
+			metadataBySurveyUnit.put(surveyUnitType.getId(),
+					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata());
+		}
+
+// Exécuter l'insertion en lot si des données existent
+		if (!metadataBySurveyUnit.isEmpty()) {
+			communicationMetadataDao.createAllMetadataForSurveyUnits(metadataBySurveyUnit);
+		}
+
+
+
 	}
 
 	private void updateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SynchronizationException {
@@ -449,12 +456,9 @@ public class CampaignService {
 				phoneNumberDao.createPhoneNumber(phoneNumber, personId);
 			}
 		}
-
 	}
 
-	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) throws SynchronizationException {
-		String affectation = null;
-
+	private String getInterviewerAffectation(SurveyUnitType surveyUnitType) {
 		if (surveyUnitType.getInterviewerId() != null && surveyUnitType.getInterviewerId().equalsIgnoreCase("none")) {
 			return null;
 		}
@@ -462,12 +466,10 @@ public class CampaignService {
 			return surveyUnitType.getInterviewerId();
 		}
 
-		return affectation;
+		return null;
 	}
 
-	private String getOrganizationUnitAffectation(SurveyUnitType surveyUnitType) throws SynchronizationException {
-		String affectation = null;
-
+	private String getOrganizationUnitAffectation(SurveyUnitType surveyUnitType) {
 		if (surveyUnitType.getOrganizationalUnitId() != null
 				&& surveyUnitType.getOrganizationalUnitId().equalsIgnoreCase("none")) {
 			return null;
@@ -476,12 +478,12 @@ public class CampaignService {
 			return surveyUnitType.getOrganizationalUnitId();
 		}
 
-		return affectation;
+		return null;
 	}
 
 	/**
 	 * Get the current date with a specific format for path
-	 * 
+	 *
 	 * @return the current date
 	 */
 	public static String getTimestampForPath() {

@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CommunicationData {
 
-    private long communicationTemplateId;
+    private String communicationTemplateId;
 
     private String bddL1;
     private String bddL2;

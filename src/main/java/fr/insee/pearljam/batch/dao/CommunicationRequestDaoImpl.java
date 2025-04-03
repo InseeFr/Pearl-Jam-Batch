@@ -22,7 +22,7 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
     public List<CommunicationRequestType> findAll() {
         String qString = """
                 SELECT DISTINCT ON (cr.id)
-                cr.id, cr.emitter, cr.reason, cr.communication_template_id, cr.survey_unit_id,
+                cr.id, cr.emitter, cr.reason, cr.campaign_id,cr.meshuggah_id, cr.survey_unit_id,
                 crs.status, crs.date
                 FROM communication_request cr
                 LEFT JOIN communication_request_status crs
@@ -42,7 +42,8 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
             CommunicationRequestType commRequest = new CommunicationRequestType();
             commRequest.setId(rs.getString("id"));
             commRequest.setReason(rs.getString("reason"));
-            commRequest.setCommunicationTemplateId(rs.getLong("communication_template_id"));
+            commRequest.setCampaignId(rs.getString("campaign_id"));
+            commRequest.setMeshuggahId(rs.getString("meshuggah_id"));
             commRequest.setStatus(rs.getString("status"));
             commRequest.setEmitter(rs.getString("emitter"));
             commRequest.setDate(rs.getLong("date"));
