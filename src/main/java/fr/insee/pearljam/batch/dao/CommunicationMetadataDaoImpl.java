@@ -24,7 +24,7 @@ public class CommunicationMetadataDaoImpl implements CommunicationMetadataDao {
 				+ "FROM communication_metadata "
 				+ "WHERE campaign_id = ? AND meshuggah_id = ? AND survey_unit_id = ?";
 
-		return pilotageJdbcTemplate.query(QUERY, new Object[]{campaignId, meshuggahId, surveyUnitId},
+		return pilotageJdbcTemplate.query(QUERY,
 				(rs, rowNum) -> {
 					CommunicationMetadataType metadata = new CommunicationMetadataType();
 					metadata.setKey(rs.getString("metadata_key"));
@@ -32,32 +32,22 @@ public class CommunicationMetadataDaoImpl implements CommunicationMetadataDao {
 					metadata.setCampaignId(rs.getString("campaign_id"));
 					metadata.setMeshuggahId(rs.getString("meshuggah_id"));
 					return metadata;
-				});
+				},
+				campaignId, meshuggahId, surveyUnitId);
 	}
+
 
 
 	@Override
 	public void createAllMetadataForSurveyUnits(Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit) {
-		List<Object[]> batchArgs = new ArrayList<>();
-		final String INSERT_METADATA_SQL = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value, campaign_id, meshuggah_id) VALUES (?, ?, ?, ?, ?)";
+		final String SQL = "INSERT INTO communication_metadata (survey_unit_id, metadata_key, metadata_value, campaign_id, meshuggah_id) VALUES (?, ?, ?, ?, ?)";
 
-		for (Map.Entry<String, List<CommunicationMetadataType>> entry : metadataBySurveyUnit.entrySet()) {
-			String surveyUnitId = entry.getKey();
+		List<Object[]> batchArgs = metadataBySurveyUnit.entrySet().stream()
+				.flatMap(e -> e.getValue().stream().map(m -> new Object[]{e.getKey(), m.getKey(), m.getValue(), m.getCampaignId(), m.getMeshuggahId()}))
+				.toList();
 
-			for (CommunicationMetadataType metadata : entry.getValue()) {
-
-				batchArgs.add(new Object[]{
-						surveyUnitId,
-						metadata.getKey(),
-						metadata.getValue(),
-						metadata.getCampaignId(),
-						metadata.getMeshuggahId()
-				});
-			}
-		}
-
-		// Exécution du batch insert
-		pilotageJdbcTemplate.batchUpdate(INSERT_METADATA_SQL, batchArgs);
+		pilotageJdbcTemplate.batchUpdate(SQL, batchArgs);
 	}
+
 
 }

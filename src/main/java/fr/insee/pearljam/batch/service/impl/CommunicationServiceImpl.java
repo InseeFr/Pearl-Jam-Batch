@@ -102,8 +102,9 @@ public class CommunicationServiceImpl implements CommunicationService {
             CommunicationTemplate communicationTemplate =
                     communicationTemplates.get(cr.getMeshuggahId());
 
-            if (communicationTemplate != null) {
+            data.setTemplateMetadata(List.of());
 
+            if (communicationTemplate != null) {
                 List<Metadata> metadataFromDao = communicationMetadataDao
                     .findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId(su.getCampaignId(), communicationTemplate.getCommunicationId(), su.getId())
                     .stream()
@@ -128,11 +129,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                     .toList();
 
                 data.setTemplateMetadata(mergedMetadatas);
-            } else {
-                data.setTemplateMetadata(List.of());
             }
-
-
 
             return data;
         }).toList();

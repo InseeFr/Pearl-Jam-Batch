@@ -125,14 +125,14 @@ public class CampaignService {
 	}
 
 	/**
-	 * Delete Campaign : delete and archive a campaign and all data associated
+	 * Archives and deletes a campaign, storing its data in an XML file before deletion.
 	 *
-	 * @param campaign input campaign
-	 * @param out      folder
-	 * @return BatchErrorCode
-	 * @throws BatchException    batchE
-	 * @throws SQLException      sqlE
-	 * @throws DataBaseException dbE
+	 * @param campaign The campaign to be archived and deleted.
+	 * @param out      The output directory where the archive XML file will be saved.
+	 * @return         A {@link BatchErrorCode} indicating the success or failure of the operation.
+	 * @throws BatchException    If an error occurs in the batch process.
+	 * @throws SQLException      If a database error occurs.
+	 * @throws DataBaseException If an error occurs during data deletion.
 	 */
 	public BatchErrorCode deleteCampaign(Campaign campaign, String out)
 			throws BatchException, SQLException, DataBaseException {
@@ -147,13 +147,13 @@ public class CampaignService {
 	}
 
 	/**
-	 * Archive Campaign and all data associated
+	 * Archives a campaign by retrieving and associating related survey units and metadata.
 	 *
-	 * @param campaign   c
-	 * @param returnCode r
-	 * @param delete     should it delete
-	 * @return BatchErrorCode
-	 * @throws DataBaseException dbE
+	 * @param campaign     The campaign object to be archived.
+	 * @param returnCode   The initial return code that may be updated based on execution.
+	 * @param delete       Indicates whether survey units should be deleted after archiving.
+	 * @return             The final BatchErrorCode indicating the status of the operation.
+	 * @throws DataBaseException If an error occurs while accessing the database.
 	 */
 	private BatchErrorCode archiveCampaign(Campaign campaign, BatchErrorCode returnCode, boolean delete)
 			throws DataBaseException {
@@ -277,12 +277,13 @@ public class CampaignService {
 	}
 
 	/**
-	 * Delete Campaign and all data associated
+	 * Deletes a campaign and optionally all associated survey units from the database.
 	 *
-	 * @param campaign                 c
-	 * @param allSurveyUnitAndCampaign boolean
-	 * @throws SQLException      sqlE
-	 * @throws DataBaseException dbE
+	 * @param campaign                    The campaign to be deleted.
+	 * @param allSurveyUnitAndCampaign     If true, deletes all survey units and the campaign itself;
+	 *                                     if false, only deletes specified survey units.
+	 * @throws SQLException                If a database error occurs during the transaction.
+	 * @throws DataBaseException           If an error occurs and a rollback is performed.
 	 */
 	private void deleteCampaign(Campaign campaign, boolean allSurveyUnitAndCampaign)
 			throws SQLException, DataBaseException {
