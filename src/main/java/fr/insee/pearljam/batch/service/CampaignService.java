@@ -159,11 +159,6 @@ public class CampaignService {
 			throws DataBaseException {
 
 		Campaign dbCampaign = campaignDao.findById(campaign.getId());
-		if(dbCampaign.isSensitivity().equals(true)) {
-			logger.log(Level.ERROR, "Aborting extraction. This batch does not extract sensitive campaigns. The campaign {} is sensitive",
-					dbCampaign.getId());
-			returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
-		}
 		this.deleteAllSurveyUnits = false;
 		OrganizationalUnitsType ou = new OrganizationalUnitsType();
 		List<SurveyUnitType> listSurveyUnit = new ArrayList<>();
