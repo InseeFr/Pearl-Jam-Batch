@@ -77,6 +77,7 @@ public class CampaignDaoImpl implements CampaignDao {
 			c.setId(rs.getString("id"));
 			c.setSensitivity(rs.getBoolean("sensitivity"));
 			c.setLabel(rs.getString("label"));
+			c.setIdentificationConfiguration(rs.getString("identification_configuration"));
 			c.setOrganizationalUnits(null);
 			c.setSurveyUnits(null);
 			return c;
