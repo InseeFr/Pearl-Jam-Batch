@@ -88,5 +88,5 @@
 	<include file="pilotage/590_add_sensitivity_field.xml" relativeToChangelogFile="true"/>
 
 	<!-- update communication structure -->
-	<include file="changelog/600_update_communication_structure.xml" relativeToChangelogFile="true"/>
+	<include file="pilotage/600_update_communication_structure.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
