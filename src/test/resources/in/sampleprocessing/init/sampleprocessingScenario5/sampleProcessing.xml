@@ -36,6 +36,11 @@
 					</Affectation>
 				</UniteEnquetee>
 				<MetadonneesCommunication>
+					<CommunicationTemplate type="reminder" medium="letter" meshuggahId="meshuggahId1">
+						<Metadata key="key_one" value="one"/>
+						<Metadata key="key_two" value="two"/>
+						<Metadata key="key_three" value="three"/>
+					</CommunicationTemplate>
 				</MetadonneesCommunication>
 				<Contacts>
 					<Contact>

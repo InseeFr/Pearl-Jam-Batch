@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +23,7 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 import fr.insee.queen.batch.service.DatasetService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
@@ -42,8 +42,8 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 
 	/**
 	 * This method is executed before each test in this class.
-	 * It setup the environment by inserting the data and copying the necessaries files.
-	 * @throws Exception
+	 * It set up the environment by inserting the data and copying the necessaries files.
+	 * @throws Exception e
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
@@ -71,7 +71,7 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 
 	/**
 	 * Scenario 1 : XML file is not valid
-	 * @throws ValidateException
+	 * @throws ValidateException ve
 	 */
 	@Test
 	void testScenario1() throws Exception {
@@ -80,15 +80,15 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating sampleProcessing.xml"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".error.xml"));
+			assertTrue(ve.getMessage().contains("Error validating sampleProcessing.xml"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
 		}
 	}
 
 
 	/**
 	 * Scenario 2 : Campaign in XML file not exist in Datacollection DB
-	 * @throws Exception
+	 * @throws Exception e
 	 */
 	@Test
 	void testScenario2() throws Exception{
@@ -96,14 +96,14 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 		try {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", OUT));
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("does not exist in Data-collection DB"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".error.xml"));
+			assertTrue(ve.getMessage().contains("does not exist in Data-collection DB"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
 		}
 	}
 
 	/**
 	 * Scenario 3 : Campaign in XML file not exist in Pilotage DB
-	 * @throws Exception
+	 * @throws Exception e
 	 */
 	@Test
 	void testScenario3() throws Exception {
@@ -111,54 +111,54 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 		try {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario3", OUT));
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("does not exist in Pilotage DB"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".error.xml"));
+			assertTrue(ve.getMessage().contains("does not exist in Pilotage DB"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
 
 		}
 	}
 
 	/**
 	 * Scenario 4 : XML ok and campaign exist in both DB interviewer not exist in pilotage DB
-	 * @throws Exception
+	 * @throws Exception e
 	 */
 	@Test
 	void testScenario4() throws Exception {
 		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".warning.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign",".warning.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample",".warning.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".warning.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".warning.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".warning.xml"));
 
 	}
 
 	/**
 	 * Scenario 5 : XML ok and campaign exist in both DB
-	 * @throws Exception
+	 * @throws Exception e
 	 */
 	@Test
 	void testScenario5() throws Exception {
 		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".done.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign",".done.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample",".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
 
 	}
 
 	/**
 	 * Scenario 6 : Check if favorite_email is populated
-	 * @throws Exception
+	 * @throws Exception e
 	 */
 	@Test
 	void testScenario6() throws Exception {
 		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing",".done.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign",".done.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
 
 		List<Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
-		List<PersonType> persons = personsMap.stream().map(entry -> entry.getValue()).collect(Collectors.toList());
+		List<PersonType> persons = personsMap.stream().map(Entry::getValue).toList();
 		PersonType truePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("John")).findFirst().get();
 		PersonType falsePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Jane")).findFirst().get();
 		PersonType missingPreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Pat")).findFirst().get();

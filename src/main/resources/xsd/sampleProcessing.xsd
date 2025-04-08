@@ -89,7 +89,7 @@
 															</xs:sequence>
 														</xs:complexType>
 													</xs:element>
-													<xs:element name="MetadonneesCommunication">
+													<xs:element minOccurs="0" maxOccurs="1" name="MetadonneesCommunication">
 														<xs:complexType>
 															<xs:sequence>
 																<xs:element name="CommunicationTemplate" minOccurs="0" maxOccurs="unbounded">
