@@ -2,7 +2,9 @@ package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,12 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,33 +49,33 @@ import fr.insee.queen.batch.object.SurveyUnit;
 import fr.insee.queen.batch.service.LoadService;
 
 /**
- * Launcher Service : this service contains all steps of Batch : 
- * - Validate 
+ * Launcher Service : this service contains all steps of Batch :
+ * - Validate
  * - Load
  * - Clean & reset contents
- * 
+ *
  * @author bclaudel
- * 
+ *
  */
 @Service
 public class PilotageLauncherService {
 
 	@Autowired
 	AnnotationConfigApplicationContext context;
-	
+
 	@Autowired
 	PilotageFolderService pilotageFolderService;
 
 	@Autowired
 	private CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
-	
+
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 	private static final String SAMPLE_PATH_IN = "/sample/sample.xml";
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
-	 * 
+	 *
 	 * @param batchOption
 	 * @param folderIn
 	 * @param folderOut
@@ -86,7 +83,7 @@ public class PilotageLauncherService {
 	 * @throws BatchException
 	 * @throws IOException
 	 * @throws ValidateException
-	 * @throws XMLStreamException 
+	 * @throws XMLStreamException
 	 */
 	public BatchErrorCode validateLoadClean(BatchOption batchOption, String folderIn, String folderOut) throws IOException, ValidateException, XMLStreamException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
@@ -139,7 +136,7 @@ public class PilotageLauncherService {
 			returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
 		}
 		return returnCode;
-		
+
 	}
 
 	/**
@@ -148,38 +145,33 @@ public class PilotageLauncherService {
 	 * @return the reference name of batch execution
 	 */
 	private String getName(BatchOption batchOption) {
-		switch(batchOption) {
-			case DELETECAMPAIGN:
-				return Constants.CAMPAIGN_TO_DELETE;
-			case EXTRACT:
-				return Constants.CAMPAIGN_TO_EXTRACT;
-			case LOADCONTEXT:
-				return Constants.CONTEXT;
-			case SAMPLEPROCESSING:
-				return Constants.SAMPLEPROCESSING;
-			default:
-				return null;
-		}
+		return switch (batchOption) {
+			case DELETECAMPAIGN -> Constants.CAMPAIGN_TO_DELETE;
+			case EXTRACT -> Constants.CAMPAIGN_TO_EXTRACT;
+			case LOADCONTEXT -> Constants.CONTEXT;
+			case SAMPLEPROCESSING -> Constants.SAMPLEPROCESSING;
+			default -> null;
+		};
 	}
 
-	
+
 	/**
 	 * Call load function depends on batchOption
-	 * 
+	 *
 	 * @param batchOption
 	 * @param in
 	 * @param out
 	 * @return BatchErrorCode
-	 * @throws IOException 
-	 * @throws SynchronizationException 
-	 * @throws ValidateException 
-	 * @throws DataBaseException 
-	 * @throws SQLException 
-	 * @throws BatchException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
-	 * @throws Exception 
-	 * @throws ParseException 
+	 * @throws IOException
+	 * @throws SynchronizationException
+	 * @throws ValidateException
+	 * @throws DataBaseException
+	 * @throws SQLException
+	 * @throws BatchException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 * @throws Exception
+	 * @throws ParseException
 	 */
 	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, SynchronizationException, IOException, BatchException, ParserConfigurationException, SAXException {
 		switch(batchOption) {
@@ -199,7 +191,7 @@ public class PilotageLauncherService {
 				return null;
 		}
 	}
-	
+
 	/**
 	 * Global function of clean and reset.
 	 * Filenames depends on return code and batchOption
@@ -214,7 +206,7 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode cleanAndReset(String name, String in, String out, String processing, BatchErrorCode returnCode, BatchOption batchOption) throws IOException, ValidateException {
 		String fileName = getFileName(name, batchOption, returnCode);
-		
+
 		String location;
 		String processedFilename = pilotageFolderService.getFilename();
 		if(( batchOption==BatchOption.SAMPLEPROCESSING) && !processedFilename.isBlank()) {
@@ -223,9 +215,9 @@ public class PilotageLauncherService {
 		else {
 			location = in;
 		}
-		
+
 		File file = new File(location);
-		
+
 		if(file.exists()) {
 			Path temp = Files.move(Paths.get(location),
 					Paths.get(out + "/" + fileName));
@@ -245,10 +237,10 @@ public class PilotageLauncherService {
 		}
 		return returnCode;
 	}
-  
+
 	private String getFileName(String name, BatchOption batchOption, BatchErrorCode returnCode) throws ValidateException {
 		String ending = getEnding(returnCode) ;
-		  
+
 		String designation = null;
 		String finalName = name;
 		switch(batchOption) {
@@ -278,7 +270,7 @@ public class PilotageLauncherService {
 
 	private String getEnding(BatchErrorCode returnCode) throws ValidateException {
 		switch(returnCode) {
-		case KO_TECHNICAL_ERROR: 
+		case KO_TECHNICAL_ERROR:
 		case KO_FONCTIONAL_ERROR:
 			return "error.xml";
 		case OK_TECHNICAL_WARNING:
@@ -291,7 +283,7 @@ public class PilotageLauncherService {
 		}
 	}
 
-	public void moveFileToProcessing(String name, String in, 
+	public void moveFileToProcessing(String name, String in,
 		  String processing, String campaignId) throws IOException {
 	  	String fileName = "";
 	  	fileName = new StringBuilder(name)
@@ -308,7 +300,7 @@ public class PilotageLauncherService {
 			Paths.get(processing + "/" + fileName));
 			if (temp != null) {
 				logger.log(Level.INFO, Constants.MSG_FILE_MOVE_SUCCESS, fileName);
-				
+
 			} else {
 				logger.log(Level.ERROR, Constants.MSG_FAILED_MOVE_FILE);
 			}
@@ -319,7 +311,7 @@ public class PilotageLauncherService {
 
 	/**
 	 * Specific function for delete Campaign
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 * @return BatchErrorCode
@@ -343,10 +335,10 @@ public class PilotageLauncherService {
 			throw new ValidateException(Constants.ERROR_CAMPAIGN_NULL);
 		}
 	}
-	
+
 	/**
 	 * Specific function for extract Campaign
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 * @return BatchErrorCode
@@ -370,10 +362,10 @@ public class PilotageLauncherService {
 			throw new ValidateException(Constants.ERROR_CAMPAIGN_NULL);
 		}
 	}
-	
+
 	/**
 	 * Specific function for load Context
-	 * 
+	 *
 	 * @param in
 	 * @return BatchErrorCode
 	 * @throws SQLException
@@ -390,18 +382,18 @@ public class PilotageLauncherService {
 			throw new ValidateException("Error : context is null");
 		}
 	}
-	
+
 	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SynchronizationException, SQLException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 		CampaignService pilotageCampaignService = context.getBean(CampaignService.class);
 		LoadService dataCollectionloadService = context.getBean(LoadService.class);
-				
+
 		// Move SampleProcessing File to processing folder and unmarshall
 		pilotageFolderService.setCampaignName(in);
 		moveFileToProcessing("sampleprocessing", in, processing, pilotageFolderService.getCampaignName());
 		Campagne sampleProcessing = XmlUtils.xmlToObject(processing + "/" + pilotageFolderService.getFilename(), Campagne.class);
 		logger.log(Level.INFO, "SampleProcessing file parsed");
-		
+
 		// Extract campaignId, list of steps and list of survey-unit id from sampleprocessing
 		String campaignId = sampleProcessing.getIdSource() + sampleProcessing.getMillesime() + sampleProcessing.getIdPeriode();
 		List<String> steps = sampleProcessing.getSteps().getStep().stream().map(Step::getName).collect(Collectors.toList());
@@ -411,12 +403,12 @@ public class PilotageLauncherService {
 				.stream()
 				.map(Campagne.Questionnaires.Questionnaire::getIdInterrogation)
 				.toList();
-		
+
 		logger.log(Level.INFO, "Start split sample processing content");
 		Map<String, SurveyUnit> mapDataCollectionSu = extractAndValidateDatacollectionFromSamplProcessing(steps, campaignId, sampleProcessing);
 		Map<String, SurveyUnitType> mapPilotageSu = extractAndValidatePilotageFromSamplProcessing(steps, campaignId, sampleProcessing);
 		logger.log(Level.INFO, "End split sample processing content");
-		
+
 		// Create or update survey-units on pilotage and/or data-collection
 		boolean pilotageValidate;
 		SurveyUnitType oldSu;
@@ -449,7 +441,7 @@ public class PilotageLauncherService {
 				returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
 			}
 		}
-		
+
 		// Move files in out folder
 		moveFilesInOutFolders(returnCode);
 		return returnCode;
@@ -458,7 +450,7 @@ public class PilotageLauncherService {
 
 	private void moveFilesInOutFolders(BatchErrorCode returnCode) throws IOException, ValidateException {
 		if(new File(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN).exists()) {
-			Files.move(Paths.get(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN), 
+			Files.move(Paths.get(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN),
 					Paths.get(new StringBuilder(ApplicationConfig.FOLDER_OUT_QUEEN)
 					.append("/sample/")
 					.append("sample")
@@ -466,10 +458,10 @@ public class PilotageLauncherService {
 					.append(PathUtils.getTimestampForPath())
 					.append(".")
 					.append(getEnding(returnCode)).toString()));
-			
+
 		}
 		if(new File(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN).exists()) {
-			Files.move(Paths.get(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN), 
+			Files.move(Paths.get(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN),
 					Paths.get(new StringBuilder(ApplicationConfig.FOLDER_OUT)
 							.append("/campaign/")
 							.append("campaign")
@@ -492,9 +484,12 @@ public class PilotageLauncherService {
 		}
 
 		Set<String> expectedMeshuggahIds = sampleProcessing.getQuestionnaires().getQuestionnaire().stream()
-				.flatMap(q -> q.getInformationsGenerales().getMetadonneesCommunication().getCommunicationTemplate().stream())
+				.flatMap(q -> Optional.ofNullable(q)
+						.map(Questionnaire::getInformationsGenerales)
+						.map(InformationsGenerales::getMetadonneesCommunication)
+						.map(MetadonneesCommunication::getCommunicationTemplate).stream().flatMap(Collection::stream))
 				.map(CommunicationTemplate::getMeshuggahId)
-				.collect(Collectors.toSet());
+							.collect(Collectors.toSet());
 
 		Set<String> dbMeshuggahIds = communicationTemplateDaoImpl.findByCampaign(campaignId).stream()
 				.map(CommunicationTemplateType::getMeshuggahId)
