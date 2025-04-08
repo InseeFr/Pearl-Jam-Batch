@@ -79,6 +79,8 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 	 ('STATE2022X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
 	 ('STATE2023X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
 	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F');
+INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
+	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),
