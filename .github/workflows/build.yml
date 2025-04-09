@@ -1,31 +1,42 @@
-name: Build
+name: Build and Analyze
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
-      - '*'
+      - *
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
       - name: Get queen-batch version
         id: queenbatch
-        run: echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)"
+        run: echo "queenbatch_version=$(mvn help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
-      - name: Clone queen-batch
-        run: git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{steps.queenbatch.outputs.prop}}
-
-      - name: Install queen-batch
-        run:  |
-              cd Queen-Batch                                         
-              mvn clean install -DskipTests --batch-mode --no-transfer-progress
+      - name: Clone and install Queen-Batch
+        run: |
+            git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{ steps.queenbatch.outputs.queenbatch_version }}
+            cd Queen-Batch
+            mvn clean install -DskipTests --batch-mode --no-transfer-progress
 
       - name: Build and test with coverage
         timeout-minutes: 15
@@ -36,3 +47,47 @@ jobs:
         with:
           name: coverage-report
           path: target/site/jacoco/jacoco.xml
+
+  sonar:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && contains(fromJson('["opened","synchronize","reopened"]'), github.event.action)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Cache Sonar
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Download coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - name: Run Sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=InseeFr_pearljam-batch \
+            -Dsonar.organization=inseefr \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
