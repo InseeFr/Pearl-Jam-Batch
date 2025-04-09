@@ -10,7 +10,8 @@ on:
       - "*"
 
 jobs:
-  build:
+  build-and-analyze:
+    name: Build & Analyze with SonarCloud
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,52 +42,5 @@ jobs:
 
       - name: Build and test with coverage
         timeout-minutes: 15
-        run: mvn clean verify --batch-mode --no-transfer-progress
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: target/site/jacoco/jacoco.xml
-
-  sonar:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && contains(fromJson('["opened","synchronize","reopened"]'), github.event.action)
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: temurin
-
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Cache Sonar
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Download coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-report
-
-      - name: Run Sonar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn sonar:sonar --batch-mode --no-transfer-progress \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: mvn clean verify sonar:sonar --batch-mode --no-transfer-progress \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
