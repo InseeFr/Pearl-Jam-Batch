@@ -7,7 +7,7 @@ on:
       - develop
   pull_request:
     branches:
-      - *
+      - "*"
 
 jobs:
   build:
@@ -30,7 +30,8 @@ jobs:
 
       - name: Get queen-batch version
         id: queenbatch
-        run: echo "queenbatch_version=$(mvn help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+        run: |
+          echo "queenbatch_version=$(mvn help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Clone and install Queen-Batch
         run: |
