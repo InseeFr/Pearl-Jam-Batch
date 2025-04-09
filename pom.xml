@@ -23,7 +23,6 @@
 		<mockito.version>5.13.0</mockito.version>
 		<sonar.projectKey>InseeFr_Pearl-Jam-Batch</sonar.projectKey>
 		<sonar.organization>inseefr</sonar.organization>
-		<sonar.java.binaries>/target/classes</sonar.java.binaries>
 	</properties>
 
 	<dependencies>
