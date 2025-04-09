@@ -1,7 +1,7 @@
 package fr.insee.pearljam.batch.service;
 
 import fr.insee.pearljam.batch.campaign.*;
-import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
+import fr.insee.pearljam.batch.dao.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -23,24 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.dao.AddressDao;
-import fr.insee.pearljam.batch.dao.CampaignDao;
-import fr.insee.pearljam.batch.dao.ClosingCauseDao;
-import fr.insee.pearljam.batch.dao.CommentDao;
-import fr.insee.pearljam.batch.dao.ContactAttemptDao;
-import fr.insee.pearljam.batch.dao.ContactOutcomeDao;
-import fr.insee.pearljam.batch.dao.IdentificationDao;
-import fr.insee.pearljam.batch.dao.InterviewerTypeDao;
-import fr.insee.pearljam.batch.dao.MessageDao;
-import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
-import fr.insee.pearljam.batch.dao.PersonDao;
-import fr.insee.pearljam.batch.dao.PhoneNumberDao;
-import fr.insee.pearljam.batch.dao.PreferenceDao;
-import fr.insee.pearljam.batch.dao.SampleIdentifierDao;
-import fr.insee.pearljam.batch.dao.StateDao;
-import fr.insee.pearljam.batch.dao.SurveyUnitDao;
-import fr.insee.pearljam.batch.dao.UserTypeDao;
-import fr.insee.pearljam.batch.dao.VisibilityDao;
 import fr.insee.pearljam.batch.exception.BatchException;
 import fr.insee.pearljam.batch.exception.DataBaseException;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
@@ -98,6 +80,8 @@ public class CampaignService {
 	IdentificationDao identificationDao;
 	@Autowired
 	CommunicationMetadataDao communicationMetadataDao;
+	@Autowired
+	CommunicationTemplateDao communicationTemplateDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -289,6 +273,7 @@ public class CampaignService {
 				logger.log(Level.INFO, "All survey units of campaign {}", campaign.getId() + " have been deleted");
 				preferenceDao.deletePreferenceByCampaignId(campaign.getId());
 				visibilityDao.deleteVisibilityByCampaignId(campaign.getId());
+				communicationTemplateDao.deleteByCampaignId(campaign.getId());
 				campaignDao.deleteCampaign(campaign);
 				logger.log(Level.INFO, "Campaign {}", campaign.getId() + ", have been deleted");
 			} else {
@@ -336,6 +321,7 @@ public class CampaignService {
 		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnit.getId());
 		personDao.deletePersonBySurveyUnitId(surveyUnit.getId());
 		stateDao.deleteStateBySurveyUnitId(surveyUnit.getId());
+		communicationMetadataDao.deleteBySurveyUnitId(surveyUnit.getId());
 		surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
 		addressDao.deleteAddressById(addressId);
 		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);

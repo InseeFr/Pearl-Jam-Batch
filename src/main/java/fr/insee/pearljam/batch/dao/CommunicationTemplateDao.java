@@ -8,5 +8,5 @@ public interface CommunicationTemplateDao {
 
     List<CommunicationTemplateType> findByMeshuggahIds(Set<String> meshuggahIds);
     List<CommunicationTemplateType> findByCampaign(String campaignId);
-
+    void deleteByCampaignId(String campaignId);
 }

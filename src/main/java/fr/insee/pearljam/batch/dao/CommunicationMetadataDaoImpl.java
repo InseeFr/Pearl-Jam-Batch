@@ -49,5 +49,11 @@ public class CommunicationMetadataDaoImpl implements CommunicationMetadataDao {
 		pilotageJdbcTemplate.batchUpdate(SQL, batchArgs);
 	}
 
+	@Override
+	public void deleteBySurveyUnitId(String surveyUnitId) {
+			String qString = "DELETE FROM communication_metadata WHERE survey_unit_id=?";
+			pilotageJdbcTemplate.update(qString, surveyUnitId);
+		}
+
 
 }
