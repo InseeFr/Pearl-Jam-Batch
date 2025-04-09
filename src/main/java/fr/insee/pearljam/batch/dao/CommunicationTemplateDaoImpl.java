@@ -4,9 +4,7 @@ import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,20 +16,6 @@ public class CommunicationTemplateDaoImpl implements CommunicationTemplateDao {
 
 	@Autowired
 	JdbcTemplate pilotageJdbcTemplate;
-
-	@Override
-	public List<CommunicationTemplateType> findByMeshuggahIds(Set<String> meshuggahIds) {
-		String qString = "SELECT * FROM communication_template WHERE meshuggah_id IN (" +
-				String.join(",", Collections.nCopies(meshuggahIds.size(), "?")) + ")";
-
-		String[] meshuggahIdsArray = meshuggahIds.toArray(new String[0]);
-
-		return pilotageJdbcTemplate.query(
-				qString,
-				meshuggahIdsArray,
-				new CommunicationTemplateDaoImpl.CommunicationTemplateTypeMapper()
-		);
-	}
 
 	@Override
 	public List<CommunicationTemplateType> findByCampaign(String campaignId) {
