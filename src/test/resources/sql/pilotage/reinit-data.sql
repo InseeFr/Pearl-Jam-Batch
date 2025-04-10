@@ -127,7 +127,10 @@ INSERT INTO public.sample_identifier (dtype,autre,bs,ec,le,nograp,noi,nole,nolog
 	 ('InseeSampleIdentifier','20',20,'2',20,'20',20,20,20,20,20,1),
 	 ('InseeSampleIdentifier','21',21,'2',21,'21',21,21,21,21,21,1),
 	 ('InseeSampleIdentifier','22',22,'2',22,'22',22,22,22,22,22,2),
-	 ('InseeSampleIdentifier','23',23,'2',23,'23',23,23,23,23,23,1);
+	 ('InseeSampleIdentifier','23',23,'2',23,'23',23,23,23,23,23,1),
+	 ('InseeSampleIdentifier','24',24,'2',24,'24',24,24,24,24,24,1),
+	 ('InseeSampleIdentifier','25',25,'2',25,'25',25,25,25,25,25,1),
+	 ('InseeSampleIdentifier','26',26,'2',25,'26',26,26,26,26,26,1);
 INSERT INTO public.state ("date","type",survey_unit_id) VALUES
 	 (1590504459838,'NVM','11'),
 	 (1590504468838,'NVM','12'),
