@@ -83,8 +83,8 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F');
 INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
 	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
-INSERT INTO communication_request (id, survey_unit_id, meshuggah_id, reason, emitter) VALUES
-     ('REQ_MISSING_INTW', 'MISSING_INTW',  'meshuggahId1', 'REFUSAL', 'INTERVIEWER');
+INSERT INTO communication_request ( survey_unit_id, meshuggah_id, reason, emitter) VALUES
+     ('MISSING_INTW',  'meshuggahId1', 'REFUSAL', 'INTERVIEWER');
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),
