@@ -9,4 +9,5 @@ public interface CommunicationMetadataDao {
 	List<CommunicationMetadataType> findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId (String campaignId, String meshuggahId, String surveyUnitId);
 	void createAllMetadataForSurveyUnits(Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit);
 
+	void deleteBySurveyUnitId(String surveyUnitId);
 }

@@ -42,7 +42,6 @@ TRUNCATE TABLE public.address CASCADE;
 
 ALTER TABLE public.communication_request_status ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE public.communication_request ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE public.communication_template ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE public.contact_attempt ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE public.referent ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE public.message ALTER COLUMN id RESTART WITH 1;
@@ -79,6 +78,8 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 	 ('STATE2022X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
 	 ('STATE2023X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
 	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F');
+INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
+	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),

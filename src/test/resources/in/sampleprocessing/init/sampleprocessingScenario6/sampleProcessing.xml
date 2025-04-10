@@ -35,8 +35,6 @@
 						<EnqueteurId>INTW1</EnqueteurId>
 					</Affectation>
 				</UniteEnquetee>
-				<MetadonneesCommunication>
-				</MetadonneesCommunication>
 				<Contacts>
 					<Contact>
 						<Principal>true</Principal>

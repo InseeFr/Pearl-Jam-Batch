@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.4.0</version>
+	<version>3.4.1</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -21,6 +21,8 @@
 		<testcontainers.version>1.20.2</testcontainers.version>
 		<jackson.version>2.17.2</jackson.version>
 		<mockito.version>5.13.0</mockito.version>
+		<sonar.projectKey>InseeFr_Pearl-Jam-Batch</sonar.projectKey>
+		<sonar.organization>inseefr</sonar.organization>
 	</properties>
 
 	<dependencies>
@@ -134,7 +136,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.0</version>
+					<version>3.5.3</version>
 					<configuration>
 						<includes>
 							<include>**/*Test*</include>
@@ -166,9 +168,32 @@
 						</archive>
 					</configuration>
 				</plugin>
+
+
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
