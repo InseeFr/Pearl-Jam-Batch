@@ -22,7 +22,6 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.MeshuggahService;
 import fr.insee.pearljam.batch.utils.XmlUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,6 +88,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 
             data.setEditionDate(now);
             data.setCommunicationRequestId(cr.getId());
+            data.setSurveyUnitBusinessId(su.getDisplayName());
 
             String reason = cr.getReason().equals("REFUSAL") ? "REF" : "IAJ";
             data.setReminderReason(reason);
@@ -168,7 +168,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                     courrier.setVariables(variables);
 
                     variables.setNumeroDocument(numeroDocument);
-                    variables.setBddIdentifiantUniteEnquetee(comData.getCommunicationRequestId());
+                    variables.setBddIdentifiantUniteEnquetee(comData.getSurveyUnitBusinessId());
                     variables.setCodePostalDestinataire(comData.getRecipientPostCode());
 
 
@@ -198,7 +198,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                     variables.addAdditionalField("Ue_MailAssistance", comData.getMailAssistance());
                     variables.addAdditionalField("Ue_TelAssistance", comData.getTelAssistance());
 
-                    String barCode = generateBarCode(idEdition, comData.getCommunicationRequestId());
+                    String barCode = generateBarCode(idEdition, comData.getSurveyUnitBusinessId());
                     variables.setBarcode(barCode);
 
                     // Set InitAccuseReception based on some business logic
@@ -242,8 +242,7 @@ public class CommunicationServiceImpl implements CommunicationService {
                     communicationRequestStatusDao.addStatus(
                             communicationData.getCommunicationRequestId(),
                             newStatus,
-                            msDate,
-                            communicationData.getCommunicationTemplateId()
+                            msDate
                     )
             );
 
@@ -345,7 +344,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         return String.join(" ", title, lastName).substring(0, 38);
     }
 
-    public String generateBarCode(String idEdition, String communicationRequestId) {
+    public String generateBarCode(String idEdition, String surveyUnitBusinessId) {
         // Segment 1: Code identifiant de l'Insee
         StringBuilder barcode = new StringBuilder("IS");
 
@@ -357,9 +356,9 @@ public class CommunicationServiceImpl implements CommunicationService {
         String truncatedEdition = idEdition.substring(2);
         barcode.append(truncatedEdition);
 
-        // Segment 4: Destinataire courrier (communication request ID, fiiled up to 14 chars with spaces)
-        String truncatedCommunicationId = communicationRequestId.length() > 14 ? communicationRequestId.substring(0,
-                14) : String.format("%-14s", communicationRequestId);
+        // Segment 4: Destinataire courrier (surveyUnit business ID, filled up to 14 chars with spaces)
+        String truncatedCommunicationId = surveyUnitBusinessId.length() > 14 ? surveyUnitBusinessId.substring(0,
+                14) : String.format("%-14s", surveyUnitBusinessId);
         barcode.append(truncatedCommunicationId);
 
         // Segment 5: Ventilation (fixed 2 spaces)
