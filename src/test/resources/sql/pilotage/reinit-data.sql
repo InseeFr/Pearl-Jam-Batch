@@ -155,7 +155,7 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('25','business-id-25',true,10,'STATE2021X00','INTW1',10,'OU-NORTH',false,NULL),
 	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
-	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL)
+	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL),
 	 ('MISSING_INTW', 'business-id-MISSING_INTW', true, 14, 'SIMPSONS2020X00', 'INTW_MISSING', 15, 'OU-NORTH', false, NULL),
 	 ('NO_ADDRESS', 'business-id-NO_ADDRESS', true, 9999, 'SIMPSONS2020X00', 'INTW1', 15, 'OU-NORTH', false, NULL),
 	 ('SIM_MISSING_TEMPLATE', 'business-id-MISSING_TEMPLATE', true, 16, 'SIMPSONS2020X00', 'INTW1', 16, 'OU-NORTH', false, NULL);
