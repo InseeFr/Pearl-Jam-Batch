@@ -84,7 +84,7 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
 	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
 INSERT INTO communication_request (id, survey_unit_id, status, meshuggah_id, reason) VALUES
-     ('REQ_MISSING_INTW', 'SIM_MISSING_INTW', 'READY', 'meshuggahId1', 'REFUSAL');
+     ('REQ_MISSING_INTW', 'MISSING_INTW', 'READY', 'meshuggahId1', 'REFUSAL');
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),
