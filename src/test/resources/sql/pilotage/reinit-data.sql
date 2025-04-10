@@ -70,7 +70,7 @@ INSERT INTO public.address (dtype,l1,l2,l3,l4,l5,l6,l7,building,floor,door,stair
 	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true),
 	 ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true),
 	 ('InseeAddress', 'No Interviewer Street', '', '', '100 avenue du vide', '', '99000 NullePart', 'France', NULL, NULL, NULL, NULL, NULL, NULL),
-	 ('InseeAddress', 'Missing Template Street', '', '', '200 boulevard cassé', '', '99001 Perduville', 'France', NULL, NULL, NULL, NULL, NULL, NULL),
+	 ('InseeAddress', 'Missing Template Street', '', '', '200 boulevard cassé', '', '99001 Perduville', 'France', NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 INSERT INTO public.campaign (id,"label",email,identification_configuration,contact_attempt_configuration,contact_outcome_configuration) VALUES
@@ -156,8 +156,8 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
 	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL),
-	 ('MISSING_INTW', 'business-id-MISSING_INTW', true, 14, 'SIMPSONS2020X00', 'INTW_MISSING', 15, 'OU-NORTH', false, NULL),
-	 ('NO_ADDRESS', 'business-id-NO_ADDRESS', true, 9999, 'SIMPSONS2020X00', 'INTW1', 15, 'OU-NORTH', false, NULL),
+	 ('MISSING_INTW', 'business-id-MISSING_INTW', true, 14, 'SIMPSONS2020X00', NULL, 15, 'OU-NORTH', false, NULL),
+	 ('NO_ADDRESS', 'business-id-NO_ADDRESS', true, NULL, 'SIMPSONS2020X00', 'INTW1', 15, 'OU-NORTH', false, NULL),
 	 ('SIM_MISSING_TEMPLATE', 'business-id-MISSING_TEMPLATE', true, 16, 'SIMPSONS2020X00', 'INTW1', 16, 'OU-NORTH', false, NULL);
 
 
