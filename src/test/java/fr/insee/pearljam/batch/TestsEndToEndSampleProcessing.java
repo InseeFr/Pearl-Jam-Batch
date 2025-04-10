@@ -3,8 +3,12 @@ package fr.insee.pearljam.batch;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
+import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,15 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	
+
 	PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
 
 	DatasetService datasetService = context.getBean(DatasetService.class);
 
 	PersonDao  personDao = context.getBean(PersonDao.class);
-	
-	
-	
+	CommunicationMetadataDao  communicationMetadataDao = context.getBean(CommunicationMetadataDao.class);
+
+
+
 	private static final String OUT = "src/test/resources/out/sampleprocessing/testScenarios";
 	private static final String OUT_SAMPLE = "src/test/resources/out/sample";
 	private static final String OUT_CAMPAIGN = "src/test/resources/out/campaign";
@@ -142,6 +147,18 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
+
+		// check creation of metadata
+		List<CommunicationMetadataType> metadata= communicationMetadataDao.findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId("SIMPSONS2020X00","meshuggahId1","SIM1234");
+
+		Map<String, String> actualMetadata = metadata.stream()
+				.collect(Collectors.toMap(CommunicationMetadataType::getKey, CommunicationMetadataType::getValue));
+		Map<String, String> expectedMetadata = Map.of(
+				"key_one", "one",
+				"key_two", "two",
+				"key_three", "three"
+		);
+		assertEquals(expectedMetadata, actualMetadata, "Metadata key-value pairs do not match");
 
 	}
 
