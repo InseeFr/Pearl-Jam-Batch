@@ -1,5 +1,7 @@
 package fr.insee.pearljam.batch.exception;
 
+import java.io.Serial;
+
 /**
  * Class to throw a FolderException
  * @author scorcaud
@@ -7,20 +9,14 @@ package fr.insee.pearljam.batch.exception;
  */
 public class FolderException extends Exception {
 	
+	@Serial
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Defaut constructor of a FolderException
-	 */
-	public FolderException() {
-		super();
-	}
 
 	/**
 	 * Constructor for a FolderException
 	 * @param message
 	 */
-	public FolderException(String s) {
-		super(s);
+	public FolderException(String message) {
+		super(message);
 	}
 }
