@@ -85,7 +85,10 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
 	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
 INSERT INTO communication_request ( survey_unit_id, campaign_id, meshuggah_id, reason, emitter) VALUES
-     ('MISSING_INTW', 'SIMPSONS2020X00', 'meshuggahId1', 'REFUSAL', 'INTERVIEWER');
+     ('11', 'SIMPSONS2020X00', 'READY', 'meshuggahId1', 'REFUSAL');
+INSERT INTO communication_request_status (communication_request_id, status, "date") VALUES
+     (1,'READY', 1590969600000);
+
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),
@@ -127,11 +130,7 @@ INSERT INTO public.sample_identifier (dtype,autre,bs,ec,le,nograp,noi,nole,nolog
 	 ('InseeSampleIdentifier','14',14,'1',14,'14',14,14,14,14,14,3),
 	 ('InseeSampleIdentifier','20',20,'2',20,'20',20,20,20,20,20,1),
 	 ('InseeSampleIdentifier','21',21,'2',21,'21',21,21,21,21,21,1),
-	 ('InseeSampleIdentifier','22',22,'2',22,'22',22,22,22,22,22,2),
-	 ('InseeSampleIdentifier','23',23,'2',23,'23',23,23,23,23,23,1),
-	 ('InseeSampleIdentifier','24',24,'2',24,'24',24,24,24,24,24,1),
-	 ('InseeSampleIdentifier','25',25,'2',25,'25',25,25,25,25,25,1),
-	 ('InseeSampleIdentifier','26',26,'2',25,'26',26,26,26,26,26,1);
+	 ('InseeSampleIdentifier','22',22,'2',22,'22',22,22,22,22,22,2);
 INSERT INTO public.state ("date","type",survey_unit_id) VALUES
 	 (1590504459838,'NVM','11'),
 	 (1590504468838,'NVM','12'),
@@ -159,19 +158,14 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('25','business-id-25',true,10,'STATE2021X00','INTW1',10,'OU-NORTH',false,NULL),
 	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
-	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL),
-	 ('MISSING_INTW', 'business-id-MISSING_INTW', true, 14, 'SIMPSONS2020X00', NULL, 15, 'OU-NORTH', false, NULL),
-	 ('NO_ADDRESS', 'business-id-NO_ADDRESS', true, NULL, 'SIMPSONS2020X00', 'INTW1', NULL, 'OU-NORTH', false, NULL),
-	 ('SIM_MISSING_TEMPLATE', 'business-id-MISSING_TEMPLATE', true, 16, 'SIMPSONS2020X00', 'INTW1', 16, 'OU-NORTH', false, NULL);
-
-
+	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
 	 ('ABC','Melinda','Webb','OU-NORTH'),
 	 ('DEF','Everett','Juste','OU-NORTH'),
 	 ('GHI','Elsie','Clarke','OU-SOUTH'),
 	 ('JKL','Julius','Howell','OU-NATIONAL');
 INSERT INTO public.visibility (campaign_id,organization_unit_id,collection_end_date,collection_start_date,end_date,identification_phase_start_date,interviewer_start_date,management_start_date,use_letter_communication,mail,tel) VALUES
-	 ('SIMPSONS2020X00','OU-NORTH',1640995200000,1645995200000,1641513600000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
+	 ('SIMPSONS2020X00','OU-NORTH',1640995200000,1645995200000,1641513600000,1577232000000,1576800000000,1575936000000,true,'mail@ma.il','0123456789'),
 	 ('VQS2021X00','OU-NORTH',1577836800000,1577836800000,1577836800000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
 	 ('VQS2021X00','OU-SOUTH',1640995200000,1577836800000,1641513600000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
 	 ('STATE2020X00','OU-NORTH',1640995200000,1640995200000,1640995200000,1640995200000,1640995200000,1640995200000,true,NULL,NULL),

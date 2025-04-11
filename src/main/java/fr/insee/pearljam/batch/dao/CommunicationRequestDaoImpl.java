@@ -36,6 +36,22 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
 
     }
 
+    @Override
+    public void save(CommunicationRequestType request) {
+        String q = """
+        INSERT INTO communication_request
+        ( survey_unit_id, emitter, reason, campaign_id, meshuggah_id)
+        VALUES (?, ?, ?, ?, ?)
+    """;
+        pilotageJdbcTemplate.update(q,
+                request.getSurveyUnitId(),
+                request.getEmitter(),
+                request.getReason(),
+                request.getCampaignId(),
+                request.getMeshuggahId()
+        );
+    }
+
 
     private static final class CommunicationRequestTypeMapper implements RowMapper<CommunicationRequestType> {
         public CommunicationRequestType mapRow(ResultSet rs, int rowNum) throws SQLException {

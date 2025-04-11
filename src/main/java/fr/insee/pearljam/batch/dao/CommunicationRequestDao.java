@@ -10,4 +10,5 @@ public interface CommunicationRequestDao {
 
     public void delete(String communicationRequestId);
 
+    void save(CommunicationRequestType request);
 }
