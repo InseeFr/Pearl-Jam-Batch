@@ -67,12 +67,7 @@ INSERT INTO public.address (dtype,l1,l2,l3,l4,l5,l6,l7,building,floor,door,stair
 	 ('InseeAddress','Veronica Gill','','','4 chemin du ruisseau','','44190 Clisson','France','','','','',true,true),
 	 ('InseeAddress','Christine Aguilar','','','5 rue de l''école','','59620 Aulnoye-Aimeries','France','','','','',true,true),
 	 ('InseeAddress','Louise Walker','','','6 impasse du lac','','38200 Vienne','France','','','','',true,true),
-	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true),
-	 ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true),
-	 ('InseeAddress', 'No Interviewer', '', '', '100 avenue du vide', '', '99000 NullePart', 'France', NULL, NULL, NULL, NULL, NULL, NULL),
-	 ('InseeAddress', 'Missing Address', '', '', '200 boulevard cassé', '', '99001 Perduville', 'France', NULL, NULL, NULL, NULL, NULL, NULL),
-	 ('InseeAddress', 'Missing Template', '', '', '10 rue des lapins', '', '29270 Carhaix', 'France', NULL, NULL, NULL, NULL, NULL, NULL);
-
+	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true);
 
 INSERT INTO public.campaign (id,"label",email,identification_configuration,contact_attempt_configuration,contact_outcome_configuration) VALUES
 	 ('SIMPSONS2020X00','Survey on the Simpsons tv show 2020',NULL,'IASCO','F2F','F2F'),
@@ -130,7 +125,8 @@ INSERT INTO public.sample_identifier (dtype,autre,bs,ec,le,nograp,noi,nole,nolog
 	 ('InseeSampleIdentifier','14',14,'1',14,'14',14,14,14,14,14,3),
 	 ('InseeSampleIdentifier','20',20,'2',20,'20',20,20,20,20,20,1),
 	 ('InseeSampleIdentifier','21',21,'2',21,'21',21,21,21,21,21,1),
-	 ('InseeSampleIdentifier','22',22,'2',22,'22',22,22,22,22,22,2);
+	 ('InseeSampleIdentifier','22',22,'2',22,'22',22,22,22,22,22,2),
+	 ('InseeSampleIdentifier','23',23,'2',23,'23',23,23,23,23,23,1);
 INSERT INTO public.state ("date","type",survey_unit_id) VALUES
 	 (1590504459838,'NVM','11'),
 	 (1590504468838,'NVM','12'),

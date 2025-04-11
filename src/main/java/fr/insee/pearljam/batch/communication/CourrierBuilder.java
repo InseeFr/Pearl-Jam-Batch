@@ -26,7 +26,7 @@ public class CourrierBuilder {
 
 		String numeroDocument = String.format("%08d", documentIndex);
 		variables.setNumeroDocument(numeroDocument);
-		variables.setBddIdentifiantUniteEnquetee(data.getSurveyUnitBusinessId());
+		variables.setBddIdentifiantUniteEnquetee(data.getCommunicationRequestId()); // will be replaced by su.businessId in
 		variables.setCodePostalDestinataire(data.getRecipientPostCode());
 
 		// Address fields
@@ -56,7 +56,7 @@ public class CourrierBuilder {
 		variables.addAdditionalField("Ue_TelAssistance", data.getTelAssistance());
 
 		// Barcode
-		variables.setBarcode(generateBarCode(editionId, data.getSurveyUnitBusinessId()));
+		variables.setBarcode(generateBarCode(editionId, data.getCommunicationRequestId())); // will be replaced by su.businessId soom
 
 		// Acknowledgement flag
 		variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
