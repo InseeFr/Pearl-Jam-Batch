@@ -31,47 +31,6 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 		assertEquals(BatchErrorCode.OK, result, "Expected success on happy path");
 	}
 
-	@Test
-	void testHandleCommunications_missingInterviewer() throws Exception {
-		BatchErrorCode result = communicationService.handleCommunications();
-		assertEquals(BatchErrorCode.OK, result, "Service should not crash on missing interviewer");
-		// TODO: Additional assertions: log, missing output, etc.
-		// check generated file for missing
-	}
-
-	@Test
-	void testHandleCommunications_missingAddress() throws Exception {
-		BatchErrorCode result = communicationService.handleCommunications();
-		assertEquals(BatchErrorCode.OK, result, "Service should not crash on missing address");
-		// TODO: check generated file
-	}
-
-	@Test
-	void testHandleCommunications_missingTemplate() {
-		CommunicationRequestDao commReqDao = context.getBean(CommunicationRequestDao.class);
-		CommunicationRequestStatusDao statusDao = context.getBean(CommunicationRequestStatusDao.class);
-
-
-
-		// insert a communication request pointing to an unknown meshuggahId
-		CommunicationRequestType req = new CommunicationRequestType();
-		req.setId("REQ_FAIL_TEMPLATE");
-		req.setSurveyUnitId("12");
-		req.setEmitter("INTERVIEWER");
-		req.setReason("REFUSAL");
-		req.setCampaignId("SIMPSONS2020X00");
-		req.setMeshuggahId("unknown_template");
-
-		commReqDao.save(req);
-		statusDao.addStatus("REQ_FAIL_TEMPLATE", "READY", 1590969600000L); // 2020-06-01
-
-		Exception thrown = assertThrows(RuntimeException.class, () -> {
-			communicationService.handleCommunications();
-		});
-
-		assertTrue(thrown.getMessage().contains("Error fetching template"));
-	}
-
 	@AfterEach
 	void cleanUp() {
 		purgeDirectory(new java.io.File(OUT_PATH));

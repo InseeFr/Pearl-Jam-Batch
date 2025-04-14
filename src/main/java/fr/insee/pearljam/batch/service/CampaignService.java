@@ -320,8 +320,8 @@ public class CampaignService {
 		personDao.deletePersonBySurveyUnitId(surveyUnit.getId());
 		stateDao.deleteStateBySurveyUnitId(surveyUnit.getId());
 		communicationMetadataDao.deleteBySurveyUnitId(surveyUnit.getId());
-		communicationRequestDao.deleteBySurveyUnitId(surveyUnit.getId());
 		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnit.getId());
+		communicationRequestDao.deleteBySurveyUnitId(surveyUnit.getId());
 		surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
 		addressDao.deleteAddressById(addressId);
 		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);
