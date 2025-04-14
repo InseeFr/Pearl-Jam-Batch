@@ -6,22 +6,23 @@ import fr.insee.pearljam.batch.dao.CommunicationRequestDao;
 import fr.insee.pearljam.batch.dao.CommunicationRequestStatusDao;
 import fr.insee.pearljam.batch.service.CommunicationService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 
 	private static final String OUT_PATH = "src/test/resources/out/unitTests";
 
-	AnnotationConfigApplicationContext context;
-	CommunicationService communicationService;
+	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
+	CommunicationService communicationService = context.getBean(CommunicationService.class);
 
 	@BeforeEach
 	void setUp() throws Exception {
 		reinitData();
-		context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-		communicationService = context.getBean(CommunicationService.class);
 	}
 
 	@Test
