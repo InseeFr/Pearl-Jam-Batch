@@ -28,7 +28,7 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 	@Test
 	void testHandleCommunications_success() throws Exception {
 		BatchErrorCode result = communicationService.handleCommunications();
-		assertEquals(BatchErrorCode.OK, result, "Expected success on happy path");
+		assertEquals(BatchErrorCode.OK, result, "Expected success");
 	}
 
 	@AfterEach

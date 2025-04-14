@@ -156,6 +156,11 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
 	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
+
+INSERT INTO public.person ( birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) VALUES
+     (537535800000, 'ted.farmer@test.com', true, 'Ted', 'Farmer', 'MISTER', '11', true );
+
+
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
 	 ('ABC','Melinda','Webb','OU-NORTH'),
 	 ('DEF','Everett','Juste','OU-NORTH'),
