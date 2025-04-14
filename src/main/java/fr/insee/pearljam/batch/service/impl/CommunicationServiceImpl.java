@@ -113,33 +113,6 @@ public class CommunicationServiceImpl implements CommunicationService {
 		return batchResult;
 	}
 
-	private List<CommunicationData> buildCommunicationData(List<CommunicationRequestType> requests,
-														   Map<String, SurveyUnitType> surveyUnits,
-														   Map<String, CommunicationTemplate> templates) {
-		String now = new SimpleDateFormat("d MMMM yyyy", Locale.FRENCH).format(new Date());
-
-		return requests.stream().map(cr -> {
-			SurveyUnitType su = surveyUnits.get(cr.getSurveyUnitId());
-			CommunicationData data = new CommunicationData();
-
-			data.setEditionDate(now);
-			data.setCommunicationRequestId(cr.getId());
-			data.setSurveyUnitBusinessId(su.getDisplayName());
-			data.setReminderReason("REFUSAL".equals(cr.getReason()) ? "REF" : "IAJ");
-
-			dispatchAddressData(su, data);
-			dispatchOuData(su, data);
-			dispatchInterviewerData(su, data);
-
-			CommunicationTemplate template = templates.get(cr.getMeshuggahId());
-			data.setCommunicationTemplateId(cr.getMeshuggahId());
-			data.setTemplateMetadata(mergeMetadata(su, template));
-
-			return data;
-		}).toList();
-	}
-
-
 	private List<Metadata> mergeMetadata(SurveyUnitType su, CommunicationTemplate template) {
 		if (template == null) return List.of();
 
