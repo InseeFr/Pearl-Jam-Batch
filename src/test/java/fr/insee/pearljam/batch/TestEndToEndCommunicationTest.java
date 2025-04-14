@@ -23,6 +23,7 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 	@BeforeEach
 	void setUp() throws Exception {
 		reinitData();
+		copyFiles("unitTests");
 	}
 
 	@Test
