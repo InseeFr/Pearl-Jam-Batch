@@ -52,6 +52,12 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
         );
     }
 
+    @Override
+    public void deleteBySurveyUnitId(String surveyUnitId) {
+        String qString = "DELETE FROM communication_request WHERE survey_unit_id=?";
+        pilotageJdbcTemplate.update(qString, surveyUnitId);
+    }
+
 
     private static final class CommunicationRequestTypeMapper implements RowMapper<CommunicationRequestType> {
         public CommunicationRequestType mapRow(ResultSet rs, int rowNum) throws SQLException {

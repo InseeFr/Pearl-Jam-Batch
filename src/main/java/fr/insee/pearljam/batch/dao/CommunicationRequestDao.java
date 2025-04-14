@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface CommunicationRequestDao {
 
-    public List<CommunicationRequestType> findAll();
+    List<CommunicationRequestType> findAll();
 
-    public void delete(String communicationRequestId);
+    void delete(String communicationRequestId);
 
     void save(CommunicationRequestType request);
+
+    void deleteBySurveyUnitId(String surveyUnitId);
 }
