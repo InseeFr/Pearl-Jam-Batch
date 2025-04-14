@@ -67,7 +67,8 @@ INSERT INTO public.address (dtype,l1,l2,l3,l4,l5,l6,l7,building,floor,door,stair
 	 ('InseeAddress','Veronica Gill','','','4 chemin du ruisseau','','44190 Clisson','France','','','','',true,true),
 	 ('InseeAddress','Christine Aguilar','','','5 rue de l''école','','59620 Aulnoye-Aimeries','France','','','','',true,true),
 	 ('InseeAddress','Louise Walker','','','6 impasse du lac','','38200 Vienne','France','','','','',true,true),
-	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true);
+	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true),
+     ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true);
 
 INSERT INTO public.campaign (id,"label",email,identification_configuration,contact_attempt_configuration,contact_outcome_configuration) VALUES
 	 ('SIMPSONS2020X00','Survey on the Simpsons tv show 2020',NULL,'IASCO','F2F','F2F'),
