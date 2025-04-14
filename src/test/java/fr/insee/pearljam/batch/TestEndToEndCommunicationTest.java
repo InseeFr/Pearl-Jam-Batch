@@ -11,6 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
@@ -23,7 +26,7 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 	@BeforeEach
 	void setUp() throws Exception {
 		reinitData();
-		copyFiles("unitTests");
+		Files.createDirectories(Paths.get("src/test/resources/out/communication"));
 	}
 
 	@Test
