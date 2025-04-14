@@ -2,18 +2,11 @@ package fr.insee.pearljam.batch.service;
 
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.*;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
+import fr.insee.pearljam.batch.exception.BatchException;
+import fr.insee.pearljam.batch.exception.DataBaseException;
+import fr.insee.pearljam.batch.exception.SynchronizationException;
+import fr.insee.pearljam.batch.utils.BatchErrorCode;
+import fr.insee.pearljam.batch.utils.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,11 +16,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.exception.BatchException;
-import fr.insee.pearljam.batch.exception.DataBaseException;
-import fr.insee.pearljam.batch.exception.SynchronizationException;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.XmlUtils;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * CampaignService : Contains all functions needed to load or delete a Campaign
@@ -84,6 +78,8 @@ public class CampaignService {
 	CommunicationTemplateDao communicationTemplateDao;
 	@Autowired
 	CommunicationRequestDao communicationRequestDao;
+	@Autowired
+	CommunicationRequestStatusDao communicationRequestStatusDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -325,6 +321,7 @@ public class CampaignService {
 		stateDao.deleteStateBySurveyUnitId(surveyUnit.getId());
 		communicationMetadataDao.deleteBySurveyUnitId(surveyUnit.getId());
 		communicationRequestDao.deleteBySurveyUnitId(surveyUnit.getId());
+		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnit.getId());
 		surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
 		addressDao.deleteAddressById(addressId);
 		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);
