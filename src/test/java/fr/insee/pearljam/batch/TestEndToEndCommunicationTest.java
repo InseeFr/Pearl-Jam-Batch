@@ -51,10 +51,12 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 		CommunicationRequestDao commReqDao = context.getBean(CommunicationRequestDao.class);
 		CommunicationRequestStatusDao statusDao = context.getBean(CommunicationRequestStatusDao.class);
 
+
+
 		// insert a communication request pointing to an unknown meshuggahId
 		CommunicationRequestType req = new CommunicationRequestType();
 		req.setId("REQ_FAIL_TEMPLATE");
-		req.setSurveyUnitId("SIM_SUCCESS");
+		req.setSurveyUnitId("12");
 		req.setEmitter("INTERVIEWER");
 		req.setReason("REFUSAL");
 		req.setCampaignId("SIMPSONS2020X00");
