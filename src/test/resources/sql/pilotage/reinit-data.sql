@@ -158,7 +158,7 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
 
 INSERT INTO public.person ( birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) VALUES
-     (537535800000, 'ted.farmer@test.com', true, 'Ted', 'Farmer', 'MISTER', '11', true );
+     (537535800000, 'ted.farmer@test.com', true, 'Ted', 'Farmer', 0, '11', true );
 
 
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
