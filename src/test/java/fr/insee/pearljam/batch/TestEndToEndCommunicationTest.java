@@ -1,9 +1,6 @@
 package fr.insee.pearljam.batch;
 
-import fr.insee.pearljam.batch.campaign.CommunicationRequestType;
 import fr.insee.pearljam.batch.config.ApplicationContext;
-import fr.insee.pearljam.batch.dao.CommunicationRequestDao;
-import fr.insee.pearljam.batch.dao.CommunicationRequestStatusDao;
 import fr.insee.pearljam.batch.service.CommunicationService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +11,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 

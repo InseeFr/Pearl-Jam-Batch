@@ -4,6 +4,10 @@ import java.time.LocalDate;
 
 public class CourrierBuilder {
 
+	private CourrierBuilder() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	/**
 	 * Builds a {@link Courrier} object from communication data and template.
 	 *

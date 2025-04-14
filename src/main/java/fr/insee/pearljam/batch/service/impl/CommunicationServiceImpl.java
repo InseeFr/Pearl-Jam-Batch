@@ -82,8 +82,9 @@ public class CommunicationServiceImpl implements CommunicationService {
 			}
 		}
 
-		for (String templateId : communicationTemplates.keySet()) {
-			CommunicationTemplate template = communicationTemplates.get(templateId);
+		for (Map.Entry<String,CommunicationTemplate> entry : communicationTemplates.entrySet()) {
+			String templateId = entry.getKey();
+			CommunicationTemplate template = entry.getValue();
 			if (template == null) continue;
 
 			Courriers courriers = buildCourriers(template, communicationDataList, templateId);
