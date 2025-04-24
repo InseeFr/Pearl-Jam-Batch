@@ -1,7 +1,10 @@
 package fr.insee.pearljam.batch.communication;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDate;
 
+@Slf4j
 public class CourrierBuilder {
 
 	private CourrierBuilder() {
@@ -11,10 +14,10 @@ public class CourrierBuilder {
 	/**
 	 * Builds a {@link Courrier} object from communication data and template.
 	 *
-	 * @param data             the communication data
-	 * @param template         the communication template
-	 * @param editionId        the edition ID
-	 * @param documentIndex    the sequential index for NumeroDocument
+	 * @param data          the communication data
+	 * @param template      the communication template
+	 * @param editionId     the edition ID
+	 * @param documentIndex the sequential index for NumeroDocument
 	 * @return Courrier
 	 */
 	public static Courrier buildFrom(
@@ -22,7 +25,7 @@ public class CourrierBuilder {
 			CommunicationTemplate template,
 			String editionId,
 			int documentIndex
-			) {
+	) {
 
 		Courrier courrier = new Courrier();
 		Variables variables = new Variables();
@@ -30,7 +33,7 @@ public class CourrierBuilder {
 
 		String numeroDocument = String.format("%08d", documentIndex);
 		variables.setNumeroDocument(numeroDocument);
-		variables.setBddIdentifiantUniteEnquetee(data.getCommunicationRequestId()); // will be replaced by su.businessId in
+		variables.setBddIdentifiantUniteEnquetee(data.getCommunicationRequestId()); // replaced by su.businessId soon
 		variables.setCodePostalDestinataire(data.getRecipientPostCode());
 
 		// Address fields
@@ -60,7 +63,8 @@ public class CourrierBuilder {
 		variables.addAdditionalField("Ue_TelAssistance", data.getTelAssistance());
 
 		// Barcode
-		variables.setBarcode(generateBarCode(editionId, data.getCommunicationRequestId())); // will be replaced by su.businessId soom
+		// will be replaced by su.businessId soon
+		variables.setBarcode(generateBarCode(editionId, data.getCommunicationRequestId()));
 
 		// Acknowledgement flag
 		variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
@@ -68,6 +72,9 @@ public class CourrierBuilder {
 		// Metadata
 		if (data.getTemplateMetadata() != null) {
 			data.getTemplateMetadata().forEach(meta -> variables.addAdditionalField(meta.getKey(), meta.getValue()));
+		} else {
+			log.warn("{} : Template metadata {} is null", data.getSurveyUnitBusinessId(),
+					template.getCommunicationId());
 		}
 
 		return courrier;

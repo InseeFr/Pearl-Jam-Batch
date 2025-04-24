@@ -56,6 +56,8 @@ public class CommunicationServiceImpl implements CommunicationService {
 
 		Map<String, SurveyUnitType> surveyUnits = getSurveyUnits(communicationsToSend);
 		Map<String, CommunicationTemplate> communicationTemplates = loadCommunicationTemplates(communicationsToSend);
+
+		// Gather and merge data for each communicationRequest
 		List<CommunicationData> communicationDataList = new ArrayList<>();
 
 		for (CommunicationRequestType cr : communicationsToSend) {
@@ -82,6 +84,8 @@ public class CommunicationServiceImpl implements CommunicationService {
 			}
 		}
 
+		// Write a Courriers file for each communicationTemplate
+		// Send it via API then move it in matching result folder
 		for (Map.Entry<String,CommunicationTemplate> entry : communicationTemplates.entrySet()) {
 			String templateId = entry.getKey();
 			CommunicationTemplate template = entry.getValue();
@@ -134,7 +138,8 @@ public class CommunicationServiceImpl implements CommunicationService {
 	private Courriers buildCourriers(CommunicationTemplate template, List<CommunicationData> allData,
 									 String templateId) throws SynchronizationException {
 		List<CommunicationData> relevantData = allData.stream()
-				.filter(d -> templateId.equals(d.getCommunicationTemplateId()))
+				.filter(Objects::nonNull)
+				.filter(communicationData -> templateId.equals(communicationData.getCommunicationTemplateId()))
 				.toList();
 
 		String editionId = meshuggahService.getNewEditionNumber();
