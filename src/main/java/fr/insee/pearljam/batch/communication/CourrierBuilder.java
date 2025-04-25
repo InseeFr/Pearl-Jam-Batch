@@ -3,9 +3,15 @@ package fr.insee.pearljam.batch.communication;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 public class CourrierBuilder {
+
+	private final static List<String> requiredVariables = List.of(
+			"AdresseRetourL1", "AdresseRetourL2", "AdresseRetourL3", "AdresseRetourL4", "AdresseRetourL5",
+			"AdresseRetourL6", "AdresseRetourL7"
+	);
 
 	private CourrierBuilder() {
 		throw new IllegalStateException("Utility class");
@@ -63,11 +69,14 @@ public class CourrierBuilder {
 		variables.addAdditionalField("Ue_TelAssistance", data.getTelAssistance());
 
 		// Barcode
-		// will be replaced by su.businessId soon
+		// CommunicationRequestId will be replaced by su.businessId soon
 		variables.setBarcode(generateBarCode(editionId, data.getCommunicationRequestId()));
 
 		// Acknowledgement flag
 		variables.setInitAccuseReception(template.isInitAccuseReception() ? "oui" : "non");
+
+		// add required variable not provided by template anymore
+		requiredVariables.forEach(requiredVariable -> variables.addAdditionalField(requiredVariable,null));
 
 		// Metadata
 		if (data.getTemplateMetadata() != null) {
