@@ -12,5 +12,5 @@ public interface CommunicationRequestDao {
 
     void save(CommunicationRequestType request);
 
-    void deleteBySurveyUnitId(String surveyUnitId);
+    void deleteBySurveyUnitId(String surveyUnitId
 }
