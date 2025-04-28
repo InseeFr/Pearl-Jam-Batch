@@ -12,6 +12,7 @@ import java.util.List;
 public class CommunicationData {
 
     private String communicationTemplateId;
+    private String communicationRequestId;
 
     private String bddL1;
     private String bddL2;
@@ -35,7 +36,7 @@ public class CommunicationData {
     private String reminderReason; // Ue_TypeRelance
 
     private String recipientPostCode; //CodePostalDestinataire
-    private String communicationRequestId; //BddIdentifiantUniteEnquetee /!\ max 14 chars
+    private String surveyUnitBusinessId; //BddIdentifiantUniteEnquetee /!\ max 14 chars
 
     private List<Metadata> templateMetadata;
 

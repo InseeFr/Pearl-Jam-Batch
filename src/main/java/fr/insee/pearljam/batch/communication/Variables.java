@@ -55,6 +55,7 @@ public class Variables {
 
  
     public void addAdditionalField(String key, String value) {
-        this.additionalFields.put(key, value);
+        // trim key to prevent XML generation error
+        this.additionalFields.put(key.trim(), value);
     }
 }

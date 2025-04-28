@@ -68,7 +68,7 @@ INSERT INTO public.address (dtype,l1,l2,l3,l4,l5,l6,l7,building,floor,door,stair
 	 ('InseeAddress','Christine Aguilar','','','5 rue de l''école','','59620 Aulnoye-Aimeries','France','','','','',true,true),
 	 ('InseeAddress','Louise Walker','','','6 impasse du lac','','38200 Vienne','France','','','','',true,true),
 	 ('InseeAddress','Anthony Bennett','','','7 avenue de la Liberté','','62000 Arras','France','','','','',true,true),
-	 ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true);
+     ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true);
 
 INSERT INTO public.campaign (id,"label",email,identification_configuration,contact_attempt_configuration,contact_outcome_configuration) VALUES
 	 ('SIMPSONS2020X00','Survey on the Simpsons tv show 2020',NULL,'IASCO','F2F','F2F'),
@@ -80,6 +80,11 @@ INSERT INTO public.campaign (id,"label",email,identification_configuration,conta
 	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F');
 INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
 	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
+INSERT INTO communication_request ( survey_unit_id, campaign_id, meshuggah_id, reason, emitter) VALUES
+     ('11', 'SIMPSONS2020X00', 'READY', 'meshuggahId1', 'REFUSAL');
+INSERT INTO communication_request_status (communication_request_id, status, "date") VALUES
+     (1,'READY', 1590969600000);
+
 INSERT INTO public.message ("date","text",sender_id) VALUES
 	 (1602168871000,'test','ABC'),
 	 (1602168871000,'test','ABC'),
@@ -151,13 +156,18 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('26','business-id-26',true,11,'STATE2022X00','INTW1',11,'OU-NORTH',false,NULL),
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
 	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
+
+INSERT INTO public.person ( birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) VALUES
+     (537535800000, 'ted.farmer@test.com', true, 'Ted', 'Farmer', 0, '11', true );
+
+
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
 	 ('ABC','Melinda','Webb','OU-NORTH'),
 	 ('DEF','Everett','Juste','OU-NORTH'),
 	 ('GHI','Elsie','Clarke','OU-SOUTH'),
 	 ('JKL','Julius','Howell','OU-NATIONAL');
 INSERT INTO public.visibility (campaign_id,organization_unit_id,collection_end_date,collection_start_date,end_date,identification_phase_start_date,interviewer_start_date,management_start_date,use_letter_communication,mail,tel) VALUES
-	 ('SIMPSONS2020X00','OU-NORTH',1640995200000,1645995200000,1641513600000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
+	 ('SIMPSONS2020X00','OU-NORTH',1640995200000,1645995200000,1641513600000,1577232000000,1576800000000,1575936000000,true,'mail@ma.il','0123456789'),
 	 ('VQS2021X00','OU-NORTH',1577836800000,1577836800000,1577836800000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
 	 ('VQS2021X00','OU-SOUTH',1640995200000,1577836800000,1641513600000,1577232000000,1576800000000,1575936000000,true,NULL,NULL),
 	 ('STATE2020X00','OU-NORTH',1640995200000,1640995200000,1640995200000,1640995200000,1640995200000,1640995200000,true,NULL,NULL),

@@ -106,6 +106,7 @@ public class MeshuggahServiceImpl implements MeshuggahService {
 
             // Step 5: Send the request
             String url = String.format("%s/api/depot/papier?validationSchema=oui", editiqueUrl);
+            LOGGER.info("Trying to publish {} ", communicationModele);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
             // Step 6: Check the response and move file to archive sub folder

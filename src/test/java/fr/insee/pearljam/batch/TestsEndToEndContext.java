@@ -1,9 +1,10 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -44,8 +45,8 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating context.xml : "));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context","error.xml"));
+			assertTrue(ve.getMessage().contains("Error validating context.xml : "));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context", "error.xml"));
 		}
 	}
 
@@ -59,7 +60,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario2",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -72,7 +73,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario3",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -85,7 +86,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario4",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -98,7 +99,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario5",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -111,7 +112,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario6",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -124,7 +125,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario7",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -135,7 +136,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	void testScenario8() throws Exception {
 		String in = "src/test/resources/in/context/testScenarios/contextScenario8";
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -148,7 +149,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario9",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -161,8 +162,8 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error during creating Context : the user"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context","error.xml"));
+			assertTrue(ve.getMessage().contains("Error during creating Context : the user"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context", "error.xml"));
 		}
 	}
 
@@ -173,7 +174,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	void testScenario11() throws Exception {
 		String in = "src/test/resources/in/context/testScenarios/contextScenario11";
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -184,7 +185,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	void testScenario12() throws Exception {
 		String in = "src/test/resources/in/context/testScenarios/contextScenario12";
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -197,8 +198,8 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error during creating Context : The interviewer"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context","error.xml"));
+			assertTrue(ve.getMessage().contains("Error during creating Context : The interviewer"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context", "error.xml"));
 		}
 	}
 
@@ -211,8 +212,8 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error during creating Context : The organization unit"));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context","error.xml"));
+			assertTrue(ve.getMessage().contains("Error during creating Context : The organization unit"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context", "error.xml"));
 		}
 	}
 
@@ -223,7 +224,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	void testScenario17() throws Exception {
 		String in = "src/test/resources/in/context/testScenarios/contextScenario17";
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -236,7 +237,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 	void testScenario18() throws Exception {
 		String in = "src/test/resources/in/context/testScenarios/contextScenario18";
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "warning.xml"));
 	}
 
@@ -250,7 +251,7 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 				pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT,
 						"src/test/resources/in/context/testScenarios/contextScenario19",
 						OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(
+		assertTrue(PathUtils.isDirContainsErrorFile(
 				Path.of("src/test/resources/out/context/testScenarios"), "context", "done.xml"));
 	}
 
@@ -263,8 +264,8 @@ class TestsEndToEndContext extends PearlJamBatchApplicationTests {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.LOADCONTEXT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating context.xml : "));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context","error.xml"));
+			assertTrue(ve.getMessage().contains("Error validating context.xml : "));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/context/testScenarios"), "context", "error.xml"));
 		}
 	}
 
