@@ -67,25 +67,25 @@ public class XmlUtils {
 	 * Validate an XML file by XSD validator
 	 * 
 	 * @param xmlPath xml path
-	 * @return true if XML is valid
-	 * @throws XMLStreamException
+	 * @throws XMLStreamException xse
 	 */
 	public static void validateXMLSchema(URL model, String xmlPath) throws ValidateException, XMLStreamException {
 		ValidateException ve = null;
 		
 		XMLStreamReader xmlEncoding= null;
-		try (FileInputStream fis = new FileInputStream(new File(xmlPath));
-			FileReader fr = new FileReader(xmlPath);
-			) {
+		try (FileInputStream fis = new FileInputStream(xmlPath);
+			FileReader fr = new FileReader(xmlPath)
+		) {
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(model);
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			Schema schema = factory.newSchema(model);
 			Validator validator = schema.newValidator();
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			xmlEncoding = XMLInputFactory.newInstance().createXMLStreamReader(fr);
-			if(xmlEncoding.getCharacterEncodingScheme().equals("UTF8") || xmlEncoding.getCharacterEncodingScheme().equals(StandardCharsets.UTF_8.toString())) {
+			String encoding = xmlEncoding.getCharacterEncodingScheme();
+			if ("UTF8".equalsIgnoreCase(encoding) || StandardCharsets.UTF_8.name().equalsIgnoreCase(encoding)) {
 				validator.validate(new StreamSource(fis));
 			}
 		} catch (Exception e) {
