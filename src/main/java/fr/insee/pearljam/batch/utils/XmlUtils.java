@@ -73,18 +73,19 @@ public class XmlUtils {
 		ValidateException ve = null;
 		
 		XMLStreamReader xmlEncoding= null;
-		try (FileInputStream fis = new FileInputStream(new File(xmlPath));
+		try (FileInputStream fis = new FileInputStream(xmlPath);
 			FileReader fr = new FileReader(xmlPath);
 			) {
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(model);
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			Schema schema = factory.newSchema(model);
 			Validator validator = schema.newValidator();
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			xmlEncoding = XMLInputFactory.newInstance().createXMLStreamReader(fr);
-			if(xmlEncoding.getCharacterEncodingScheme().equals("UTF8") || xmlEncoding.getCharacterEncodingScheme().equals(StandardCharsets.UTF_8.toString())) {
+			String encoding = xmlEncoding.getCharacterEncodingScheme();
+			if ("UTF8".equalsIgnoreCase(encoding) || StandardCharsets.UTF_8.name().equalsIgnoreCase(encoding)) {
 				validator.validate(new StreamSource(fis));
 			}
 		} catch (Exception e) {
