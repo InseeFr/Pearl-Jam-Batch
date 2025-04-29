@@ -83,7 +83,12 @@ public class XmlUtils {
 			Validator validator = schema.newValidator();
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			xmlEncoding = XMLInputFactory.newInstance().createXMLStreamReader(fr);
+
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+			inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+			xmlEncoding = inputFactory.createXMLStreamReader(fr);
+			
 			String encoding = xmlEncoding.getCharacterEncodingScheme();
 			if ("UTF8".equalsIgnoreCase(encoding) || StandardCharsets.UTF_8.name().equalsIgnoreCase(encoding)) {
 				validator.validate(new StreamSource(fis));
