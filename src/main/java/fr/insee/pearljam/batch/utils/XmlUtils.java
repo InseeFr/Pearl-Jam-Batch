@@ -15,8 +15,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import fr.insee.pearljam.batch.communication.Courrier;
-import fr.insee.pearljam.batch.communication.Courriers;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -136,11 +134,7 @@ public class XmlUtils {
 	}
 	
 	
-	 String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
-			logger.warn("Error when printing courriers file",e);
-			throw new PublicationException(errorMessage,e);
-		}
-	}
+	 
 public static File objectToXML(String filename, Object object) throws BatchException{
 		try {
             //Create JAXB Context
@@ -214,4 +208,9 @@ public static File objectToXML(String filename, Object object) throws BatchExcep
 		} catch (JAXBException | IOException | ParserConfigurationException |
 				 javax.xml.transform.TransformerException e) {
 			String errorMessage =
+			String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
+			logger.warn("Error when printing courriers file",e);
+			throw new PublicationException(errorMessage,e);
+		}
+	}
 }
