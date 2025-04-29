@@ -11,41 +11,63 @@
   "packageRules": [
     {
       "enabled": false,
-      "matchBaseBranches": ["main"],
-      "matchPackagePatterns": ["*"],
-      "automerge": false
+      "matchBaseBranches": [
+        "main"
+      ],
+      "automerge": false,
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
-      "matchBaseBranches": ["develop"],
-      "labels": ["dependencies"],
+      "matchBaseBranches": [
+        "develop"
+      ],
+      "labels": [
+        "dependencies"
+      ],
       "bumpVersion": "patch",
       "dependencyDashboardApproval": true,
-      "matchPackagePatterns": ["*"],
-      "automerge": false
+      "automerge": false,
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
-      "matchBaseBranches": ["develop"],
+      "matchBaseBranches": [
+        "develop"
+      ],
       "groupName": "minor dependencies",
       "groupSlug": "minor",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "bumpVersion": "minor",
       "dependencyDashboardApproval": true,
       "automerge": false
     },
     {
-      "matchBaseBranches": ["develop"],
+      "matchBaseBranches": [
+        "develop"
+      ],
       "groupName": "patch dependencies",
       "groupSlug": "patch",
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "bumpVersion": "patch",
       "dependencyDashboardApproval": true,
       "automerge": false
     },
     {
-      "matchBaseBranches": ["develop"],
+      "matchBaseBranches": [
+        "develop"
+      ],
       "groupName": "major dependencies",
       "groupSlug": "major",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "bumpVersion": "major",
       "dependencyDashboardApproval": true,
       "automerge": false
