@@ -1,23 +1,20 @@
 package fr.insee.pearljam.batch.utils;
 
-import fr.insee.pearljam.batch.exception.PublicationException;
-import org.eclipse.persistence.jaxb.JAXBContextFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-
 import fr.insee.pearljam.batch.communication.Courrier;
 import fr.insee.pearljam.batch.communication.Courriers;
+import fr.insee.pearljam.batch.exception.BatchException;
+import fr.insee.pearljam.batch.exception.PublicationException;
+import fr.insee.pearljam.batch.exception.ValidateException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -26,31 +23,23 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import fr.insee.pearljam.batch.exception.BatchException;
-import fr.insee.pearljam.batch.exception.ValidateException;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Operation on XML Content 
@@ -72,29 +61,6 @@ public class XmlUtils {
 	}
 
 	/**
-	 * get an XML node in an XML File
-	 * 
-	 * @param filename filename reference
-	 * @param nodeName nodeName to search
-	 * @return the XML node find
-	 */
-	public static NodeList getXmlNodeFile(String filename, String nodeName) {
-		try {
-			// an instance of factory that gives a document builder
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Compliant
-			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(filename));
-			doc.getDocumentElement().normalize();
-			return doc.getElementsByTagName(nodeName);
-		} catch (Exception e) {
-			logger.log(Level.ERROR, e.getMessage(), e);
-			return null;
-		}
-	}
-
-	/**
 	 * Validate an XML file by XSD validator
 	 * 
 	 * @param xmlPath xml path
@@ -105,18 +71,24 @@ public class XmlUtils {
 		ValidateException ve = null;
 		
 		XMLStreamReader xmlEncoding= null;
-		try (FileInputStream fis = new FileInputStream(new File(xmlPath));
+		try (FileInputStream fis = new FileInputStream(xmlPath);
 			FileReader fr = new FileReader(xmlPath);
 			) {
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(model);
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			Schema schema = factory.newSchema(model);
 			Validator validator = schema.newValidator();
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			xmlEncoding = XMLInputFactory.newInstance().createXMLStreamReader(fr);
-			if(xmlEncoding.getCharacterEncodingScheme().equals("UTF8") || xmlEncoding.getCharacterEncodingScheme().equals(StandardCharsets.UTF_8.toString())) {
+
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+			inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+			xmlEncoding = inputFactory.createXMLStreamReader(fr);
+
+			String encoding = xmlEncoding.getCharacterEncodingScheme();
+			if ("UTF8".equalsIgnoreCase(encoding) || StandardCharsets.UTF_8.name().equalsIgnoreCase(encoding)) {
 				validator.validate(new StreamSource(fis));
 			}
 		} catch (Exception e) {
@@ -132,6 +104,10 @@ public class XmlUtils {
 	public static <T> T xmlToObject(String filename, Class<T> clazz) throws ValidateException{
 		try{
 			DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
+			df.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	        df.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        	df.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    	    df.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			DocumentBuilder builder = df.newDocumentBuilder();
@@ -141,7 +117,12 @@ public class XmlUtils {
 	
 	        StringWriter strWriter = new StringWriter();
 	        StreamResult streamResult = new StreamResult(strWriter);
-	        TransformerFactory.newInstance().newTransformer().transform(domSource, streamResult);
+
+ 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+	        transformerFactory.newTransformer().transform(domSource, streamResult);
 			StreamSource xmlStream = new StreamSource(new StringReader(strWriter.getBuffer().toString()));
 			
 			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{clazz}, null);
@@ -153,7 +134,8 @@ public class XmlUtils {
 	}
 	
 	
-	public static File objectToXML(String filename, Object object) throws BatchException{
+	 
+public static File objectToXML(String filename, Object object) throws BatchException{
 		try {
             //Create JAXB Context
 			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{object.getClass()}, null);
@@ -170,54 +152,6 @@ public class XmlUtils {
 			throw new BatchException("Error during transfo object to xml : " + e.getMessage());
 		}
     }
-
-	/**
-	 * This method takes a document and an id in entry, it removes the reportingUnit node
-	 * identified by its id in the document
-	 * @param doc
-	 * @param xmlId
-	 * @return StreamResult
-	 * @throws XPathExpressionException
-	 * @throws TransformerFactoryConfigurationError
-	 * @throws TransformerException
-	 */
-	public static StreamResult removeSurveyUnitNode(Document doc, String xmlId) throws XPathExpressionException, TransformerFactoryConfigurationError, TransformerException {
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		XPath xpath = xPathfactory.newXPath();
-		XPathExpression expr = xpath.compile("//SurveyUnit/Id" + xmlId);
-		Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
-		Node parent = node.getParentNode();
-		parent.removeChild(node);
-		DOMSource domSource = new DOMSource(doc);
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		StringWriter sw = new StringWriter();
-		StreamResult sr = new StreamResult(sw);
-		transformer.transform(domSource, sr);
-		return sr;
-	}
-	
-	/**
-	 * This method update an error file for the sample steps. It writes all the objects
-	 * in the sample.xml that created errors
-	 * @param sr streamResult
-	 * @param fileName file name
-	 */
-	public static void updateSampleFileErrorList(StreamResult sr, String fileName) {
-		// writing to file
-		File fileNew = new File(fileName);
-		try (FileOutputStream fop = new FileOutputStream(fileNew)){
-			if (!fileNew.exists() && !fileNew.createNewFile()) {
-				logger.error( "Failed to create file {}", fileName);
-			}
-			// get the content in bytes
-			String xmlString = sr.getWriter().toString();
-			byte[] contentInBytes = xmlString.getBytes();
-			fop.write(contentInBytes);
-			fop.flush();
-		} catch (IOException e) {
-			logger.log(Level.ERROR, e.getMessage());
-		}
-	}
 
 	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) throws PublicationException {
 		try {
@@ -273,10 +207,10 @@ public class XmlUtils {
 
 		} catch (JAXBException | IOException | ParserConfigurationException |
 				 javax.xml.transform.TransformerException e) {
-			String errorMessage = String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
+			String errorMessage =
+			String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
 			logger.warn("Error when printing courriers file",e);
 			throw new PublicationException(errorMessage,e);
 		}
 	}
-
 }

@@ -14,6 +14,7 @@
             <LastName>Ulrich</LastName>
             <Email>lars.urlich@test.com</Email>
             <PhoneNumber>0101010101</PhoneNumber>
+            <Title>Mister</Title>
         </Interviewer>
         <Interviewer>
             <Id>INTW22</Id>
@@ -21,6 +22,7 @@
             <LastName>Pink</LastName>
             <Email>sarah.pink@test.com</Email>
             <PhoneNumber>0202020202</PhoneNumber>
+            <Title>Miss</Title>
         </Interviewer>
     </Interviewers>
     <OrganizationalUnits>

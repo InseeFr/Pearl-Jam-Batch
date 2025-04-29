@@ -1,25 +1,16 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -28,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.util.FileSystemUtils;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,14 +42,12 @@ import fr.insee.pearljam.batch.service.TriggerService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
 
-@Ignore
-public class TestsEndToEndSynchro {
+@Disabled
+class TestsEndToEndSynchro {
 
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
 
 	TriggerService triggerService = context.getBean(TriggerService.class);
-
-	private RestTemplate restTemplate = context.getBean(RestTemplate.class);
 
 	private String keycloakTokenUrl = (String) context.getBean("keycloakAuthUrl");
 	private String contextReferentialBaseUrl = (String) context.getBean("contextReferentialBaseUrl");
@@ -78,30 +66,12 @@ public class TestsEndToEndSynchro {
 
 	private static final String outFolder = "src/test/resources/out/contextReferentialSynchro";
 
-	@BeforeClass
-	public void setProperties() {
+	@BeforeAll
+	static void setProperties() {
 		System.setProperty("fr.insee.pearljam.ldap.service.pw", "pw");
 		System.setProperty("fr.insee.pearljam.ldap.service.login", "login");
 
 	}
-
-	/**
-	 * This method is executed before each test in this class.
-	 * It setup the environment by inserting the data and copying the necessaries
-	 * files.
-	 * 
-	 * @throws Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		PearlJamBatchApplicationTests.initData();
-		PearlJamBatchApplicationTests.copyFiles("campaign");
-
-		MockitoAnnotations.initMocks(this);
-		mockServer = MockRestServiceServer.createServer(restTemplate);
-	}
-
-	public static UnitTests unitTests = new UnitTests();
 
 	/**
 	 * Scenario 1 : all OK
@@ -109,7 +79,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testAllOKAffectingToExistingIntAndOu() throws Exception {
+	void testAllOKAffectingToExistingIntAndOu() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		InterviewersAffectationsResponseDto intSuResp = makeIntAffRespDto();
@@ -144,7 +114,7 @@ public class TestsEndToEndSynchro {
 	 */
 
 	@Test
-	public void testCannotReachContextReferential() throws Exception {
+	void testCannotReachContextReferential() throws Exception {
 
 		expectExternalCallWithToken(habilitationApiRootUrl + Constants.API_LDAP_HEALTHCHECK, null);
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/interviewers", null);
@@ -163,7 +133,7 @@ public class TestsEndToEndSynchro {
 	 */
 
 	@Test
-	public void testCannotReachKeycloakServer() throws Exception {
+	void testCannotReachKeycloakServer() throws Exception {
 		expectExternalCall(keycloakTokenUrl, null);
 		expectExternalCall(keycloakTokenUrl, null);
 		expectExternalCall(keycloakTokenUrl, null);
@@ -179,7 +149,7 @@ public class TestsEndToEndSynchro {
 	 */
 
 	@Test
-	public void testInterviewerDoesntExist() throws Exception {
+	void testInterviewerDoesntExist() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		OrganizationUnitsAffectationsResponseDto ouSuResp = makeOuAffRespDto();
@@ -224,7 +194,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testOUDoesntExist() throws Exception {
+	void testOUDoesntExist() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		InterviewersAffectationsResponseDto intSuResp = makeIntAffRespDto();
@@ -268,7 +238,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testOUParentDoesntExist() throws Exception {
+	void testOUParentDoesntExist() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		InterviewersAffectationsResponseDto intSuResp = makeIntAffRespDto();
 		OrganizationUnitsAffectationsResponseDto ouSuResp = makeOuAffRespDto();
@@ -311,7 +281,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testAllOKAffectingToSyncIntAndOu() throws Exception {
+	void testAllOKAffectingToSyncIntAndOu() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 
@@ -394,7 +364,7 @@ public class TestsEndToEndSynchro {
 	 */
 
 	@Test
-	public void testAboveInterviewerReaffectationAbsoluteThreshold() throws Exception {
+	void testAboveInterviewerReaffectationAbsoluteThreshold() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		OrganizationUnitsAffectationsResponseDto ouSuResp = makeOuAffRespDto();
@@ -454,7 +424,7 @@ public class TestsEndToEndSynchro {
 	 */
 
 	@Test
-	public void testAboveInterviewerReaffectationRelativeThreshold() throws Exception {
+	void testAboveInterviewerReaffectationRelativeThreshold() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		OrganizationUnitsAffectationsResponseDto ouSuResp = makeOuAffRespDto();
@@ -500,7 +470,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testAboveOrganizationReaffectationAbsoluteThreshold() throws Exception {
+	void testAboveOrganizationReaffectationAbsoluteThreshold() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		InterviewersAffectationsResponseDto intSuResp = makeIntAffRespDto();
@@ -557,7 +527,7 @@ public class TestsEndToEndSynchro {
 	 * @throws Exception
 	 */
 	@Test
-	public void testAboveOrganizationReaffectationRelativeThreshold() throws Exception {
+	void testAboveOrganizationReaffectationRelativeThreshold() throws Exception {
 		InterviewersResponseDto intResp = makeInterviewerRespDto();
 		OrganizationUnitsResponseDto ouResp = makeOuRespDto();
 		InterviewersAffectationsResponseDto intSuResp = makeIntAffRespDto();
@@ -668,13 +638,6 @@ public class TestsEndToEndSynchro {
 		return ouSuResp;
 	}
 
-	void purgeDirectory(File dir) {
-		for (File file : dir.listFiles()) {
-			if (file.isFile())
-				file.delete();
-		}
-	}
-
 	private void expectExternalCallWithToken(String url, Object resp) throws JsonProcessingException {
 		KeycloakResponseDto keycloackResp = new KeycloakResponseDto();
 		keycloackResp.setAccess_token("token");
@@ -691,13 +654,8 @@ public class TestsEndToEndSynchro {
 						.body(mapper.writeValueAsString(resp)));
 	}
 
-	@After
-	public void cleanOutFolder() {
-		purgeDirectory(new File(outFolder + "/synchro"));
-	}
-
-	@AfterClass
-	public static void deleteFiles() throws IOException {
+	@AfterAll
+	static void deleteFiles() {
 		File deleteFolderInCampaignForTest = new File("src/test/resources/in/campaign/testScenarios");
 		FileSystemUtils.deleteRecursively(deleteFolderInCampaignForTest);
 	}

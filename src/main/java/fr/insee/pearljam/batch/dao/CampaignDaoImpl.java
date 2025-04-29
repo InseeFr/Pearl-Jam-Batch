@@ -1,17 +1,15 @@
 package fr.insee.pearljam.batch.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.List;
-
+import fr.insee.pearljam.batch.campaign.Campaign;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.campaign.Campaign;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Service for the Campaign entity that implements the interface associated
@@ -36,9 +34,7 @@ public class CampaignDaoImpl implements CampaignDao {
 	/**
 	 * Implements the creation of a Campaign in database
 	 * 
-	 * @param nomenclature
-	 * @throws ParseException
-	 * @throws SQLException
+	 * @param campaign campaign to create
 	 */
 	@Override
 	public void createCampaign(Campaign campaign) {
@@ -75,7 +71,9 @@ public class CampaignDaoImpl implements CampaignDao {
 		public Campaign mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Campaign c = new Campaign();
 			c.setId(rs.getString("id"));
+			c.setSensitivity(rs.getBoolean("sensitivity"));
 			c.setLabel(rs.getString("label"));
+			c.setIdentificationConfiguration(rs.getString("identification_configuration"));
 			c.setOrganizationalUnits(null);
 			c.setSurveyUnits(null);
 			return c;

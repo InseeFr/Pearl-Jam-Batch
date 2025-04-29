@@ -34,10 +34,9 @@ public class Constants {
 	public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 	public static final String DATE_FORMAT_2 = "dd/MM/yyyy";
 
-	/**
-	 * The URL to to access to campaign.xsd
-	 */
-	public static final URL MODEL_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/campaign.xsd");
+	public static final URL MODEL_EXTRACT_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/extract-campaign.xsd");
+
+	public static final URL MODEL_DELETE_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/delete-campaign.xsd");
 	/**
 	 * The URL to to access to context.xsd
 	 */
@@ -61,8 +60,6 @@ public class Constants {
 	 */
 	public static final String MSG_FILE_MOVE_SUCCESS = "File {} renamed and moved successfully";
 
-	public static final String AUTHORIZATION = "Authorization";
-
 	// Opale endpoints
 	public static final String API_OPALE_INTERVIEWERS = "/sabiane/interviewers";
 	public static final String API_OPALE_ORGANIZATION_UNITS = "/sabiane/organization-units";
@@ -71,7 +68,6 @@ public class Constants {
 	public static final String API_OPALE_SURVEY_UNIT_OU_AFFECTATION = "/sabiane/organization-units/survey-unit/%s";
 	public static final String API_OPALE_SURVEY_UNIT_INTERVIEWER_AFFECTATION = "/sabiane/survey-unit/%s/interviewer";
 	public static final String API_OPALE_HEALTHCHECK = "/sabiane/organization-units";
-	// public static final String API_OPALE_HEALTHCHECK = "/healthCheck";
 
 	// LDAP service endpoints
 	public static final String API_LDAP_REALM_APP_GROUP_USERID = "/v2/realms/%s/applications/%s/groups/%s/members/%s";

@@ -10,10 +10,11 @@
     <Interviewers>
         <Interviewer>
             <Id>INTW11</Id>
-            <FirstName>Lars </FirstName>
+            <FirstName>Lars</FirstName>
             <LastName>Ulrich</LastName>
             <Email>lars.urlich@test.com</Email>
             <PhoneNumber>0101010101</PhoneNumber>
+            <Title>Mister</Title>
         </Interviewer>
     </Interviewers>
     <OrganizationalUnits>

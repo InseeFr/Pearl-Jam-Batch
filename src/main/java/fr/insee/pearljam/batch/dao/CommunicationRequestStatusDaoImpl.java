@@ -21,4 +21,18 @@ public class CommunicationRequestStatusDaoImpl implements CommunicationRequestSt
                 """;
         pilotageJdbcTemplate.update(qString, Long.parseLong(communicationRequestId), status, timestamp);
     }
+
+    @Override
+    public void deleteBySurveyUnitId(String surveyUnitId) {
+        String deleteStatusSql = """
+        DELETE FROM communication_request_status
+        WHERE communication_request_id IN (
+            SELECT id FROM communication_request WHERE survey_unit_id = ?
+        )
+    """;
+        pilotageJdbcTemplate.update(deleteStatusSql, surveyUnitId);
+
+    }
+
+
 }

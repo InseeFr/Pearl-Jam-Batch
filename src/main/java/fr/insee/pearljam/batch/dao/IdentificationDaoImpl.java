@@ -45,6 +45,8 @@ public class IdentificationDaoImpl implements IdentificationDao {
                ident.setSituation(rs.getString("situation"));
                ident.setCategory(rs.getString("category"));
                ident.setOccupant(rs.getString("occupant"));
+               ident.setIndividualStatus(rs.getString("individual_status"));
+               ident.setInterviewerCanProcess(rs.getString("interviewer_can_process"));
                return ident;
           }
      }

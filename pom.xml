@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.1.1</version>
+  <version>3.4.2</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -17,10 +17,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring.version>6.1.13</spring.version>
-		<queenbatch.version>4.3.0</queenbatch.version>
-		<testcontainers.version>1.20.1</testcontainers.version>
+		<queenbatch.version>4.4.0</queenbatch.version>
+		<testcontainers.version>1.20.2</testcontainers.version>
 		<jackson.version>2.17.2</jackson.version>
 		<mockito.version>5.13.0</mockito.version>
+		<sonar.projectKey>InseeFr_Pearl-Jam-Batch</sonar.projectKey>
+		<sonar.organization>inseefr</sonar.organization>
 	</properties>
 
 	<dependencies>
@@ -51,6 +53,12 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -128,15 +136,11 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.0</version>
+					<version>3.5.3</version>
 					<configuration>
 						<includes>
-							<include>PearlJamBatchApplicationTests.java</include>
+							<include>**/*Test*</include>
 						</includes>
-						<forkedProcessExitTimeoutInSeconds>500</forkedProcessExitTimeoutInSeconds>
-						<forkCount>3</forkCount>
-						<reuseForks>true</reuseForks>
-						<argLine>-Xmx2048m -Xmx1G -XX:PermSize=1024m</argLine>
 						<environmentVariables>
 							<TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
 						</environmentVariables>
@@ -164,9 +168,32 @@
 						</archive>
 					</configuration>
 				</plugin>
+
+
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
