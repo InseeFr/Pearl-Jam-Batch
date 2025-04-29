@@ -88,7 +88,7 @@ public class XmlUtils {
 			inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 			inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 			xmlEncoding = inputFactory.createXMLStreamReader(fr);
-			
+
 			String encoding = xmlEncoding.getCharacterEncodingScheme();
 			if ("UTF8".equalsIgnoreCase(encoding) || StandardCharsets.UTF_8.name().equalsIgnoreCase(encoding)) {
 				validator.validate(new StreamSource(fis));
@@ -106,6 +106,10 @@ public class XmlUtils {
 	public static <T> T xmlToObject(String filename, Class<T> clazz) throws ValidateException{
 		try{
 			DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
+			df.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	        df.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        	df.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    	    df.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			DocumentBuilder builder = df.newDocumentBuilder();
@@ -115,7 +119,12 @@ public class XmlUtils {
 	
 	        StringWriter strWriter = new StringWriter();
 	        StreamResult streamResult = new StreamResult(strWriter);
-	        TransformerFactory.newInstance().newTransformer().transform(domSource, streamResult);
+
+ 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+	        transformerFactory.newTransformer().transform(domSource, streamResult);
 			StreamSource xmlStream = new StreamSource(new StringReader(strWriter.getBuffer().toString()));
 			
 			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{clazz}, null);
@@ -127,7 +136,12 @@ public class XmlUtils {
 	}
 	
 	
-	public static File objectToXML(String filename, Object object) throws BatchException{
+	 String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
+			logger.warn("Error when printing courriers file",e);
+			throw new PublicationException(errorMessage,e);
+		}
+	}
+public static File objectToXML(String filename, Object object) throws BatchException{
 		try {
             //Create JAXB Context
 			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{object.getClass()}, null);
@@ -199,10 +213,5 @@ public class XmlUtils {
 
 		} catch (JAXBException | IOException | ParserConfigurationException |
 				 javax.xml.transform.TransformerException e) {
-			String errorMessage = String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
-			logger.warn("Error when printing courriers file",e);
-			throw new PublicationException(errorMessage,e);
-		}
-	}
-
+			String errorMessage =
 }
