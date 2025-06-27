@@ -52,7 +52,7 @@ public class CourrierBuilder {
 		variables.setBddAdressePosteeL7(data.getBddL7());
 
 		// Interviewer fields
-		variables.addAdditionalField("Ue_DateEdition", data.getEditionDate());
+		variables.addAdditionalField("DateEdition", data.getEditionDate());
 		variables.addAdditionalField("Ue_CiviliteEnqueteur", data.getInterviewerTitle());
 		variables.addAdditionalField("Ue_NomEnqueteur", data.getInterviewerLastName());
 		variables.addAdditionalField("Ue_PrenomEnqueteur", data.getInterviewerFirstName());

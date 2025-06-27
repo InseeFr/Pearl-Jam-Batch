@@ -23,7 +23,7 @@ public class CommunicationData {
     private String bddL7;
 
     /// vu dans xsd_ds_ouvertureFAFCOLEM.xsd
-    private String editionDate; //Ue_DateEdition
+    private String editionDate; //DateEdition
     private String mailAssistance; //Ue_MailAssistance
     private String telAssistance; //Ue_TelAssistance
 
