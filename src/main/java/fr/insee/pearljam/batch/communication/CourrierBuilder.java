@@ -8,7 +8,7 @@ import java.util.List;
 @Slf4j
 public class CourrierBuilder {
 
-	private final static List<String> requiredVariables = List.of(
+	private static final List<String> requiredVariables = List.of(
 			"AdresseRetourL1", "AdresseRetourL2", "AdresseRetourL3", "AdresseRetourL4", "AdresseRetourL5",
 			"AdresseRetourL6", "AdresseRetourL7"
 	);

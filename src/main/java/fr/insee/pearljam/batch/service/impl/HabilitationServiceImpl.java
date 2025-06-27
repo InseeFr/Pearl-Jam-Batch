@@ -2,7 +2,6 @@ package fr.insee.pearljam.batch.service.impl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
 
 import fr.insee.pearljam.batch.dto.HabilitatedUser;
@@ -136,6 +135,6 @@ public class HabilitationServiceImpl implements HabilitationService {
 
         HabilitationGroup habilitatedUsers = Optional.ofNullable(response.getBody())
                 .orElse(new HabilitationGroup(Collections.emptyList()));
-        return habilitatedUsers.getUsers().stream().map(HabilitatedUser::getUsername).collect(Collectors.toList());
+        return habilitatedUsers.getUsers().stream().map(HabilitatedUser::getUsername).toList();
     }
 }

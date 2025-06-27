@@ -32,27 +32,6 @@ public class CommunicationRequestDaoImpl implements CommunicationRequestDao{
     }
 
     @Override
-    public void delete(String communicationRequestId) {
-
-    }
-
-    @Override
-    public void save(CommunicationRequestType request) {
-        String q = """
-        INSERT INTO communication_request
-        ( survey_unit_id, emitter, reason, campaign_id, meshuggah_id)
-        VALUES (?, ?, ?, ?, ?)
-    """;
-        pilotageJdbcTemplate.update(q,
-                request.getSurveyUnitId(),
-                request.getEmitter(),
-                request.getReason(),
-                request.getCampaignId(),
-                request.getMeshuggahId()
-        );
-    }
-
-    @Override
     public void deleteBySurveyUnitId(String surveyUnitId) {
         String qString = "DELETE FROM communication_request WHERE survey_unit_id=?";
         pilotageJdbcTemplate.update(qString, surveyUnitId);
