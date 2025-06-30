@@ -31,14 +31,12 @@ public interface OrganizationalUnitTypeDao {
 	void updateOrganizationalUnitParent(String organizationalUnitChild, String organizationalUnitId);
 	/**
      * check if Organizational Unit is already associated in database
-     * @param List of organizationalUnitRefs
+     * @param organizationalUnitRefs List of organizationalUnitRefs
      * @return boolean
      */
 	boolean existOrganizationalUnitAlreadyAssociated(List<String> organizationalUnitRefs);
-	
-	
+
 	List<String> findChildren(String currentOu);
 	
-	boolean existOrganizationUnitNational(List<String> organizationalUnitRefs);
 	void createOrganizationalUnitFromDto(OrganizationUnitDto organizationalUnit);
 }

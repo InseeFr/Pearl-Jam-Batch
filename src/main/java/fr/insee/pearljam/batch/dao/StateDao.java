@@ -3,7 +3,6 @@ package fr.insee.pearljam.batch.dao;
 import java.util.List;
 
 import fr.insee.pearljam.batch.campaign.StateType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 
 /**
  * Interface for the State table
@@ -13,23 +12,20 @@ import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 public interface StateDao {
 	/**
      * Create a State in database
-     * @param surveyUnit
+     * @param date state date
+     * @param type state type
+     * @param surveyUnitId linked SU id
      */
-	public void createState(Long date, String type, String surveyUnitId);
-	/**
-     * Delete States for a list of SurveyUnit in database
-     * @param list of SurveyUnit
-     */
-	void deleteStateForSurveyUnitList(List<SurveyUnitType> surveyUnitIdList);
+	void createState(Long date, String type, String surveyUnitId);
 	/**
      * Get States by SurveyUnit id in database
-     * @param surveyUnitId
+     * @param surveyUnitId linked SU id
      * @return list of SurveyUnit
      */
 	List<StateType> getStateBySurveyUnitId(String surveyUnitId);
 	/**
      * Delete States by surveyUnitId in database
-     * @param surveyUnitId
+     * @param surveyUnitId linked SU id
      */
 	void deleteStateBySurveyUnitId(String surveyUnitId);
 }

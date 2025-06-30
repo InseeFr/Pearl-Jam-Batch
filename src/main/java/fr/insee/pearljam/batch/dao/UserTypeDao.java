@@ -30,7 +30,7 @@ public interface UserTypeDao {
 	void updateOrganizationalUnitByUserId(String userId, String id);
 	/**
      * check if user is already associated in database
-     * @param List of userId
+     * @param userId List of userId
      * @param organizationUnitId
      * @return boolean
      */
@@ -39,13 +39,11 @@ public interface UserTypeDao {
 	/**
      * check if user is already associated to a specific organization unit in database
      * @param userId
-     * @param organizationUnitId
+     * @param organizationalUnitId
      * @return boolean
      */
 	boolean userAlreadyAssociatedToOrganizationUnitId(String userId, String organizationalUnitId);
 	
-	
-	List<String> findAllUsersByOrganizationUnit(String organizationUnitId);
 	List<String> findAllUsersWithoutOrganizationUnit();
 
 }

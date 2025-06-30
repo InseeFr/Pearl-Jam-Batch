@@ -1,7 +1,6 @@
 package fr.insee.pearljam.batch.dao;
 
 import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;

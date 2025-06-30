@@ -8,7 +8,7 @@ import java.util.List;
 @Slf4j
 public class CourrierBuilder {
 
-	private final static List<String> requiredVariables = List.of(
+	private static final List<String> requiredVariables = List.of(
 			"AdresseRetourL1", "AdresseRetourL2", "AdresseRetourL3", "AdresseRetourL4", "AdresseRetourL5",
 			"AdresseRetourL6", "AdresseRetourL7"
 	);
@@ -52,7 +52,7 @@ public class CourrierBuilder {
 		variables.setBddAdressePosteeL7(data.getBddL7());
 
 		// Interviewer fields
-		variables.addAdditionalField("Ue_DateEdition", data.getEditionDate());
+		variables.addAdditionalField("DateEdition", data.getEditionDate());
 		variables.addAdditionalField("Ue_CiviliteEnqueteur", data.getInterviewerTitle());
 		variables.addAdditionalField("Ue_NomEnqueteur", data.getInterviewerLastName());
 		variables.addAdditionalField("Ue_PrenomEnqueteur", data.getInterviewerFirstName());

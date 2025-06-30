@@ -8,9 +8,5 @@ public interface CommunicationRequestDao {
 
     List<CommunicationRequestType> findAll();
 
-    void delete(String communicationRequestId);
-
-    void save(CommunicationRequestType request);
-
     void deleteBySurveyUnitId(String surveyUnitId);
 }

@@ -171,7 +171,7 @@ public class ApplicationContext {
 		try {
 			pilotageJdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(pilotageConnection(pilotageDataSource), false));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Can't connect to pilotage database",e);
 
 		}
 		pilotageJdbcTemplate.setResultsMapCaseInsensitive(true);
@@ -194,9 +194,9 @@ public class ApplicationContext {
 
 	/***
 	 * This method return datasource connection
-	 * @param dataSource
+	 * @param dataSource dS
 	 * @return Connection
-	 * @throws SQLException
+	 * @throws SQLException sqlE
 	 */
 	@Bean("connection")
 	public Connection connection(@Autowired @Qualifier("dataSource") DataSource dataSource) throws SQLException {
@@ -205,17 +205,16 @@ public class ApplicationContext {
 
 	/***
 	 * Create a new JdbcTemplate with a datasource passed in parameter
-	 * @param dataSource
+	 * @param dataSource dS
 	 * @return JdbcTemplate
 	 */
 	@Bean("jdbcTemplate")
-	public JdbcTemplate jdbcTemplate(@Autowired @Qualifier("dataSource") DataSource dataSource) throws SQLException {
+	public JdbcTemplate jdbcTemplate(@Autowired @Qualifier("dataSource") DataSource dataSource) {
 		JdbcTemplate jdbcTemplate = null;
 		try {
 			jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(connection(dataSource), false));
 		} catch (SQLException e) {
-			e.printStackTrace();
-
+			throw new RuntimeException("Can't connect to database",e);
 		}
 		jdbcTemplate.setResultsMapCaseInsensitive(true);
 		return jdbcTemplate;

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import fr.insee.pearljam.batch.campaign.StateType;
 import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-
 /**
  * Service for the State entity that implements the interface associated
  * @author scorcaud
@@ -29,11 +28,6 @@ public class StateDaoImpl implements StateDao{
 	public void createState(Long date, String type, String surveyUnitId) {
 		String qString = "INSERT INTO state (date, type, survey_unit_id) VALUES (?,?,?)";
 		pilotageJdbcTemplate.update(qString, date, type, surveyUnitId);
-	}
-	
-	public void deleteStateForSurveyUnitList(List<SurveyUnitType> surveyUnitIdList) {
-		String qString ="DELETE FROM state WHERE survey_unit_id IN (?)";
-		pilotageJdbcTemplate.update(qString, surveyUnitIdList);
 	}
 	
 	public List<StateType> getStateBySurveyUnitId(String surveyUnitId) {

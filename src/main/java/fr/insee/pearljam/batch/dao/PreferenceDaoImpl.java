@@ -21,10 +21,4 @@ public class PreferenceDaoImpl implements PreferenceDao {
 		String qString = "DELETE FROM preference WHERE id_campaign=?";
 		pilotageJdbcTemplate.update(qString, campaignId);
 	}
-
-	@Override
-	public void createPreference(String userId, String campaignId) {
-		String qString = "INSERT INTO preference (id_user, id_campaign) VALUES (?,?)";
-		pilotageJdbcTemplate.update(qString, userId, campaignId);
-	}
 }

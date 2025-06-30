@@ -1,17 +1,5 @@
 package fr.insee.pearljam.batch.service.synchronization.impl;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import fr.insee.pearljam.batch.dao.InterviewerTypeDao;
 import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
 import fr.insee.pearljam.batch.dto.OrganizationUnitDto;
 import fr.insee.pearljam.batch.enums.ContextReferentialSyncLogIds;
@@ -26,6 +14,14 @@ import fr.insee.pearljam.batch.template.OrganizationUnitsSynchronizationResult;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.Utils;
 import fr.insee.pearljam.batch.utils.XmlUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -37,14 +33,7 @@ public class OrganizationalUnitsSynchronizationServiceImpl implements Organizati
 	private String logIds;
 	
 	@Autowired
-	@Qualifier("pilotageConnection")
-	Connection pilotageConnection;
-	
-	@Autowired
 	ContextReferentialService opaleService;
-	
-	@Autowired
-	InterviewerTypeDao interviewerTypeDao;
 	
 	@Autowired
 	OrganizationalUnitTypeDao organizationalUnitTypeDao;

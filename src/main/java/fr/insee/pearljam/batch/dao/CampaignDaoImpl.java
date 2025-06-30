@@ -31,34 +31,10 @@ public class CampaignDaoImpl implements CampaignDao {
 		return nbRes > 0;
 	}
 
-	/**
-	 * Implements the creation of a Campaign in database
-	 * 
-	 * @param campaign campaign to create
-	 */
-	@Override
-	public void createCampaign(Campaign campaign) {
-		String qString = "INSERT INTO campaign (id, label) VALUES (?, ?)";
-
-		pilotageJdbcTemplate.update(qString, campaign.getId().toUpperCase(), campaign.getLabel());
-	}
-
 	@Override
 	public void deleteCampaign(Campaign campaign) {
 		String qString = "DELETE FROM campaign WHERE id=?";
 		pilotageJdbcTemplate.update(qString, campaign.getId());
-	}
-
-	public void updateCampaignById(Campaign campaign) {
-		String qString = "UPDATE campaign SET label=? , identification_configuration=? , contact_attempt_configuration=? , contact_outcome_configuration=? WHERE id=?";
-
-		pilotageJdbcTemplate.update(qString, campaign.getLabel(), campaign.getId().toUpperCase());
-	}
-
-	@Override
-	public List<Campaign> findAll() {
-		String qString = "SELECT * FROM campaign";
-		return pilotageJdbcTemplate.query(qString, new CampaignTypeMapper());
 	}
 
 	/**
@@ -86,7 +62,7 @@ public class CampaignDaoImpl implements CampaignDao {
 		List<Campaign> campaigns = pilotageJdbcTemplate.query(qString, new Object[] { campaignId },
 				new CampaignTypeMapper());
 		if (!campaigns.isEmpty()) {
-			return campaigns.get(0);
+			return campaigns.getFirst();
 		} else {
 			return null;
 		}
