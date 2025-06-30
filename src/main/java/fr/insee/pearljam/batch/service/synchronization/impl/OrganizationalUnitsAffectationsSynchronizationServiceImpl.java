@@ -1,19 +1,5 @@
 package fr.insee.pearljam.batch.service.synchronization.impl;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import fr.insee.pearljam.batch.dao.ClosingCauseDao;
-import fr.insee.pearljam.batch.dao.InterviewerTypeDao;
 import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
 import fr.insee.pearljam.batch.dao.SurveyUnitDao;
 import fr.insee.pearljam.batch.dto.OrganizationUnitAffectationsDto;
@@ -24,15 +10,19 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.exception.TooManyReaffectationsException;
 import fr.insee.pearljam.batch.service.ContextReferentialService;
 import fr.insee.pearljam.batch.service.synchronization.OrganizationalUnitsAffectationsSynchronizationService;
-import fr.insee.pearljam.batch.template.CreatedOrganizationUnitsAffectations;
-import fr.insee.pearljam.batch.template.OrganizationUnitAffectation;
-import fr.insee.pearljam.batch.template.OrganizationUnitAffectationSynchronizationError;
-import fr.insee.pearljam.batch.template.OrganizationUnitAffectationsSynchronizationErrors;
-import fr.insee.pearljam.batch.template.OrganizationUnitsAffectationsSynchronizationResult;
-import fr.insee.pearljam.batch.template.OrganizationUnitsReaffectations;
+import fr.insee.pearljam.batch.template.*;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.Utils;
 import fr.insee.pearljam.batch.utils.XmlUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 
@@ -50,23 +40,13 @@ public class OrganizationalUnitsAffectationsSynchronizationServiceImpl implement
 	private Float relThreshold;
 	
 	@Autowired
-	@Qualifier("pilotageConnection")
-	Connection pilotageConnection;
-	
-	@Autowired
 	ContextReferentialService opaleService;
-	
-	@Autowired
-	InterviewerTypeDao interviewerTypeDao;
 	
 	@Autowired
 	OrganizationalUnitTypeDao organizationalUnitTypeDao;
 	
 	@Autowired
 	SurveyUnitDao surveyUnitDao;
-	
-	@Autowired
-	ClosingCauseDao closingCauseDao;
 	
 	public BatchErrorCode synchronizeSurveyUnitOrganizationUnitAffectation(String out) throws TooManyReaffectationsException, SynchronizationException, BatchException {
 		logger.info("Organizational units affectation synchronization started");

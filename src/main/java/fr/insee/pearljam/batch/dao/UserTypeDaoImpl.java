@@ -22,7 +22,7 @@ public class UserTypeDaoImpl implements UserTypeDao{
 	@Override
 	public boolean existUser(String id) {
 		String qString = "SELECT COUNT(id) FROM "+schema+".user WHERE id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
+		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, Long.class, id);
 		return nbRes>0;	
 	}
 	
@@ -50,18 +50,6 @@ public class UserTypeDaoImpl implements UserTypeDao{
 		String qString =String.format("SELECT COUNT(id) FROM %s.user WHERE id=? AND organization_unit_id IS NOT NULL AND organization_unit_id=?", schema);
 		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{userId, organizationalUnitId}, Long.class);
 		return nbRes>0;	
-	}
-
-	@Override
-	public List<String> findAllUsersByOrganizationUnit(String organizationUnitId) {
-		String qString = new StringBuilder("SELECT u.id ")
-			.append("FROM "+schema+".user u ")
-			.append("WHERE u.organization_unit_id=? ")
-			.append("OR ((SELECT ou.organization_unit_parent_id FROM organization_unit ou WHERE ou.id=?) IS NOT NULL ")
-			.append("AND ")
-			.append("u.organization_unit_id=(SELECT ou.organization_unit_parent_id FROM organization_unit ou WHERE ou.id=?))")
-			.toString();
-		return pilotageJdbcTemplate.queryForList(qString, new Object[]{organizationUnitId,organizationUnitId,organizationUnitId}, String.class);
 	}
 
 	@Override

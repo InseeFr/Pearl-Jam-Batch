@@ -1,6 +1,5 @@
 package fr.insee.pearljam.batch.dao;
 
-import java.util.List;
 
 import fr.insee.pearljam.batch.campaign.Campaign;
 
@@ -20,27 +19,11 @@ public interface CampaignDao {
 	boolean existCampaign(String id);
 
 	/**
-	 * Create a Campaign in database
-	 * 
-	 * @param campaign
-	 */
-	void createCampaign(Campaign campaign);
-
-	/**
 	 * Delete a Campaign in database
 	 * 
 	 * @param campaign
 	 */
 	void deleteCampaign(Campaign campaign);
-
-	/**
-	 * Update a Campaign in database
-	 * 
-	 * @param campaign
-	 */
-	void updateCampaignById(Campaign campaign);
-
-	List<Campaign> findAll();
 
 	Campaign findById(String campaignId);
 

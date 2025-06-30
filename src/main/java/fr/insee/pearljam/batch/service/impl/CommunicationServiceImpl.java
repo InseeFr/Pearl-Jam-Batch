@@ -260,12 +260,6 @@ public class CommunicationServiceImpl implements CommunicationService {
 		data.setInterviewerTel(interviewer.getPhoneNumber());
 	}
 
-	@Override
-	public CommunicationTemplate getCommunicationTemplate(String communicationTemplateId) throws MissingCommunicationException, SynchronizationException {
-		return meshuggahService.getCommunicationTemplate(communicationTemplateId);
-	}
-
-
 	private String generateRecipientName(PersonType person) {
 		String title = person.getTitle().equals("MISS") ? "MME" : "M";
 

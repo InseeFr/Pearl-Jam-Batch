@@ -8,7 +8,6 @@ import fr.insee.pearljam.batch.dto.InterviewerAffectationsDto;
 import fr.insee.pearljam.batch.dto.InterviewerDto;
 import fr.insee.pearljam.batch.dto.OrganizationUnitAffectationsDto;
 import fr.insee.pearljam.batch.dto.OrganizationUnitDto;
-import fr.insee.pearljam.batch.dto.SimpleIdDto;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
 
 // Class to call Opale endpoints
@@ -20,7 +19,5 @@ public interface ContextReferentialService {
 	List<OrganizationUnitDto> getOrganizationUnitsFromOpale() throws SynchronizationException;		
 	List<InterviewerAffectationsDto> getInterviewersAffectationsFromOpale() throws SynchronizationException;
 	List<OrganizationUnitAffectationsDto> getOrganizationUnitsAffectationsFromOpale() throws SynchronizationException;
-	SimpleIdDto getSurveyUnitOUAffectation(String suId) throws SynchronizationException;
-	InterviewerDto getSurveyUnitInterviewerAffectation(String suId) throws SynchronizationException;	
 	void contextReferentialServiceIsAvailable() throws SynchronizationException;
 }

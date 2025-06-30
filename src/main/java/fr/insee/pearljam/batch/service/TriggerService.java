@@ -50,9 +50,6 @@ public class TriggerService {
 	MessageDao messageDao;
 
 	@Autowired
-	CampaignService campaignService;
-
-	@Autowired
 	InterviewersSynchronizationService interviewersSynchronizationService;
 
 	@Autowired
@@ -124,7 +121,7 @@ public class TriggerService {
 	}
 
 	public BatchErrorCode synchronizeIntervewers(String folderOut) throws SQLException {
-		BatchErrorCode returnedCode = BatchErrorCode.OK;
+		BatchErrorCode returnedCode;
 		pilotageConnection.setAutoCommit(false);
 		try {
 			returnedCode = interviewersSynchronizationService.synchronizeInterviewers(folderOut);
@@ -140,7 +137,7 @@ public class TriggerService {
 	}
 
 	public BatchErrorCode synchronizeIntervewersAffectations(String folderOut)  throws SQLException{
-		BatchErrorCode returnedCode = BatchErrorCode.OK;
+		BatchErrorCode returnedCode;
 		pilotageConnection.setAutoCommit(false);
 		try {
 			returnedCode = interviewersAffectationsSynchronizationService
@@ -161,24 +158,8 @@ public class TriggerService {
 		return returnedCode;
 	}
 
-	public BatchErrorCode synchronizeOrganizationUnits(String folderOut)  throws SQLException {
-		BatchErrorCode returnedCode = BatchErrorCode.OK;
-		pilotageConnection.setAutoCommit(false);
-		try {
-			returnedCode = organizationalUnitsSynchronizationService.synchronizeOrganizationUnits(folderOut);
-		} catch (Exception e) {
-			returnedCode = BatchErrorCode.KO_TECHNICAL_ERROR;
-			pilotageConnection.rollback();
-			logger.error("Error during organization units synchronization, rolling back : {}",
-					e.getMessage());
-		} finally {
-			pilotageConnection.setAutoCommit(true);
-		}
-		return returnedCode;
-	}
-
 	public BatchErrorCode synchronizeOrganizationUnitsAffectations(String folderOut)  throws SQLException {
-		BatchErrorCode returnedCode = BatchErrorCode.OK;
+		BatchErrorCode returnedCode;
 		pilotageConnection.setAutoCommit(false);
 		try {
 			returnedCode = organizationalUnitsAffectationsSynchronizationService
@@ -221,8 +202,8 @@ public class TriggerService {
 		messageDao = context.getBean(MessageDao.class);
 		List<String> lstSuANV = new ArrayList<>();
 		List<String> lstSuNNS = new ArrayList<>();
-		List<String> lstSu = new ArrayList<>();
-		List<Long> lstIdMsg = new ArrayList<>();
+		List<String> lstSu;
+		List<Long> lstIdMsg;
 		try {
 			pilotageConnection.setAutoCommit(false);
 			// Get the list of Survey unit id to update from state NVM to ANV or NNS

@@ -7,5 +7,5 @@ import fr.insee.pearljam.batch.exception.SynchronizationException;
 @Service
 public interface SynchronizationUtilsService {
 
-    public void checkServices() throws SynchronizationException;
+    void checkServices() throws SynchronizationException;
 }

@@ -182,20 +182,6 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     }
 
     @Override
-    public List<String> getSurveyUnitForQNA(long instantDate) {
-        String qString = """
-                SELECT t.id FROM
-                (SELECT su.id as id, v.collection_end_date,
-                (SELECT s.type FROM state s WHERE s.survey_unit_id=su.id ORDER BY s.date DESC LIMIT 1) as lastState
-                FROM survey_unit su
-                JOIN campaign c ON su.campaign_id=c.id
-                JOIN visibility v ON v.campaign_id=c.id AND su.organization_unit_id=v.organization_unit_id) t
-                WHERE t.collection_end_date<?
-                """;
-        return pilotageJdbcTemplate.queryForList(qString, String.class, instantDate);
-    }
-
-    @Override
     public List<String> getSurveyUnitForNVA(long instantDate) {
         String qString = """
                 SELECT t.id FROM

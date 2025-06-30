@@ -72,7 +72,6 @@ public interface SurveyUnitDao {
 	List<String> getSurveyUnitNVM(long instantDate);
      List<String> getSurveyUnitANV(long instantDate);
      List<String> getSurveyUnitNNS(long instantDate);
-	List<String> getSurveyUnitForQNA(long instantDate);
 	List<String> getSurveyUnitForNVA(long instantDate);
 	String getSurveyUnitInterviewerAffectation(String surveyUnitId);
 	void setSurveyUnitInterviewerAffectation(String surveyUnitId, String idep);

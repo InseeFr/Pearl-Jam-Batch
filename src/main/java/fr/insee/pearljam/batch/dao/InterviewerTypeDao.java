@@ -11,14 +11,14 @@ import fr.insee.pearljam.batch.dto.InterviewerDto;
 public interface InterviewerTypeDao {
 	/**
      * Get an Interviewer by id in database
-     * @param id
+     * @param id interviewerId
      * @return boolean
      */
 	boolean existInterviewer(String id);
 	
 	/**
      * Create an Interviewer in database
-     * @param interviewer
+     * @param interviewer InterviewerData
      */
 	void createInterviewer(InterviewerType interviewer);
 

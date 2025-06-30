@@ -48,41 +48,14 @@ public class MessageDaoImpl implements MessageDao{
 	@Override
 	public List<Long> getIdsToDelete(Long passedDate){
 		String qString = "SELECT mes.id FROM message mes WHERE mes.date < ?";
-		return pilotageJdbcTemplate.queryForList(qString, new Object[]{passedDate}, Long.class);
-	}
-	
-	@Override
-	public boolean isIdPresentForCampaign(Long id) {
-		String qString = "SELECT COUNT(*) FROM campaign_message_recipient WHERE message_id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
-		return nbRes>0;	
+		return pilotageJdbcTemplate.queryForList(qString, Long.class, passedDate);
 	}
 	
 	@Override
 	public boolean isIdPresentForCampaignId(String id) {
 		String qString = "SELECT COUNT(*) FROM campaign_message_recipient WHERE campaign_id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
+		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, Long.class, id);
 		return nbRes>0;	
 	}
-	
-	@Override
-	public boolean isIdPresentForOu(Long id) {
-		String qString = "SELECT COUNT(*) FROM oumessage_recipient WHERE message_id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
-		return nbRes>0;	
-	}
-	
-	@Override
-	public boolean isIdPresentForIntw(Long id) {
-		String qString = "SELECT COUNT(*) FROM interviewer_message_recipient WHERE message_id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
-		return nbRes>0;	
-	}
-	
-	@Override
-	public boolean isIdPresentInStatus(Long id) {
-		String qString = "SELECT COUNT(*) FROM message_status WHERE message_id=?";
-		Long nbRes = pilotageJdbcTemplate.queryForObject(qString, new Object[]{id}, Long.class);
-		return nbRes>0;	
-	}
+
 }

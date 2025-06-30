@@ -10,9 +10,5 @@ public interface MessageDao {
 	void deleteStatusMessageById(Long id);
 	List<Long> getIdsToDelete(Long passedDate);
 	boolean isIdPresentForCampaignId(String campaignId);
-	boolean isIdPresentForCampaign(Long id);
-	boolean isIdPresentForOu(Long id);
-	boolean isIdPresentForIntw(Long id);
-	boolean isIdPresentInStatus(Long id);
 
 }
