@@ -24,6 +24,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 
+import javax.sql.DataSource;
+
 @Configuration
 @ComponentScan(basePackages = {"fr.insee.pearljam.*", "fr.insee.queen.batch.*"}, excludeFilters={@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, value= fr.insee.queen.batch.config.ApplicationContext.class)})
 @PropertySource(value = {"classpath:/pearljam-bo.properties", "file:${properties.path}/pearljam-bo.properties"}, ignoreResourceNotFound = true)

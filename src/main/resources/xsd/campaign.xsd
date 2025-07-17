@@ -66,7 +66,6 @@
 	<xs:element name="CommunicationRequest" type="CommunicationRequestType" />
 	<xs:element name="CommunicationMetadata" type="CommunicationMetadataType" />
 	<xs:element name="CommunicationMetadatas" type="CommunicationMetadatasType" />
-
 	<xs:element name="Persons" type="PersonsType" />
 
 
