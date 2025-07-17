@@ -1,16 +1,15 @@
 package fr.insee.pearljam.batch.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
+import fr.insee.pearljam.batch.campaign.PhoneNumberType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.campaign.PhoneNumberType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Interface for the PhoneNumber entity
@@ -28,40 +27,22 @@ public class PhoneNumberDaoImpl implements PhoneNumberDao {
 	@Override
 	public void createPhoneNumber(PhoneNumberType phoneNumber, Long personId) {
 		String qString = "INSERT INTO phone_number (favorite, number, source, person_id) VALUES (?, ?,?, ?)";
-		Integer source;
-		switch(phoneNumber.getSource().toLowerCase()) {
-			case "fiscal":
-				source = 0;
-				break;
-			case "directory":
-				source = 1;
-				break;
-			case "interviewer": 
-				source = 2;
-				break;
-			default:
-				source = null;
-		}
-		Boolean favorite=false;
-		if(phoneNumber.isFavorite()!=null && phoneNumber.isFavorite()){
+		Integer source = switch (phoneNumber.getSource().toLowerCase()) {
+            case "fiscal" -> 0;
+            case "directory" -> 1;
+            case "interviewer" -> 2;
+            default -> null;
+        };
+        boolean favorite= phoneNumber.isFavorite() != null && phoneNumber.isFavorite();
 
-			favorite=true;
-		}
-		
-		pilotageJdbcTemplate.update(qString, favorite,phoneNumber.getNumber(), source, personId);
+        pilotageJdbcTemplate.update(qString, favorite,phoneNumber.getNumber(), source, personId);
 	}
 
-	@Override
-	public void deletePhoneNumbersByPersonId(Long personId) {
-		String qString = "DELETE FROM phone_number WHERE person_id=?";
-		pilotageJdbcTemplate.update(qString, personId);
-	}
-	
 	@Override
 	public void deletePhoneNumbersBySurveyUnitId(String surveyUnitId) {
-		String qString = new StringBuilder("DELETE FROM phone_number WHERE person_id IN ")
-				.append("(SELECT id FROM person WHERE survey_unit_id=?)")
-				.toString();
+		String qString = """
+                DELETE FROM phone_number WHERE person_id IN 
+                (SELECT id FROM person WHERE survey_unit_id=?)""";
 		pilotageJdbcTemplate.update(qString, surveyUnitId);
 	}
 	

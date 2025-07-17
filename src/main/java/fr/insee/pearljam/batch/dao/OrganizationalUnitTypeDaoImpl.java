@@ -66,13 +66,4 @@ public class OrganizationalUnitTypeDaoImpl implements OrganizationalUnitTypeDao 
         return pilotageJdbcTemplate.queryForList(qString, new Object[]{currentOu}, String.class);
     }
 
-    @Override
-    public boolean existOrganizationUnitNational(List<String> organizationalUnitRefs) {
-        String inSql = String.join(",", Collections.nCopies(organizationalUnitRefs.size(), "?"));
-        String qString = String.format("SELECT COUNT(id) FROM organization_unit WHERE id IN (%s) AND type='NATIONAL'"
-                , inSql);
-        Long nbRes = pilotageJdbcTemplate.queryForObject(qString, organizationalUnitRefs.toArray(), Long.class);
-        return nbRes > 0;
-    }
-
 }

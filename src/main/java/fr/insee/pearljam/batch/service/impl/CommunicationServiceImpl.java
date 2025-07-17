@@ -128,9 +128,9 @@ public class CommunicationServiceImpl implements CommunicationService {
 				.stream()
 				.map(m -> new Metadata(m.getKey(), m.getValue()))
 				.toList();
-
+		// here we keep the second value : template default value should be replaced by SU metadata value
 		return Stream.concat(base.stream(), fromDb.stream())
-				.collect(Collectors.toMap(Metadata::getKey, m -> m, (m1, m2) -> m1))
+				.collect(Collectors.toMap(Metadata::getKey, m -> m, (m1, m2) -> m2))
 				.values().stream().toList();
 	}
 
@@ -259,12 +259,6 @@ public class CommunicationServiceImpl implements CommunicationService {
 		data.setInterviewerEmail(interviewer.getEmail());
 		data.setInterviewerTel(interviewer.getPhoneNumber());
 	}
-
-	@Override
-	public CommunicationTemplate getCommunicationTemplate(String communicationTemplateId) throws MissingCommunicationException, SynchronizationException {
-		return meshuggahService.getCommunicationTemplate(communicationTemplateId);
-	}
-
 
 	private String generateRecipientName(PersonType person) {
 		String title = person.getTitle().equals("MISS") ? "MME" : "M";

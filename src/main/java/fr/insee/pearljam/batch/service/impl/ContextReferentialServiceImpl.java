@@ -1,29 +1,19 @@
 package fr.insee.pearljam.batch.service.impl;
 
-import java.util.List;
-
+import fr.insee.pearljam.batch.Constants;
+import fr.insee.pearljam.batch.dto.*;
+import fr.insee.pearljam.batch.exception.SynchronizationException;
+import fr.insee.pearljam.batch.service.ContextReferentialService;
+import fr.insee.pearljam.batch.service.KeycloakService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.dto.InterviewerAffectationsDto;
-import fr.insee.pearljam.batch.dto.InterviewerDto;
-import fr.insee.pearljam.batch.dto.InterviewersAffectationsResponseDto;
-import fr.insee.pearljam.batch.dto.InterviewersResponseDto;
-import fr.insee.pearljam.batch.dto.OrganizationUnitAffectationsDto;
-import fr.insee.pearljam.batch.dto.OrganizationUnitDto;
-import fr.insee.pearljam.batch.dto.OrganizationUnitsAffectationsResponseDto;
-import fr.insee.pearljam.batch.dto.OrganizationUnitsResponseDto;
-import fr.insee.pearljam.batch.dto.SimpleIdDto;
-import fr.insee.pearljam.batch.exception.SynchronizationException;
-import fr.insee.pearljam.batch.service.ContextReferentialService;
-import fr.insee.pearljam.batch.service.KeycloakService;
+import java.util.List;
 
 // Class to call Context referential endpoints
 
@@ -127,47 +117,6 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
         }
 
         return body.getOrganizationUnits();
-    }
-
-    @Override
-    public SimpleIdDto getSurveyUnitOUAffectation(String suId) throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_SURVEY_UNIT_OU_AFFECTATION;
-
-        HttpHeaders headers = getHeaders();
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<SimpleIdDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET, entity,
-                SimpleIdDto.class);
-        printUri(uri);
-        printResponse(response.getStatusCode().toString());
-
-        SimpleIdDto body = response.getBody();
-        if (body == null) {
-            throw new SynchronizationException(NO_RESPONSE_MSG);
-        }
-
-        return body;
-    }
-
-    @Override
-    public InterviewerDto getSurveyUnitInterviewerAffectation(String suId) throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_SURVEY_UNIT_INTERVIEWER_AFFECTATION;
-
-        HttpHeaders headers = getHeaders();
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<InterviewerDto> response = restTemplate.exchange(String.format(uri, suId), HttpMethod.GET,
-                entity, InterviewerDto.class);
-        printUri(uri);
-        printResponse(response.getStatusCode().toString());
-
-        InterviewerDto body = response.getBody();
-        if (body == null) {
-            throw new SynchronizationException(NO_RESPONSE_MSG);
-        }
-
-        return body;
-
     }
 
     @Override

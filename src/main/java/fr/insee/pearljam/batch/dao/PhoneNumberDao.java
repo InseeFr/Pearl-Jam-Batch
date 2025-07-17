@@ -17,8 +17,6 @@ public interface PhoneNumberDao {
      */
 	void createPhoneNumber(PhoneNumberType phoneNumber, Long personId);
 
-	void deletePhoneNumbersByPersonId(Long personId);
-
 	void deletePhoneNumbersBySurveyUnitId(String surveyUnitId);
 
 	List<PhoneNumberType> getPhoneNumbersByPersonId(Long id);

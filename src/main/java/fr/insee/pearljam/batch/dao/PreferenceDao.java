@@ -11,6 +11,4 @@ public interface PreferenceDao {
      * @param campaignId
      */
 	void deletePreferenceByCampaignId(String campaignId);
-
-	void createPreference(String userId, String id);
 }
