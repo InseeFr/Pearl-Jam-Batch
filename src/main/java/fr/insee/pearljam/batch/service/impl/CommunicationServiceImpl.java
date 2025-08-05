@@ -81,6 +81,9 @@ public class CommunicationServiceImpl implements CommunicationService {
 			} catch (MissingAddressException | NullPointerException e) {
 				LOGGER.warn("Skipping survey unit {} due to address or interviewer error: {}", su.getId(), e.getMessage());
 				failedSurveyUnits.add(su.getId());
+			} catch(Exception e){
+				LOGGER.warn("Skipping survey unit {} due unexpected error: {}", su.getId(), e.getMessage());
+				failedSurveyUnits.add(su.getId());
 			}
 		}
 
@@ -107,7 +110,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 			}
 
 			updateStatus(communicationDataList, templateId, published);
-			LOGGER.info("Communication {} => {}", courriers.getEditionId(), published ? "OK" : "KO");
+			LOGGER.info("Communication {} => {}, {} communication(s) send", courriers.getEditionId(), published ? "OK" : "KO",courriers.getCourriers().size());
 		}
 
 		if (!failedSurveyUnits.isEmpty()) {
@@ -278,7 +281,8 @@ public class CommunicationServiceImpl implements CommunicationService {
 		String recipientShorterName = String.join(" ", title, firstNameAcronym, lastName);
 		if (recipientShorterName.length() <= 38) return recipientShorterName;
 
-		return String.join(" ", title, lastName).substring(0, 38);
+		String recipientShortestName = String.join(" ", title, lastName);
+		return recipientShortestName.length() <= 38 ? recipientShortestName : recipientShortestName.substring(0, 38);
 	}
 
 	public void moveFileAfterPublish(boolean publishResult, File fileToPublish, String communicationModele) throws PublicationException {
