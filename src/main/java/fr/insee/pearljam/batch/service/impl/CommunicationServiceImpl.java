@@ -82,7 +82,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 				LOGGER.warn("Skipping survey unit {} due to address or interviewer error: {}", su.getId(), e.getMessage());
 				failedSurveyUnits.add(su.getId());
 			} catch(Exception e){
-				LOGGER.warn("Skipping survey unit {} due unexpected error: {}", su.getId(), e.getMessage());
+				LOGGER.warn("Skipping survey unit {} due unexpected error: {}", su.getId(), e.getMessage(), e);
 				failedSurveyUnits.add(su.getId());
 			}
 		}
