@@ -44,7 +44,7 @@ class CommunicationServiceImplTest {
 
     @Test
     void testMaleComposedFirstNameFallbackToAcronym()  {
-        PersonType person = new MockPerson("MR", "Maxence Michel Arnaud", "DupontelleEstVraimentTrèsLong");
+        PersonType person = new MockPerson("MR", "Maxence Michel-Arnaud", "DupontelleEstVraimentTrèsLong");
         String result = communicationService.generateRecipientName(person);
         assertEquals("M M.M.A DupontelleEstVraimentTrèsLong", result);
     }
