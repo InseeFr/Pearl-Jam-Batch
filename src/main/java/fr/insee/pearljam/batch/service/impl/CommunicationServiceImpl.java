@@ -263,11 +263,11 @@ public class CommunicationServiceImpl implements CommunicationService {
 		data.setInterviewerTel(interviewer.getPhoneNumber());
 	}
 
-	private String generateRecipientName(PersonType person) {
+	String generateRecipientName(PersonType person) {
 		String title = person.getTitle().equals("MISS") ? "MME" : "M";
 
 		String firstName = person.getFirstName();
-		List<String> composedFirstName = Arrays.stream(firstName.split(" ")).toList();
+		List<String> composedFirstName = Arrays.stream(firstName.split("[ -]")).toList();
 		String lastName = person.getLastName();
 
 		String recipientCompleteName = String.join(" ", title, firstName, lastName);
@@ -277,7 +277,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 		if (recipientShortName.length() <= 38) return recipientShortName;
 
 		String firstNameAcronym =
-				composedFirstName.stream().map(str -> str.substring(0, 1)).collect(Collectors.joining(" ")).toUpperCase();
+				composedFirstName.stream().map(str -> str.substring(0, 1)).collect(Collectors.joining(".")).toUpperCase();
 		String recipientShorterName = String.join(" ", title, firstNameAcronym, lastName);
 		if (recipientShorterName.length() <= 38) return recipientShorterName;
 
