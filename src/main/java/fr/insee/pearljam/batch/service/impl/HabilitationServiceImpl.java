@@ -6,9 +6,9 @@ import java.util.Optional;
 
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.HabilitatedUser;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ import fr.insee.pearljam.batch.service.HabilitationService;
 import fr.insee.pearljam.batch.service.KeycloakService;
 
 @Service
+@RequiredArgsConstructor
 public class HabilitationServiceImpl implements HabilitationService {
     private static final Logger LOGGER = LogManager.getLogger(HabilitationServiceImpl.class);
 
@@ -33,14 +34,9 @@ public class HabilitationServiceImpl implements HabilitationService {
         LOGGER.info("Response {}", statusCode);
     }
 
-    @Autowired
-    RestTemplate restTemplate;
-
-    @Autowired
-    KeycloakService keycloakService;
-
-    @Autowired
-    private ApplicationConfig applicationConfig;
+    private final RestTemplate restTemplate;
+    private final KeycloakService keycloakService;
+    private final ApplicationConfig applicationConfig;
 
     @Value("${fr.insee.pearljam.ldap.service.realm:#{null}}")
     private String realm;
@@ -72,7 +68,7 @@ public class HabilitationServiceImpl implements HabilitationService {
         LOGGER.info("Add interviewer {}", interviewerIdep);
         String parametrizedUrl = String.format(realmAppGroupUserIdFormat, realm, appName, interviewerGroup,
                 interviewerIdep);
-        String uri = applicationConfig.getLdapServiceUrl() + parametrizedUrl;
+        String uri = applicationConfig.ldapServiceUrl() + parametrizedUrl;
 
         HttpHeaders headers = getHabilitationHeaders();
 
@@ -97,7 +93,7 @@ public class HabilitationServiceImpl implements HabilitationService {
 
     @Override
     public void isAvailable() throws SynchronizationException {
-        String uri = String.join("", habilitationApiRootUrl, Constants.API_LDAP_HEALTHCHECK);
+        String uri = String.join("", applicationConfig.ldapServiceUrl(), Constants.API_LDAP_HEALTHCHECK);
 
         HttpHeaders headers = getHabilitationHeaders();
 
@@ -117,7 +113,7 @@ public class HabilitationServiceImpl implements HabilitationService {
     @Override
     public List<String> getHabilitatedInterviewers() throws SynchronizationException {
         String parametrizedUrl = String.format(realmAppGroupFormat, realm, appName, interviewerGroup);
-        String uri = habilitationApiRootUrl + parametrizedUrl;
+        String uri = applicationConfig.ldapServiceUrl() + parametrizedUrl;
         HttpHeaders headers = getHabilitationHeaders();
 
         HttpEntity<?> entity = new HttpEntity<>(null, headers);

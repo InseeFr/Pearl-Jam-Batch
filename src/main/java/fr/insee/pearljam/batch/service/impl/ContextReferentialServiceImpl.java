@@ -36,7 +36,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<InterviewerDto> getInterviewersFromOpale() throws SynchronizationException {
-        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS;
+        String uri = applicationConfig.contextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();
@@ -55,7 +55,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<OrganizationUnitDto> getOrganizationUnitsFromOpale() throws SynchronizationException {
-        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS;
+        String uri = applicationConfig.contextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();
@@ -75,7 +75,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<InterviewerAffectationsDto> getInterviewersAffectationsFromOpale() throws SynchronizationException {
-        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS_AFFECTATIONS;
+        String uri = applicationConfig.contextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS_AFFECTATIONS;
 
         HttpHeaders headers = getHeaders();
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -95,7 +95,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
 
     public List<OrganizationUnitAffectationsDto> getOrganizationUnitsAffectationsFromOpale()
             throws SynchronizationException {
-        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS_AFFECTATIONS;
+        String uri = applicationConfig.contextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS_AFFECTATIONS;
 
         HttpHeaders headers = getHeaders();
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -116,7 +116,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     @Override
     public void contextReferentialServiceIsAvailable() throws SynchronizationException {
 
-        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_HEALTHCHECK;
+        String uri = applicationConfig.contextReferentialUrl() + Constants.API_OPALE_HEALTHCHECK;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();

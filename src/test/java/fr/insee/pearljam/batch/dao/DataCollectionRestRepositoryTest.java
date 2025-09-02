@@ -1,11 +1,10 @@
 package fr.insee.pearljam.batch.dao;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
-import fr.insee.pearljam.batch.config.StubApplicationConfig;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.CampaignDataCollectionDto;
 import fr.insee.pearljam.batch.exception.DataCollectionApiException;
 import org.junit.jupiter.api.AfterEach;
@@ -37,8 +36,13 @@ class DataCollectionRestRepositoryTest {
                 .baseUrl(wireMockServer.baseUrl())
                 .build();
 
-        StubApplicationConfig appConfig = new StubApplicationConfig("registration-id");
-        dataCollectionRestRepository = new DataCollectionRestRepository(restClient, appConfig);
+        ApplicationConfig applicationConfig = new ApplicationConfig(null, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, null,
+                null, "registration-id", null,
+                null, null, null);
+        dataCollectionRestRepository = new DataCollectionRestRepository(restClient, applicationConfig);
     }
 
     @AfterEach
@@ -138,7 +142,7 @@ class DataCollectionRestRepositoryTest {
                   "id" : "018f63af-09e3-7e6d-8492-f26e32a6cd19",
                   "surveyUnitId" : "SU101",
                   "questionnaireId" : "questionnaire-id",
-                  "personalization" : [{"name": "value"}],
+                  "personalization" : [],
                   "comment" : {},
                   "data" : {
                     "key" : "value"
@@ -178,6 +182,6 @@ class DataCollectionRestRepositoryTest {
         // when & then
         assertThatThrownBy(() -> dataCollectionRestRepository.createOrUpdateInterrogation(interrogationId, surveyUnitId, questionnaireModelId, campaignId, data))
                 .isInstanceOf(DataCollectionApiException.class)
-                .hasMessageContaining("Error when creating interrogation: " + interrogationId + ", survey-unit: "+ surveyUnitId + ", Code HTTP: 500");
+                .hasMessageContaining("Error when creating/updating interrogation: " + interrogationId + ", survey-unit: "+ surveyUnitId + ", Code HTTP: 500");
     }
 }

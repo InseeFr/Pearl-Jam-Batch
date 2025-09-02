@@ -3,14 +3,17 @@ package fr.insee.pearljam.batch;
 import java.io.File;
 import java.nio.file.Path;
 
+import fr.insee.pearljam.batch.utils.DBResetHelper;
+import fr.insee.pearljam.batch.utils.FileHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.FileSystemUtils;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
@@ -19,11 +22,16 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestsEndToEndExtractCampaign extends PearlJamBatchApplicationTests {
+@SpringBootTest
+@ActiveProfiles("test")
+class TestsEndToEndExtractCampaign {
 	
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	
-	PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
+	@Autowired
+	private PilotageLauncherService pilotageLauncherService;
+
+	@Autowired
+	private DBResetHelper dbResetHelper;
+
 	
 	private static final String OUT = "src/test/resources/out/extract/testScenarios";
 
@@ -34,8 +42,8 @@ class TestsEndToEndExtractCampaign extends PearlJamBatchApplicationTests {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
-		copyFiles("extract");
+		dbResetHelper.reinitData();
+		FileHelper.copyFiles("extract");
 	}
 
 	/**
@@ -77,7 +85,7 @@ class TestsEndToEndExtractCampaign extends PearlJamBatchApplicationTests {
 
 	@AfterEach
 	void cleanOutFolder() {
-		purgeDirectory(new File(OUT));
+		FileHelper.purgeDirectory(new File(OUT));
 	}
 	
 	@AfterAll

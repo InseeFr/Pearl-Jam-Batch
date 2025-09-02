@@ -10,19 +10,21 @@ import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.utils.XmlToJsonLunaticConverter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
-import javax.xml.transform.TransformerException;
 import java.util.List;
-import java.util.UUID;
 
-@Slf4j
 @RequiredArgsConstructor
+@Service
 public class DataCollectionService {
     private static final String LOG_CONTEXT = "context";
     private final DataCollectionValidation dataCollectionValidation;
     private final DataCollectionRepository dataCollectionRepository;
     private final XmlToJsonLunaticConverter lunaticConverter;
+    private static final Logger log = LogManager.getLogger(DataCollectionService.class);
+
 
     public void validate(Campagne campaign) throws ValidateException {
         String campaignId = campaign.getIdSource() + campaign.getMillesime() + campaign.getIdPeriode();

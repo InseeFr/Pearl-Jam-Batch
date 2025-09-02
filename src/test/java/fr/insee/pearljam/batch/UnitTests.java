@@ -11,6 +11,7 @@ import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.service.CommunicationService;
 import fr.insee.pearljam.batch.service.PilotageDBService;
 import fr.insee.pearljam.batch.service.TriggerService;
+import fr.insee.pearljam.batch.utils.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -23,14 +24,11 @@ import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ArgumentException;
 import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.PathUtils;
-import fr.insee.pearljam.batch.utils.XmlUtils;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class UnitTests extends PearlJamBatchApplicationTests {
+class UnitTests {
 
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
@@ -42,8 +40,9 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	private CommunicationService communicationService;
 	@Autowired
 	private ApplicationConfig applicationConfig;
-	@Autowired
 	private Launcher launcher;
+	@Autowired
+	private DBResetHelper dbResetHelper;
 
 	private static final String PROCESSING = "src/test/resources/in/sampleprocessing/testScenarios/processing";
 
@@ -54,8 +53,9 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
-		copyFiles("sampleprocessing");
+		dbResetHelper.reinitData();
+		FileHelper.copyFiles("sampleprocessing");
+		launcher = new Launcher(pilotageDBService, pilotageLauncherService, triggerService, communicationService, applicationConfig);
 	}
 		
 	/* Tests for PathUtils.java */
@@ -173,8 +173,8 @@ class UnitTests extends PearlJamBatchApplicationTests {
 
 	@AfterEach
 	void cleanOutFolder() {
-		purgeDirectory(new File("src/test/resources/out/sampleprocessing/testScenarios"));
-		purgeDirectory(new File(PROCESSING));
+		FileHelper.purgeDirectory(new File("src/test/resources/out/sampleprocessing/testScenarios"));
+		FileHelper.purgeDirectory(new File(PROCESSING));
 	}
 	
 	@AfterAll

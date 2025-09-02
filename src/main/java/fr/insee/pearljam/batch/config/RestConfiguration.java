@@ -33,19 +33,19 @@ public class RestConfiguration {
 
         return RestClient.builder()
                 .requestInterceptor(requestInterceptor)
-                .baseUrl(appConfig.getDataCollectionApiUrl())
+                .baseUrl(appConfig.dataCollectionApiUrl())
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(ApplicationConfig appConfig) {
-        String keycloakUrl = appConfig.getKeycloakDataCollectionServer() + "/realms/" + appConfig.getKeycloakDataCollectionRealm() + "/protocol/openid-connect/token";
+        String keycloakUrl = appConfig.keycloakDataCollectionServer() + "/realms/" + appConfig.keycloakDataCollectionRealm() + "/protocol/openid-connect/token";
         ClientRegistration registration = ClientRegistration
-                .withRegistrationId(appConfig.getKeycloakDataCollectionRegistrationId())
+                .withRegistrationId(appConfig.keycloakDataCollectionRegistrationId())
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .clientId(appConfig.getKeycloakDataCollectionClientId())
-                .clientSecret(appConfig.getKeycloakDataCollectionClientSecret())
+                .clientId(appConfig.keycloakDataCollectionClientId())
+                .clientSecret(appConfig.keycloakDataCollectionClientSecret())
                 .tokenUri(keycloakUrl)
                 .build();
         return new InMemoryClientRegistrationRepository(List.of(registration));

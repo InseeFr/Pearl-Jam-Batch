@@ -1,5 +1,6 @@
 package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
 import fr.insee.pearljam.batch.exception.*;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
@@ -18,13 +19,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -33,7 +32,6 @@ import fr.insee.pearljam.batch.campaign.Campaign;
 import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.context.Context;
-import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
@@ -55,15 +53,16 @@ import fr.insee.pearljam.batch.utils.XmlUtils;
 @RequiredArgsConstructor
 public class PilotageLauncherService {
 
-	private final AnnotationConfigApplicationContext context;
 	private final PilotageFolderService pilotageFolderService;
 	private final CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
 	private final ApplicationConfig appConfig;
 	private final DataCollectionService dataCollectionService;
+	private final CampaignDao campaignDao;
+	private final CampaignService campaignService;
+	private final ContextService contextService;
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
-	private static final String SAMPLE_PATH_IN = "/sample/sample.xml";
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -314,8 +313,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode deleteCampaign(String in, String out) throws BatchException, ValidateException, SQLException, DataBaseException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
-		CampaignDao campaignDao = context.getBean(CampaignDao.class);
-		CampaignService campaignService = context.getBean(CampaignService.class);
 		if(campaign!=null) {
 			if(campaignDao.existCampaign(campaign.getId())) {
 				return campaignService.deleteCampaign(campaign, out);
@@ -341,8 +338,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode extractCampaign(String in, String out) throws ValidateException, DataBaseException, BatchException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
-		CampaignDao campaignDao = context.getBean(CampaignDao.class);
-		CampaignService campaignService = context.getBean(CampaignService.class);
 		if(campaign!=null) {
 			if(campaignDao.existCampaign(campaign.getId())) {
 				return campaignService.extractCampaign(campaign, out);
@@ -367,7 +362,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode loadContext(String in) throws SQLException, DataBaseException, ValidateException {
 		Context contextXml = XmlUtils.xmlToObject(in, Context.class);
-		ContextService contextService = context.getBean(ContextService.class);
 		if(contextXml!=null) {
 			return contextService.createContext(contextXml);
 		}else {
@@ -377,7 +371,6 @@ public class PilotageLauncherService {
 
 	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SynchronizationException, SQLException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
-		CampaignService pilotageCampaignService = context.getBean(CampaignService.class);
 
 		// Move SampleProcessing File to processing folder and unmarshall
 		pilotageFolderService.setCampaignName(in);
@@ -394,8 +387,8 @@ public class PilotageLauncherService {
 
 		logger.log(Level.INFO, "Start split sample processing content");
 
-		dataCollectionService.validate(sampleProcessing);
 		Map<String, SurveyUnitType> mapPilotageSu = extractAndValidatePilotageFromSamplProcessing(steps, campaignId, sampleProcessing);
+		dataCollectionService.validate(sampleProcessing);
 		logger.log(Level.INFO, "End split sample processing content");
 
 		// Create or update survey-units on pilotage and/or data-collection
@@ -406,10 +399,10 @@ public class PilotageLauncherService {
 			pilotageValidate = true;
 			oldSu = null;
 			if(steps.contains(Constants.PILOTAGE)){
-				pilotageValidate = pilotageCampaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
+				pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(pilotageValidate) {
 					logger.log(Level.INFO, "Creating interrogation {} in pilotage", interrogationId);
-					oldSu = pilotageCampaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(interrogationId), campaignId);
+					oldSu = campaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(interrogationId), campaignId);
 				} else {
 					logger.log(Level.WARN, "Interrogation {} is invalid", interrogationId);
 					returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
@@ -425,7 +418,7 @@ public class PilotageLauncherService {
 				if(steps.contains(Constants.PILOTAGE)){
 					//Rollback Survey unit creation/update on pearl BB
 					logger.log(Level.WARN, "Roll back for interrogation {} created in pilotage ...", interrogationId);
-					pilotageCampaignService.rollbackSurveyUnit(interrogationId, oldSu,  campaignId);
+					campaignService.rollbackSurveyUnit(interrogationId, oldSu,  campaignId);
 					logger.log(Level.WARN, "Roll back ok");
 				}
 				returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
@@ -439,20 +432,9 @@ public class PilotageLauncherService {
 
 
 	private void moveFilesInOutFolders(BatchErrorCode returnCode) throws IOException, ValidateException {
-		if(new File(appConfig.getFolderIn() + SAMPLE_PATH_IN).exists()) {
-			Files.move(Paths.get(appConfig.getFolderIn() + SAMPLE_PATH_IN),
-					Paths.get(new StringBuilder(appConfig.getFolderOut())
-					.append("/sample/")
-					.append("sample")
-					.append(".")
-					.append(PathUtils.getTimestampForPath())
-					.append(".")
-					.append(getEnding(returnCode)).toString()));
-
-		}
-		if(new File(appConfig.getFolderIn() + CAMPAIGN_PATH_IN).exists()) {
-			Files.move(Paths.get(appConfig.getFolderIn() + CAMPAIGN_PATH_IN),
-					Paths.get(new StringBuilder(appConfig.getFolderOut())
+		if(new File(appConfig.folderIn() + CAMPAIGN_PATH_IN).exists()) {
+			Files.move(Paths.get(appConfig.folderIn() + CAMPAIGN_PATH_IN),
+					Paths.get(new StringBuilder(appConfig.folderOut())
 							.append("/campaign/")
 							.append("campaign")
 							.append(".")
@@ -467,8 +449,7 @@ public class PilotageLauncherService {
 		if(!steps.contains(Constants.PILOTAGE)) {
 			return new HashMap<>();
 		}
-		CampaignDao pilotageCampaignDao = context.getBean(CampaignDao.class);
-		if(!pilotageCampaignDao.existCampaign(campaignId)){
+		if(!campaignDao.existCampaign(campaignId)){
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
@@ -494,7 +475,7 @@ public class PilotageLauncherService {
 
 		logger.log(Level.INFO, "Extract Pilotage content");
 		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
-		XmlUtils.objectToXML(appConfig.getFolderIn() + CAMPAIGN_PATH_IN, pilotageCampaign);
+		XmlUtils.objectToXML(appConfig.folderIn() + CAMPAIGN_PATH_IN, pilotageCampaign);
 		logger.log(Level.INFO, "Validate Pilotage input");
 		return pilotageCampaign.getSurveyUnits().getSurveyUnit()
 				.stream()

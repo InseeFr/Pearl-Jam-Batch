@@ -1,14 +1,14 @@
 package fr.insee.pearljam.batch.dao;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.UUID;
 
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.CampaignDataCollectionDto;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.exception.DataCollectionApiException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
@@ -17,18 +17,18 @@ import static org.springframework.security.oauth2.client.web.client.RequestAttri
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class DataCollectionRestRepository implements DataCollectionRepository {
 
     private final RestClient restClient;
     private final ApplicationConfig appConfig;
+    private static final Logger log = LogManager.getLogger(DataCollectionRestRepository.class);
 
     public CampaignDataCollectionDto retrieveCampaign(String campaignId) throws DataCollectionApiException {
         log.info("searching campaign: {}", campaignId);
         String resourceUri = "/api/admin/campaigns/" + campaignId;
         return this.restClient.get()
                 .uri(resourceUri)
-                .attributes(clientRegistrationId(appConfig.getKeycloakDataCollectionRegistrationId()))
+                .attributes(clientRegistrationId(appConfig.keycloakDataCollectionRegistrationId()))
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::isError,
@@ -49,7 +49,7 @@ public class DataCollectionRestRepository implements DataCollectionRepository {
 
         this.restClient.delete()
                 .uri(resourceUri)
-                .attributes(clientRegistrationId(appConfig.getKeycloakDataCollectionRegistrationId()))
+                .attributes(clientRegistrationId(appConfig.keycloakDataCollectionRegistrationId()))
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::isError,
@@ -73,7 +73,7 @@ public class DataCollectionRestRepository implements DataCollectionRepository {
         this.restClient.post()
                 .uri(resourceUri)
                 .body(interrogationDataCollectionDto)
-                .attributes(clientRegistrationId(appConfig.getKeycloakDataCollectionRegistrationId()))
+                .attributes(clientRegistrationId(appConfig.keycloakDataCollectionRegistrationId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(

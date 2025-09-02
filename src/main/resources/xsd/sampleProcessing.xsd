@@ -3,7 +3,7 @@
 <xs:schema
 		attributeFormDefault="unqualified"
 		elementFormDefault="qualified"
-		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"
+		xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb" jaxb:version="3.0"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 >
 	<xs:element name="Campagne">
@@ -229,10 +229,9 @@
 	</xs:element>
 	<xs:complexType name="Data">
 		<xs:sequence>
-			<xs:any namespace="##any" minOccurs="3" maxOccurs="3">
+			<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:appinfo>
-						<!-- Force le mapping DOM (w3c) et renomme la propriété -->
 						<jaxb:dom type="w3c"/>
 						<jaxb:property name="dataElements"/>
 					</xs:appinfo>

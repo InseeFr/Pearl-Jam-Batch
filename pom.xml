@@ -42,13 +42,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -62,12 +63,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-json</artifactId>
 		</dependency>
 
 		<dependency>
@@ -119,10 +116,10 @@
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.moxy</artifactId>
-			<version>4.0.1</version>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
 
 		<dependency>
@@ -200,14 +197,26 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>2.5.0</version>
+				<version>3.1.0</version> <!-- >= 3.x pour Jakarta -->
+				<dependencies>
+					<!-- Force XJC/RUNTIME Jakarta 4.x -->
+					<dependency>
+						<groupId>org.glassfish.jaxb</groupId>
+						<artifactId>jaxb-xjc</artifactId>
+						<version>4.0.5</version>
+					</dependency>
+					<dependency>
+						<groupId>org.glassfish.jaxb</groupId>
+						<artifactId>jaxb-runtime</artifactId>
+						<version>4.0.5</version>
+					</dependency>
+				</dependencies>
+
 				<executions>
 					<execution>
 						<id>xjc-schema-context</id>
 						<phase>generate-sources</phase>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
+						<goals><goal>xjc</goal></goals>
 						<configuration>
 							<packageName>fr.insee.pearljam.batch.context</packageName>
 							<encoding>UTF-8</encoding>
@@ -220,9 +229,7 @@
 					<execution>
 						<id>xjc-schema-campaign</id>
 						<phase>generate-sources</phase>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
+						<goals><goal>xjc</goal></goals>
 						<configuration>
 							<packageName>fr.insee.pearljam.batch.campaign</packageName>
 							<encoding>UTF-8</encoding>
@@ -235,9 +242,7 @@
 					<execution>
 						<id>xjc-schema-sampleprocessing</id>
 						<phase>generate-sources</phase>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
+						<goals><goal>xjc</goal></goals>
 						<configuration>
 							<packageName>fr.insee.pearljam.batch.sampleprocessing</packageName>
 							<encoding>UTF-8</encoding>
@@ -245,95 +250,6 @@
 								<source>src/main/resources/xsd/sampleProcessing.xsd</source>
 							</sources>
 							<clearOutputDir>false</clearOutputDir>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.3.1</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-				<executions>
-					<execution>
-						<id>copy-resources-context</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>
-								${project.build.directory}/classes/fr/insee/pearljam/batch/context</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/src/main/jaxb</directory>
-									<includes>
-										<include>jaxb.properties</include>
-									</includes>
-
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-resources-campaign</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>
-								${project.build.directory}/classes/fr/insee/pearljam/batch/campaign</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/src/main/jaxb</directory>
-									<includes>
-										<include>jaxb.properties</include>
-									</includes>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-resources-sampleprocessing</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>
-								${project.build.directory}/classes/fr/insee/pearljam/batch/sampleprocessing</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/src/main/jaxb</directory>
-									<includes>
-										<include>jaxb.properties</include>
-									</includes>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.6.1</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>compile</phase>
-						<configuration>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<sources>
-								<source>${project.build.directory}/generated-sources/jaxb</source>
-							</sources>
 						</configuration>
 					</execution>
 				</executions>

@@ -1,28 +1,36 @@
 package fr.insee.pearljam.batch;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.service.CommunicationService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
+import fr.insee.pearljam.batch.utils.DBResetHelper;
+import fr.insee.pearljam.batch.utils.FileHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
+@SpringBootTest
+@ActiveProfiles("test")
+class TestEndToEndCommunicationTest {
 
 	private static final String OUT_PATH = "src/test/resources/out/unitTests";
 
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	CommunicationService communicationService = context.getBean(CommunicationService.class);
+	@Autowired
+	private DBResetHelper dbResetHelper;
+
+	@Autowired
+	private CommunicationService communicationService;
 
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
+		dbResetHelper.reinitData();
 		Files.createDirectories(Paths.get("src/test/resources/out/communication"));
 	}
 
@@ -34,7 +42,7 @@ class TestEndToEndCommunicationTest extends PearlJamBatchApplicationTests {
 
 	@AfterEach
 	void cleanUp() {
-		purgeDirectory(new java.io.File(OUT_PATH));
+		FileHelper.purgeDirectory(new java.io.File(OUT_PATH));
 	}
 
 

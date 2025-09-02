@@ -7,9 +7,27 @@ spring:
     hikari:
       maximum-pool-size: 2
       minimum-idle: 2
+  liquibase:
+    enabled: false
+
 fr:
   insee:
     pearljam:
+      communication:
+        service:
+          url: http://localhost:8083
+      publication:
+        service:
+          url: http://localhost:8084
+      persistence:
+        database:
+          host: localhost
+          port: 5433
+          schema: XXXXXXXX
+          user: XXXXXXXX
+          password: XXXXXXXX
+          driver: org.postgresql.Driver
+          defaultSchema: public
       folder:
         in: D:/in
         out: D:/out

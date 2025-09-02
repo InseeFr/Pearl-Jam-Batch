@@ -3,8 +3,6 @@ package fr.insee.pearljam.batch;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.xml.stream.XMLStreamException;
-
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.exception.*;
 import fr.insee.pearljam.batch.service.CommunicationService;
@@ -15,16 +13,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.service.PilotageDBService;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
 import fr.insee.pearljam.batch.service.TriggerService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Launcher : Pearl Jam Batch main class
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Component;
  * @author Claudel Benjamin
  */
 @Component
+@Profile("!test")
 @RequiredArgsConstructor
 public class Launcher implements CommandLineRunner, ExitCodeGenerator {
     private final PilotageDBService pilotageDBService;
@@ -42,32 +42,21 @@ public class Launcher implements CommandLineRunner, ExitCodeGenerator {
 
     private BatchErrorCode exitCode = BatchErrorCode.OK;
 
-    /**
-     * The class logger
-     */
     private static final Logger logger = LogManager.getLogger(Launcher.class);
 
-    public static void main(String[] args) throws SQLException {
-        // Spring context initialization
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-        Launcher launcher = context.getBean(Launcher.class);
-        launcher.run(args);
-    }
-
     public void run(String[] args) throws SQLException {
-        BatchErrorCode batchErrorCode = BatchErrorCode.OK;
         try {
             initBatch();
             checkFolderTree();
-            batchErrorCode = runBatch(args);
+            exitCode = runBatch(args);
         } catch (BatchException | XMLStreamException | ValidateException fe) {
             logger.error(fe.getMessage(), fe);
-            batchErrorCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+            exitCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
         } catch (Exception te) {
             logger.error(te.getMessage(), te);
-            batchErrorCode = BatchErrorCode.KO_TECHNICAL_ERROR;
+            exitCode = BatchErrorCode.KO_TECHNICAL_ERROR;
         } finally {
-            logger.info(Constants.MSG_RETURN_CODE, batchErrorCode);
+            logger.info(Constants.MSG_RETURN_CODE, exitCode);
             pilotageDBService.closeConnection();
         }
     }
@@ -81,8 +70,8 @@ public class Launcher implements CommandLineRunner, ExitCodeGenerator {
      * @throws DataBaseException e
      */
     public void initBatch() throws FolderException, DataBaseException, SQLException {
-        String folderIn = applicationConfig.getFolderIn();
-        String folderOut = applicationConfig.getFolderOut();
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
         // Check folder properties
         if (StringUtils.isBlank(folderIn) || "${fr.insee.pearljam.folder.in}".equals(folderIn)) {
             throw new FolderException("property fr.insee.pearljam.batch.folder.in is not defined in properties");
@@ -105,8 +94,8 @@ public class Launcher implements CommandLineRunner, ExitCodeGenerator {
      * @throws FolderException when I/O exception is thrown
      */
     public void checkFolderTree() throws FolderException {
-        String folderIn = applicationConfig.getFolderIn();
-        String folderOut = applicationConfig.getFolderOut();
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
         PathUtils.createMissingFolder(folderIn);
         PathUtils.createMissingFolder(folderIn + "/processing");
         PathUtils.createMissingFolder(folderIn + "/sample");
@@ -136,8 +125,8 @@ public class Launcher implements CommandLineRunner, ExitCodeGenerator {
     public BatchErrorCode runBatch(String[] options)
             throws ArgumentException, ValidateException, BatchException, IOException, SQLException,
             XMLStreamException {
-        String folderIn = applicationConfig.getFolderIn();
-        String folderOut = applicationConfig.getFolderOut();
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
         if (options.length == 0) {
             throw new ArgumentException(
                     "No batch type found in parameter, you must choose between [DELETECAMPAIGN] || [EXTRACT] || " +

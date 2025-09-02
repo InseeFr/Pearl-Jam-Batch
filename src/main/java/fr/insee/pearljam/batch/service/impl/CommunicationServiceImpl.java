@@ -50,7 +50,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 	public BatchErrorCode handleCommunications() throws SynchronizationException, MissingCommunicationException {
 		BatchErrorCode batchResult = BatchErrorCode.OK;
 		List<String> failedSurveyUnits = new ArrayList<>();
-		String outputFolder = applicationConfig.getFolderOut();
+		String outputFolder = applicationConfig.folderOut();
 
 		List<CommunicationRequestType> communicationsToSend = getReadyCommunicationRequests();
 		if (communicationsToSend.isEmpty()) return batchResult;

@@ -8,16 +8,17 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import fr.insee.pearljam.batch.utils.DBResetHelper;
+import fr.insee.pearljam.batch.utils.FileHelper;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.FileSystemUtils;
 
 import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.dao.PersonDao;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ValidateException;
@@ -28,17 +29,23 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
+@SpringBootTest
+@ActiveProfiles("test")
+class TestsEndToEndSampleProcessing {
 
-	PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
+	@Autowired
+	private PilotageLauncherService pilotageLauncherService;
+	@Autowired
+	private PersonDao  personDao;
+	@Autowired
+	private CommunicationMetadataDao  communicationMetadataDao;
+	@Autowired
+	private DBResetHelper dbResetHelper;
+	@Autowired
+	private ApplicationConfig applicationConfig;
 
-	PersonDao  personDao = context.getBean(PersonDao.class);
-	CommunicationMetadataDao  communicationMetadataDao = context.getBean(CommunicationMetadataDao.class);
-
-	private static final String OUT = "src/test/resources/out/sampleprocessing/testScenarios";
-	private static final String OUT_SAMPLE = "src/test/resources/out/sample";
-	private static final String OUT_CAMPAIGN = "src/test/resources/out/campaign";
+	private final String outDirectory = "src/test/resources/out/sampleprocessing/testScenarios";
+	private final String outCampaignDirectory = "src/test/resources/out/campaign";
 
 	/**
 	 * This method is executed before each test in this class.
@@ -47,22 +54,15 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
-		copyFiles("sampleprocessing");
-		File dir = new File("src/test/resources/in/sample");
-		if (!dir.exists()) {
-			dir.mkdir();
-		}
-		dir = new File(OUT+"/campaign");
+		dbResetHelper.reinitData();
+		FileHelper.copyFiles("sampleprocessing");
+
+		File dir = new File(outDirectory +"/campaign");
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
 
-		dir = new File(OUT_SAMPLE);
-		if (!dir.exists()) {
-			dir.mkdir();
-		}
-		dir = new File(OUT_CAMPAIGN);
+		dir = new File(outCampaignDirectory);
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
@@ -77,10 +77,10 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	void testScenario1() throws Exception {
 		String in = "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1";
 		try {
-			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, OUT);
+			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, outDirectory);
 		} catch(ValidateException ve) {
 			assertTrue(ve.getMessage().contains("Error validating sampleProcessing.xml"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 		}
 	}
 
@@ -92,10 +92,10 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	@Test
 	void testScenario2() throws Exception{
 		try {
-			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", OUT));
+			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", outDirectory));
 		} catch(ValidateException ve) {
-			assertTrue(ve.getMessage().contains("does not exist in Data-collection DB"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
+			assertTrue(ve.getMessage().contains("Code HTTP: 404"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 		}
 	}
 
@@ -106,10 +106,10 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	@Test
 	void testScenario3() throws Exception {
 		try {
-			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario3", OUT));
+			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario3", outDirectory));
 		} catch(ValidateException ve) {
 			assertTrue(ve.getMessage().contains("does not exist in Pilotage DB"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".error.xml"));
+			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 
 		}
 	}
@@ -120,10 +120,9 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario4() throws Exception {
-		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", OUT));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".warning.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".warning.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".warning.xml"));
+		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", outDirectory));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".warning.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outCampaignDirectory), "campaign", ".warning.xml"));
 
 	}
 
@@ -133,10 +132,8 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario5() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5", OUT));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5", outDirectory));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
 
 		// check creation of metadata
 		List<CommunicationMetadataType> metadata= communicationMetadataDao.findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId("SIMPSONS2020X00","meshuggahId1","SIM1234");
@@ -158,10 +155,9 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario6() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", OUT));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_SAMPLE), "sample", ".done.xml"));
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
 
 		List<Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
 		List<PersonType> persons = personsMap.stream().map(Entry::getValue).toList();
@@ -179,9 +175,8 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 
 	@AfterEach
 	void cleanOutFolder() {
-		purgeDirectory(new File(OUT));
-		purgeDirectory(new File(OUT_CAMPAIGN));
-		purgeDirectory(new File(OUT_SAMPLE));
+		FileHelper.purgeDirectory(new File(outDirectory));
+		FileHelper.purgeDirectory(new File(outCampaignDirectory));
 		File sample = new File("src/test/resources/in");
 		if(sample.exists()) {
 			sample.delete();

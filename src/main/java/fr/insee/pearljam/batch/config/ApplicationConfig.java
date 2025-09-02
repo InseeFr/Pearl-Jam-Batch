@@ -1,36 +1,62 @@
 package fr.insee.pearljam.batch.config;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-@ConfigurationProperties
-@RequiredArgsConstructor
-@Getter
-public class ApplicationConfig {
-	@Value("${fr.insee.pearljam.folder.in}")
-	public final String folderIn;
-	@Value("${fr.insee.pearljam.folder.out}")
-	public final String folderOut;
-	@Value("${fr.insee.pearljam.context.referential.service.url}")
-	public final String contextReferentialUrl;
-	@Value("${keycloak.auth-server-url}")
-	public final String authServerURL;
-	@Value("${keycloak.realm}")
-	public final String realm;
-	@Value("${fr.insee.pearljam.ldap.service.url}")
-	public final String ldapServiceUrl;
-	@Value("${keycloak.datacollection.server}")
-	public final String keycloakDataCollectionServer;
-	@Value("${keycloak.datacollection.registration-id}")
-	public final String keycloakDataCollectionRegistrationId;
-	@Value("${keycloak.datacollection.client-id}")
-	public final String keycloakDataCollectionClientId;
-	@Value("${keycloak.datacollection.realm}")
-	public final String keycloakDataCollectionRealm;
-	@Value("${keycloak.datacollection.client-secret}")
-	public final String keycloakDataCollectionClientSecret;
-	@Value("${api.datacollection.url}")
-	String dataCollectionApiUrl;
-}
+@Component
+public record ApplicationConfig(
+
+		@Value("${fr.insee.pearljam.persistence.database.host}")
+		String pilotageDbHost,
+
+		@Value("${fr.insee.pearljam.persistence.database.port}")
+		String pilotageDbPort,
+
+		@Value("${fr.insee.pearljam.persistence.database.schema}")
+		String pilotageDbSchema,
+
+		@Value("${fr.insee.pearljam.persistence.database.user}")
+		String pilotageDbUser,
+
+		@Value("${fr.insee.pearljam.persistence.database.password}")
+		String pilotageDbPassword,
+
+		@Value("${fr.insee.pearljam.persistence.database.driver}")
+		String pilotageDbDriver,
+
+		@Value("${fr.insee.pearljam.folder.in}")
+		String folderIn,
+
+		@Value("${fr.insee.pearljam.folder.out}")
+		String folderOut,
+
+		@Value("${fr.insee.pearljam.context.referential.service.url}")
+		String contextReferentialUrl,
+
+		@Value("${keycloak.auth-server-url}")
+		String authServerURL,
+
+		@Value("${keycloak.realm}")
+		String realm,
+
+		@Value("${fr.insee.pearljam.ldap.service.url}")
+		String ldapServiceUrl,
+
+		@Value("${keycloak.datacollection.server}")
+		String keycloakDataCollectionServer,
+
+		@Value("${keycloak.datacollection.registration-id}")
+		String keycloakDataCollectionRegistrationId,
+
+		@Value("${keycloak.datacollection.client-id}")
+		String keycloakDataCollectionClientId,
+
+		@Value("${keycloak.datacollection.realm}")
+		String keycloakDataCollectionRealm,
+
+		@Value("${keycloak.datacollection.client-secret}")
+		String keycloakDataCollectionClientSecret,
+
+		@Value("${api.datacollection.url}")
+		String dataCollectionApiUrl
+) {}

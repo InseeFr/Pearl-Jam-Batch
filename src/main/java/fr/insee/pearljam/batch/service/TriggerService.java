@@ -18,7 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
 import fr.insee.pearljam.batch.dao.MessageDao;
@@ -40,13 +39,16 @@ public class TriggerService {
 	private static final Logger logger = LogManager.getLogger(TriggerService.class);
 
 	@Autowired
-	AnnotationConfigApplicationContext context;
-
-	@Autowired
 	@Qualifier("pilotageConnection")
 	Connection pilotageConnection;
+
+	@Autowired
 	StateDao stateDao;
+
+	@Autowired
 	SurveyUnitDao surveyUnitDao;
+
+	@Autowired
 	MessageDao messageDao;
 
 	@Autowired
@@ -197,9 +199,6 @@ public class TriggerService {
 	}
 
 	public BatchErrorCode updateStates() throws SQLException, ValidateException {
-		stateDao = context.getBean(StateDao.class);
-		surveyUnitDao = context.getBean(SurveyUnitDao.class);
-		messageDao = context.getBean(MessageDao.class);
 		List<String> lstSuANV = new ArrayList<>();
 		List<String> lstSuNNS = new ArrayList<>();
 		List<String> lstSu;

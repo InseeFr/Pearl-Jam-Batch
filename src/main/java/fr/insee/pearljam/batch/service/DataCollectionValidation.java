@@ -3,7 +3,8 @@ package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -11,8 +12,9 @@ import java.util.List;
 
 @Component
 @NoArgsConstructor
-@Slf4j
 public class DataCollectionValidation {
+
+    private static final Logger log = LogManager.getLogger(DataCollectionValidation.class);
 
     /**
      * Validate questionnaire models. Check that questionnaires in flow data exist in campaign
