@@ -24,7 +24,6 @@ import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
-import fr.insee.queen.batch.service.DatasetService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,12 +33,8 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 
 	PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
 
-	DatasetService datasetService = context.getBean(DatasetService.class);
-
 	PersonDao  personDao = context.getBean(PersonDao.class);
 	CommunicationMetadataDao  communicationMetadataDao = context.getBean(CommunicationMetadataDao.class);
-
-
 
 	private static final String OUT = "src/test/resources/out/sampleprocessing/testScenarios";
 	private static final String OUT_SAMPLE = "src/test/resources/out/sample";
@@ -81,7 +76,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	@Test
 	void testScenario1() throws Exception {
 		String in = "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1";
-		datasetService.createDataSet();
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, OUT);
 		} catch(ValidateException ve) {
@@ -97,7 +91,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario2() throws Exception{
-		datasetService.createDataSet();
 		try {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", OUT));
 		} catch(ValidateException ve) {
@@ -112,7 +105,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario3() throws Exception {
-		datasetService.createDataSet();
 		try {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario3", OUT));
 		} catch(ValidateException ve) {
@@ -128,7 +120,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario4() throws Exception {
-		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", OUT));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".warning.xml"));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".warning.xml"));
@@ -142,7 +133,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario5() throws Exception {
-		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5", OUT));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));
@@ -168,7 +158,6 @@ class TestsEndToEndSampleProcessing extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void testScenario6() throws Exception {
-		datasetService.createDataSet();
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", OUT));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT), "sampleProcessing", ".done.xml"));
 		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(OUT_CAMPAIGN), "campaign", ".done.xml"));

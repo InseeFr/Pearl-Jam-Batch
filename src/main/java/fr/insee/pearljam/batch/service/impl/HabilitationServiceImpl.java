@@ -4,11 +4,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.HabilitatedUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -40,8 +40,7 @@ public class HabilitationServiceImpl implements HabilitationService {
     KeycloakService keycloakService;
 
     @Autowired
-    @Qualifier("habilitationApiBaseUrl")
-    private String habilitationApiRootUrl;
+    private ApplicationConfig applicationConfig;
 
     @Value("${fr.insee.pearljam.ldap.service.realm:#{null}}")
     private String realm;
@@ -73,7 +72,7 @@ public class HabilitationServiceImpl implements HabilitationService {
         LOGGER.info("Add interviewer {}", interviewerIdep);
         String parametrizedUrl = String.format(realmAppGroupUserIdFormat, realm, appName, interviewerGroup,
                 interviewerIdep);
-        String uri = habilitationApiRootUrl + parametrizedUrl;
+        String uri = applicationConfig.getLdapServiceUrl() + parametrizedUrl;
 
         HttpHeaders headers = getHabilitationHeaders();
 

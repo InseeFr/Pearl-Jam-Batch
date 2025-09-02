@@ -1,38 +1,36 @@
 package fr.insee.pearljam.batch.config;
 
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Component
+@ConfigurationProperties
+@RequiredArgsConstructor
+@Getter
 public class ApplicationConfig {
-
-	public static String dbHost;
-	public static String dbPort;
-	public static String dbSchema;
-	public static String dbUser;
-	public static String dbPassword;
-	public static String dbDriver;
-	public static String pilotageDbHost;
-	public static String pilotageDbPort;
-	public static String pilotageDbSchema;
-	public static String pilotageDbUser;
-	public static String pilotageDbPassword;
-	public static String pilotageDbDriver;
-	public static String FOLDER_IN;
-	public static String FOLDER_OUT;
-	public static String contextReferentialScheme;
-	public static String contextReferentialHost;
-	public static String contextReferentialPort;
-	public static String contextReferentialPath;
-	public static String authServerURL;
-	public static String realm;
-	public static String FOLDER_IN_QUEEN;
-	public static String FOLDER_OUT_QUEEN;
-	public static String ldapServiceUrlScheme;
-	public static String ldapServiceUrlHost;
-	public static String ldapServiceUrlPort;
-
-	public ApplicationConfig() {
-		super();
-	}
-
+	@Value("${fr.insee.pearljam.folder.in}")
+	public final String folderIn;
+	@Value("${fr.insee.pearljam.folder.out}")
+	public final String folderOut;
+	@Value("${fr.insee.pearljam.context.referential.service.url}")
+	public final String contextReferentialUrl;
+	@Value("${keycloak.auth-server-url}")
+	public final String authServerURL;
+	@Value("${keycloak.realm}")
+	public final String realm;
+	@Value("${fr.insee.pearljam.ldap.service.url}")
+	public final String ldapServiceUrl;
+	@Value("${keycloak.datacollection.server}")
+	public final String keycloakDataCollectionServer;
+	@Value("${keycloak.datacollection.registration-id}")
+	public final String keycloakDataCollectionRegistrationId;
+	@Value("${keycloak.datacollection.client-id}")
+	public final String keycloakDataCollectionClientId;
+	@Value("${keycloak.datacollection.realm}")
+	public final String keycloakDataCollectionRealm;
+	@Value("${keycloak.datacollection.client-secret}")
+	public final String keycloakDataCollectionClientSecret;
+	@Value("${api.datacollection.url}")
+	String dataCollectionApiUrl;
 }

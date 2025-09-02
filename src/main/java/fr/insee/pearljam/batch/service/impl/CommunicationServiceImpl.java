@@ -43,13 +43,14 @@ public class CommunicationServiceImpl implements CommunicationService {
 	private final VisibilityDao visibilityDao;
 	private final CommunicationRequestStatusDao communicationRequestStatusDao;
 	private final CommunicationMetadataDao communicationMetadataDao;
+	private final ApplicationConfig applicationConfig;
 
-	private final String outputFolder = ApplicationConfig.FOLDER_OUT;
 
 	@Override
 	public BatchErrorCode handleCommunications() throws SynchronizationException, MissingCommunicationException {
 		BatchErrorCode batchResult = BatchErrorCode.OK;
 		List<String> failedSurveyUnits = new ArrayList<>();
+		String outputFolder = applicationConfig.getFolderOut();
 
 		List<CommunicationRequestType> communicationsToSend = getReadyCommunicationRequests();
 		if (communicationsToSend.isEmpty()) return batchResult;

@@ -1,20 +1,24 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import fr.insee.pearljam.batch.config.ApplicationConfig;
+import fr.insee.pearljam.batch.service.CommunicationService;
+import fr.insee.pearljam.batch.service.PilotageDBService;
+import fr.insee.pearljam.batch.service.TriggerService;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ArgumentException;
 import fr.insee.pearljam.batch.exception.ValidateException;
@@ -22,19 +26,24 @@ import fr.insee.pearljam.batch.service.PilotageLauncherService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
 import fr.insee.pearljam.batch.utils.XmlUtils;
-import fr.insee.queen.batch.service.DatasetService;
+import org.springframework.test.context.ActiveProfiles;
 
+@SpringBootTest
+@ActiveProfiles("test")
 class UnitTests extends PearlJamBatchApplicationTests {
 
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	
-	/* Instantiate the Launcher class via Lanceur.class */
-	Lanceur launcher = new Lanceur();
-	
-	/* Create a temporary service for the tests*/	
-    private PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
-	
-	DatasetService datasetService = context.getBean(DatasetService.class);
+	@Autowired
+	private PilotageLauncherService pilotageLauncherService;
+	@Autowired
+	private PilotageDBService pilotageDBService;
+	@Autowired
+	private TriggerService triggerService;
+	@Autowired
+	private CommunicationService communicationService;
+	@Autowired
+	private ApplicationConfig applicationConfig;
+	@Autowired
+	private Launcher launcher;
 
 	private static final String PROCESSING = "src/test/resources/in/sampleprocessing/testScenarios/processing";
 
@@ -116,14 +125,11 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	
 	@Test
 	void loadSampleProcessingWithoutError() throws Exception {
-			datasetService.createDataSet();
-			assertEquals(BatchErrorCode.OK, pilotageLauncherService.load(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING));
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.load(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING));
 	}
 	
 	@Test
 	void loadSampleProcessingWithError() throws Exception {
-
-		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
 
@@ -146,7 +152,6 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void cleandAndResetCampaignWithoutError() throws Exception {
-		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
 		pilotageLauncherService.cleanAndReset("sampleProcessing", "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING, BatchErrorCode.OK, BatchOption.SAMPLEPROCESSING);
@@ -160,7 +165,6 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 */
 	@Test
 	void cleandAndResetCampaignWithError() throws Exception {
-		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
 		pilotageLauncherService.cleanAndReset("sampleProcessing", "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING, BatchErrorCode.KO_FONCTIONAL_ERROR, BatchOption.SAMPLEPROCESSING);

@@ -1,14 +1,14 @@
 package fr.insee.pearljam.batch.service.impl;
 
 import fr.insee.pearljam.batch.Constants;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.*;
 import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.service.ContextReferentialService;
 import fr.insee.pearljam.batch.service.KeycloakService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,20 +18,14 @@ import java.util.List;
 // Class to call Context referential endpoints
 
 @Service
+@RequiredArgsConstructor
 public class ContextReferentialServiceImpl implements ContextReferentialService {
     private static final Logger logger = LogManager.getLogger(ContextReferentialServiceImpl.class);
-
-    @Autowired
-    @Qualifier("contextReferentialBaseUrl")
-    String getContextReferentialBaseUrl;
-
-    @Autowired
-    KeycloakService keycloakService;
-
-    @Autowired
-    RestTemplate restTemplate;
-
     private static final String NO_RESPONSE_MSG = "Could not get response from contextReferential";
+    
+    private final ApplicationConfig applicationConfig;
+    private final KeycloakService keycloakService;
+    private final RestTemplate restTemplate;
 
     private void printUri(String uri) {
         logger.info("Calling {}", uri);
@@ -42,7 +36,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<InterviewerDto> getInterviewersFromOpale() throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_INTERVIEWERS;
+        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();
@@ -61,7 +55,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<OrganizationUnitDto> getOrganizationUnitsFromOpale() throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_ORGANIZATION_UNITS;
+        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();
@@ -81,7 +75,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     }
 
     public List<InterviewerAffectationsDto> getInterviewersAffectationsFromOpale() throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_INTERVIEWERS_AFFECTATIONS;
+        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_INTERVIEWERS_AFFECTATIONS;
 
         HttpHeaders headers = getHeaders();
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -101,7 +95,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
 
     public List<OrganizationUnitAffectationsDto> getOrganizationUnitsAffectationsFromOpale()
             throws SynchronizationException {
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_ORGANIZATION_UNITS_AFFECTATIONS;
+        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_ORGANIZATION_UNITS_AFFECTATIONS;
 
         HttpHeaders headers = getHeaders();
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -122,7 +116,7 @@ public class ContextReferentialServiceImpl implements ContextReferentialService 
     @Override
     public void contextReferentialServiceIsAvailable() throws SynchronizationException {
 
-        String uri = getContextReferentialBaseUrl + Constants.API_OPALE_HEALTHCHECK;
+        String uri = applicationConfig.getContextReferentialUrl() + Constants.API_OPALE_HEALTHCHECK;
         printUri(uri);
 
         HttpHeaders headers = getHeaders();

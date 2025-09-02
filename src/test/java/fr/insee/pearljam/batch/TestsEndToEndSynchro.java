@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,7 @@ class TestsEndToEndSynchro {
 	private String contextReferentialBaseUrl = (String) context.getBean("contextReferentialBaseUrl");
 
 	@Autowired
-	@Qualifier("habilitationApiBaseUrl")
-	private String habilitationApiRootUrl;
+	private ApplicationConfig applicationConfig;
 
 	private InterviewerTypeDao interviewerDao = context.getBean(InterviewerTypeDao.class);
 	private OrganizationalUnitTypeDao ouDao = context.getBean(OrganizationalUnitTypeDao.class);
