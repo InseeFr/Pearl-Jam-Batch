@@ -17,15 +17,6 @@ jobs:
           with:
             java-version: 21
             distribution: 'temurin'
-        - name: Get queen-batch version
-          id: queenbatch
-          run: echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)"
-        - name: Clone queen-batch
-          run: git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{steps.queenbatch.outputs.prop}}
-        - name: Install queen-batch
-          run:  |
-                cd Queen-Batch                                         
-                mvn clean install -DskipTests --batch-mode --no-transfer-progress
         - name: Build with Maven
           timeout-minutes: 15
           run: mvn clean install --batch-mode --no-transfer-progress
