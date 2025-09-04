@@ -3,7 +3,7 @@ spring:
     enabled: true
   docker:
     compose:
-      enabled: true
+      enabled: false
 fr:
   insee:
     pearljam:
@@ -16,7 +16,7 @@ fr:
       persistence:
         database:
           host: localhost
-          port: 5440
+          port: 5432
           schema: XXXXXXXX
           user: XXXXXXXX
           password: XXXXXXXX
