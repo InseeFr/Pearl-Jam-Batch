@@ -9,7 +9,9 @@ spring:
       minimum-idle: 2
   liquibase:
     enabled: false
-
+  docker:
+    compose:
+      enabled: false
 fr:
   insee:
     pearljam:

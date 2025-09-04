@@ -57,7 +57,7 @@ class TestsEndToEndExtractCampaign {
 			pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, in, OUT);
 		} catch(ValidateException ve) {
 			assertEquals(true, ve.getMessage().contains("Error validating campaign.to.extract.xml : "));
-			assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.error.xml"));
+			assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.error.xml"));
 		}
 	}
 	
@@ -69,7 +69,7 @@ class TestsEndToEndExtractCampaign {
 	@Test
 	void testScenario2() throws Exception {
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario2", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.warning.xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.warning.xml"));
 	}
 	
 	/**
@@ -79,8 +79,8 @@ class TestsEndToEndExtractCampaign {
 	@Test
 	void testScenario3() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario3", OUT));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.done.xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(OUT), "campaign","extract.xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.done.xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.xml"));
 	}
 
 	@AfterEach

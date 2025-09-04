@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestComponent;
 
-import javax.sql.DataSource;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -24,14 +23,6 @@ import java.sql.Statement;
 public class DBResetHelper {
 
 	private static final Logger logger = LogManager.getLogger(DBResetHelper.class);
-
-	@Autowired
-	@Qualifier("pilotageDataSource")
-	private DataSource pilotageDataSource;
-
-	@Autowired
-	@Qualifier("dataCollectionDataSource")
-	private DataSource dataCollectionDataSource;
 
 	@Autowired
 	@Qualifier("pilotageConnection")

@@ -100,10 +100,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -185,10 +185,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW1", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -229,10 +229,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -272,10 +272,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -351,10 +351,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("TEST", suDao.getSurveyUnitInterviewerAffectation("14"));

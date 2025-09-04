@@ -14,7 +14,7 @@
 
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.4.5</version>
+	<version>3.5.5</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -140,6 +140,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-docker-compose</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.wiremock</groupId>
 			<artifactId>wiremock-jetty12</artifactId>

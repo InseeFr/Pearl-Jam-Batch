@@ -80,7 +80,7 @@ class TestsEndToEndSampleProcessing {
 			pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, in, outDirectory);
 		} catch(ValidateException ve) {
 			assertTrue(ve.getMessage().contains("Error validating sampleProcessing.xml"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
+			assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 		}
 	}
 
@@ -95,7 +95,7 @@ class TestsEndToEndSampleProcessing {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario2", outDirectory));
 		} catch(ValidateException ve) {
 			assertTrue(ve.getMessage().contains("Code HTTP: 404"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
+			assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 		}
 	}
 
@@ -109,7 +109,7 @@ class TestsEndToEndSampleProcessing {
 			assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario3", outDirectory));
 		} catch(ValidateException ve) {
 			assertTrue(ve.getMessage().contains("does not exist in Pilotage DB"));
-			assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
+			assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".error.xml"));
 
 		}
 	}
@@ -121,8 +121,8 @@ class TestsEndToEndSampleProcessing {
 	@Test
 	void testScenario4() throws Exception {
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4", outDirectory));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".warning.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outCampaignDirectory), "campaign", ".warning.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".warning.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".warning.xml"));
 
 	}
 
@@ -133,7 +133,7 @@ class TestsEndToEndSampleProcessing {
 	@Test
 	void testScenario5() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5", outDirectory));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
 
 		// check creation of metadata
 		List<CommunicationMetadataType> metadata= communicationMetadataDao.findMetadataByCampaignIdAndMeshuggahIdAndSurveyUnitId("SIMPSONS2020X00","meshuggahId1","SIM1234");
@@ -156,8 +156,8 @@ class TestsEndToEndSampleProcessing {
 	@Test
 	void testScenario6() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsErrorFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
 
 		List<Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
 		List<PersonType> persons = personsMap.stream().map(Entry::getValue).toList();
