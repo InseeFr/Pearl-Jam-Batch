@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:file:${properties.path:.}/pearljam-batch.properties
   liquibase:
     enabled: true
   docker:
