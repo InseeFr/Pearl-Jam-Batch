@@ -194,9 +194,6 @@
 					<includes>
 						<include>**/*Test*</include>
 					</includes>
-					<environmentVariables>
-						<TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
-					</environmentVariables>
 				</configuration>
 			</plugin>
 

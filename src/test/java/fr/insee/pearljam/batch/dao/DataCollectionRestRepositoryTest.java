@@ -142,7 +142,6 @@ class DataCollectionRestRepositoryTest {
                   "id" : "018f63af-09e3-7e6d-8492-f26e32a6cd19",
                   "surveyUnitId" : "SU101",
                   "questionnaireId" : "questionnaire-id",
-                  "personalization" : [],
                   "comment" : {},
                   "data" : {
                     "key" : "value"

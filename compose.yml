@@ -36,7 +36,7 @@ services:
       - ${QUESTIONNAIRE_DB_PORT}:5432
 
   questionnaire-api:
-    image: inseefr/queen-back-office:5.2.1
+    image: inseefr/queen-back-office:5.3.0-rc
     depends_on:
       questionnaire-db:
         condition: service_healthy
