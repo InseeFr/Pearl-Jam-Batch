@@ -17,7 +17,7 @@ mvn clean install
 Use the folowing cmd :
 ``` shell
 echo $@
-java8 -Xms64m -Xmx512m -classpath '/path/to/lib/*' -Dlog4j.configurationFile=file:/path/to/log4j2.xml -Dproperties.path=/path/to/properties -DcheminLog=/path/to/properties log fr.insee.pearljam.batch.Lanceur $@
+java8 -Xms64m -Xmx512m -classpath '/path/to/lib/*' -Dlog4j.configurationFile=file:/path/to/log4j2.xml -Dproperties.path=/path/to/properties -DcheminLog=/path/to/properties log fr.insee.pearljam.batch.PearlJamBatchApplication $@
 CODE_ERREUR=$? [DELETECAMPAIGN] || [LOADCAMPAIGN] || [LOADCONTEXT] || [DAILYUPDATE] || [SYNCHRONIZE] || [SAMPLEPROCESSING])
 echo "CODE ERREUR=$CODE_ERREUR"
 exit $CODE_ERREUR

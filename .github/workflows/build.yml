@@ -30,17 +30,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Get queen-batch version
-        id: queenbatch
-        run: |
-          echo "queenbatch_version=$(mvn help:evaluate -Dexpression=queenbatch.version -q -DforceStdout)" >> $GITHUB_OUTPUT
-
-      - name: Clone and install Queen-Batch
-        run: |
-            git clone https://github.com/InseeFr/Queen-Batch.git --depth 1 --branch ${{ steps.queenbatch.outputs.queenbatch_version }}
-            cd Queen-Batch
-            mvn clean install -DskipTests --batch-mode --no-transfer-progress
-
       - name: Build and test with coverage
         timeout-minutes: 15
         run: mvn clean verify sonar:sonar --batch-mode --no-transfer-progress -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=https://sonarcloud.io

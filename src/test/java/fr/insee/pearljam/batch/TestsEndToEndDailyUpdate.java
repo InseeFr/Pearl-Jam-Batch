@@ -10,12 +10,15 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import fr.insee.pearljam.batch.utils.DBResetHelper;
+import fr.insee.pearljam.batch.utils.FileHelper;
 import org.junit.jupiter.api.*;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.FileSystemUtils;
 
 import fr.insee.pearljam.batch.campaign.StateType;
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.dao.MessageDao;
 import fr.insee.pearljam.batch.dao.StateDao;
 import fr.insee.pearljam.batch.service.TriggerService;
@@ -23,9 +26,21 @@ import fr.insee.pearljam.batch.service.TriggerService;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TestsEndToEndDailyUpdate extends PearlJamBatchApplicationTests {
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	TriggerService triggerService = context.getBean(TriggerService.class);
+@SpringBootTest
+@ActiveProfiles("test")
+class TestsEndToEndDailyUpdate {
+
+	@Autowired
+	private TriggerService triggerService;
+
+	@Autowired
+	private MessageDao messageDao;
+
+	@Autowired
+	private StateDao stateDao;
+
+	@Autowired
+	private DBResetHelper dbResetHelper;
 	
 	/**
 	 * This method is executed before each test in this class.
@@ -34,14 +49,12 @@ class TestsEndToEndDailyUpdate extends PearlJamBatchApplicationTests {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
+		dbResetHelper.reinitData();
 	}
 	
 	//Testing update of states and delete of noifications
 	@Test
 	void testScenario1() throws Exception {
-		MessageDao messageDao = context.getBean(MessageDao.class);
-		StateDao stateDao = context.getBean(StateDao.class); 
 		TimeZone utcTimeZone =TimeZone.getTimeZone("UTC");
 		Calendar c = Calendar.getInstance(utcTimeZone);
 		c.add(Calendar.MONTH, -1);
@@ -63,7 +76,7 @@ class TestsEndToEndDailyUpdate extends PearlJamBatchApplicationTests {
 	
 	@AfterEach
 	void cleanOutFolder() {
-		purgeDirectory(new File("src/test/resources/out/context/testScenarios"));
+		FileHelper.purgeDirectory(new File("src/test/resources/out/context/testScenarios"));
 	}
 	
 	@AfterAll

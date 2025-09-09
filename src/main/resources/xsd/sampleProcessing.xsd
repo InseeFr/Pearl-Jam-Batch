@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema
+		attributeFormDefault="unqualified"
+		elementFormDefault="qualified"
+		xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb" jaxb:version="3.0"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
 	<xs:element name="Campagne">
 		<xs:complexType>
 			<xs:sequence>
@@ -204,7 +209,7 @@
 										<xs:element maxOccurs="1" name="InformationsPersonnalisees">
 											<xs:complexType>
 												<xs:sequence>
-													<xs:element name="Data" />
+													<xs:element name="Data" type="Data"/>
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -222,4 +227,16 @@
 			<xs:attribute name="idPeriode" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
+	<xs:complexType name="Data">
+		<xs:sequence>
+			<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:appinfo>
+						<jaxb:dom type="w3c"/>
+						<jaxb:property name="dataElements"/>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:any>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

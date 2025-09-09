@@ -1,0 +1,26 @@
+<Data>
+    <COLLECTED/>
+    <EXTERNAL>
+        <PRENOM_REPONDANT type="string">ANNE-LAURE</PRENOM_REPONDANT>
+        <SEXE type="string">2</SEXE>
+        <PREN_IND type="string">ANNE-LAURE</PREN_IND>
+        <SABIANE12 type="string">2</SABIANE12>
+        <NUMERO_ADRESSE_I1 type="string">14</NUMERO_ADRESSE_I1>
+        <REPETITION_ADRESSE_I1 type="null"/>
+        <LIBELLE_VOIE_I1 type="string">RUE DES LILAS</LIBELLE_VOIE_I1>
+        <COMPLEMENT_ADRESSE_I1 type="null"/>
+        <CODE_POSTAL_I1 type="string">33440</CODE_POSTAL_I1>
+        <LIBELLE_COMMUNE_I1 type="string">ST LOUIS DE MONTFERRAND</LIBELLE_COMMUNE_I1>
+        <RES_SECOND type="string">1</RES_SECOND>
+        <AN_NAISS_HABITANTS41 type="null"/>
+        <AN_NAISS_HABITANTS31 type="null"/>
+        <AN_NAISS_HABITANTS21 type="null"/>
+        <AN_NAISS_HABITANTS11 type="string">1</AN_NAISS_HABITANTS11>
+        <MINEUR type="string">2</MINEUR>
+        <SIT_ACT7CL type="string">1</SIT_ACT7CL>
+        <EMPLOI type="null"/>
+        <NUM_TEL_I1 type="string">0102030406</NUM_TEL_I1>
+        <MOIS1 type="string">10</MOIS1>
+        <ANNEE type="string">2024</ANNEE>
+    </EXTERNAL>
+</Data>

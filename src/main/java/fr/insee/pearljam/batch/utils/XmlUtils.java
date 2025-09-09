@@ -8,15 +8,15 @@ import fr.insee.pearljam.batch.exception.ValidateException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import jakarta.xml.bind.*;
+
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -124,8 +124,8 @@ public class XmlUtils {
 
 	        transformerFactory.newTransformer().transform(domSource, streamResult);
 			StreamSource xmlStream = new StreamSource(new StringReader(strWriter.getBuffer().toString()));
-			
-			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{clazz}, null);
+
+			JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			return clazz.cast(unmarshaller.unmarshal(xmlStream));
 		} catch (ParserConfigurationException | SAXException | IOException | TransformerException | JAXBException e) {
@@ -138,8 +138,7 @@ public class XmlUtils {
 public static File objectToXML(String filename, Object object) throws BatchException{
 		try {
             //Create JAXB Context
-			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{object.getClass()}, null);
-
+			JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
             //Create Marshaller
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -156,7 +155,7 @@ public static File objectToXML(String filename, Object object) throws BatchExcep
 	public static Path printToXmlFile(Courriers courriersToPrint, String outputDir) throws PublicationException {
 		try {
 			// Convert Courriers to Document
-			JAXBContext jaxbContext = JAXBContextFactory.createContext(new Class[]{Courriers.class}, null);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Courriers.class);
 			Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -206,7 +205,7 @@ public static File objectToXML(String filename, Object object) throws BatchExcep
 			return tempFilePath;
 
 		} catch (JAXBException | IOException | ParserConfigurationException |
-				 javax.xml.transform.TransformerException e) {
+				 TransformerException e) {
 			String errorMessage =
 			String.format("Error when printing courriers : communicationModel : %s - idOperation : %s",courriersToPrint.getCommunicationModel(), courriersToPrint.getIdOperation());
 			logger.warn("Error when printing courriers file",e);

@@ -1,0 +1,75 @@
+spring:
+  liquibase:
+    enabled: true
+  docker:
+    compose:
+      enabled: false
+fr:
+  insee:
+    pearljam:
+      communication:
+        service:
+          url: http://localhost:8083
+      publication:
+        service:
+          url: http://localhost:8084
+      persistence:
+        database:
+          host: localhost
+          port: 5432
+          schema: XXXXXXXX
+          user: XXXXXXXX
+          password: XXXXXXXX
+          driver: org.postgresql.Driver
+          defaultSchema: public
+      folder:
+        in: D:/in
+        out: D:/out
+      ldap:
+        service:
+          url: http://localhost:8080
+          realm:
+          app:
+            name:
+          group:
+            interviewer:
+      context:
+        referential:
+          service:
+            url: http://localhost:8080/XXXXXXXX
+        synchronization:
+          # Log created and updated elements in the result file? ( YES | NO | IN_SEPARATE_FILE )
+          log:
+            elements: YES
+          interviewers:
+            reaffectation:
+              threshold:
+                #Maximum number of SU reaffected to an other interviewer during synchronization
+                absolute: 100000
+                #Maximum percentage SU reaffected to an other interviewer / SU processed during synchronization
+                relative: 110
+          organization:
+            reaffectation:
+              threshold:
+                #Maximum number of SU reaffected to an other OU during synchronization
+                absolute: 100000
+                #Maximum percentage SU reaffected to an other OU / SU processed during synchronization
+                relative: 110
+
+#Keycloak configuration
+keycloak:
+  auth-server-url: http://localhost:8180/auth
+  realm: XXXX
+  client:
+    id: XXXX
+    secret: XXXX
+  datacollection:
+    server: https://url-keycloak/auth
+    registration-id: data-collection
+    realm: questionnaire-particuliers
+    client-id: client-id
+    client-secret: client-secret
+
+api:
+  datacollection:
+    url: http://localhost:8080

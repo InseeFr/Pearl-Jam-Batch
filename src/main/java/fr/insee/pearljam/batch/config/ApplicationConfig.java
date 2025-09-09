@@ -1,38 +1,62 @@
 package fr.insee.pearljam.batch.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationConfig {
+public record ApplicationConfig(
 
-	public static String dbHost;
-	public static String dbPort;
-	public static String dbSchema;
-	public static String dbUser;
-	public static String dbPassword;
-	public static String dbDriver;
-	public static String pilotageDbHost;
-	public static String pilotageDbPort;
-	public static String pilotageDbSchema;
-	public static String pilotageDbUser;
-	public static String pilotageDbPassword;
-	public static String pilotageDbDriver;
-	public static String FOLDER_IN;
-	public static String FOLDER_OUT;
-	public static String contextReferentialScheme;
-	public static String contextReferentialHost;
-	public static String contextReferentialPort;
-	public static String contextReferentialPath;
-	public static String authServerURL;
-	public static String realm;
-	public static String FOLDER_IN_QUEEN;
-	public static String FOLDER_OUT_QUEEN;
-	public static String ldapServiceUrlScheme;
-	public static String ldapServiceUrlHost;
-	public static String ldapServiceUrlPort;
+		@Value("${fr.insee.pearljam.persistence.database.host}")
+		String pilotageDbHost,
 
-	public ApplicationConfig() {
-		super();
-	}
+		@Value("${fr.insee.pearljam.persistence.database.port}")
+		String pilotageDbPort,
 
-}
+		@Value("${fr.insee.pearljam.persistence.database.schema}")
+		String pilotageDbSchema,
+
+		@Value("${fr.insee.pearljam.persistence.database.user}")
+		String pilotageDbUser,
+
+		@Value("${fr.insee.pearljam.persistence.database.password}")
+		String pilotageDbPassword,
+
+		@Value("${fr.insee.pearljam.persistence.database.driver}")
+		String pilotageDbDriver,
+
+		@Value("${fr.insee.pearljam.folder.in}")
+		String folderIn,
+
+		@Value("${fr.insee.pearljam.folder.out}")
+		String folderOut,
+
+		@Value("${fr.insee.pearljam.context.referential.service.url}")
+		String contextReferentialUrl,
+
+		@Value("${keycloak.auth-server-url}")
+		String authServerURL,
+
+		@Value("${keycloak.realm}")
+		String realm,
+
+		@Value("${fr.insee.pearljam.ldap.service.url}")
+		String ldapServiceUrl,
+
+		@Value("${keycloak.datacollection.server}")
+		String keycloakDataCollectionServer,
+
+		@Value("${keycloak.datacollection.registration-id}")
+		String keycloakDataCollectionRegistrationId,
+
+		@Value("${keycloak.datacollection.client-id}")
+		String keycloakDataCollectionClientId,
+
+		@Value("${keycloak.datacollection.realm}")
+		String keycloakDataCollectionRealm,
+
+		@Value("${keycloak.datacollection.client-secret}")
+		String keycloakDataCollectionClientSecret,
+
+		@Value("${api.datacollection.url}")
+		String dataCollectionApiUrl
+) {}

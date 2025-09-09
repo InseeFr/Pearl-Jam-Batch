@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
 import fr.insee.pearljam.batch.Constants;
@@ -37,17 +37,17 @@ import fr.insee.pearljam.batch.utils.BatchErrorCode;
  *
  */
 @Service
+@RequiredArgsConstructor
 public class ContextService {
-	@Autowired
-	AnnotationConfigApplicationContext context;
 
-	@Autowired
 	@Qualifier("pilotageConnection")
-	Connection pilotageConnection;
+	private final Connection pilotageConnection;
 
-	UserTypeDao userDao;
-	InterviewerTypeDao interviewerDao;
-	OrganizationalUnitTypeDao organizationalUnitDao;
+	private final UserTypeDao userDao;
+
+	private final InterviewerTypeDao interviewerDao;
+
+	private final OrganizationalUnitTypeDao organizationalUnitDao;
 
 	private static final Logger logger = LogManager.getLogger(ContextService.class);
 
@@ -60,9 +60,6 @@ public class ContextService {
 	 * @throws DataBaseException
 	 */
 	public BatchErrorCode createContext(Context context) throws SQLException, DataBaseException {
-		organizationalUnitDao = this.context.getBean(OrganizationalUnitTypeDao.class);
-		interviewerDao = this.context.getBean(InterviewerTypeDao.class);
-		userDao = this.context.getBean(UserTypeDao.class);
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 		pilotageConnection.setAutoCommit(false);
 		try{

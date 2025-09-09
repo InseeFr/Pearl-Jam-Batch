@@ -1,0 +1,77 @@
+spring:
+  docker:
+    compose:
+      enabled: true
+      file: compose.yml
+      lifecycle-management: start-and-stop
+      start:
+        command: up
+      stop:
+        command: down
+        timeout: 1m
+        arguments: -v
+      skip:
+        in-tests: false
+fr:
+  insee:
+    pearljam:
+      persistence:
+        database:
+          host: localhost
+          port: 5433
+          schema: pearl
+          user: mypostgresuser
+          password: mypostgrespassword
+          driver: org.postgresql.Driver
+        datacollection:
+          url: jdbc:postgresql://localhost:5434/questionnaire
+          user: mypostgresuser2
+          password: mypostgrespassword2
+          driver: org.postgresql.Driver
+      folder:
+        in: src/test/resources/in
+        out: src/test/resources/out
+      ldap:
+        service:
+          url: https://api.fr:443
+          realm: plop
+      context:
+        referential:
+          service:
+            url: http://test
+        synchronization:
+          # Log created and updated elements in the result file? ( YES | NO | IN_SEPARATE_FILE )
+          log:
+            elements: YES
+          interviewers:
+            reaffectation:
+              threshold:
+                #Maximum number of SU reaffected to an other interviewer during synchronization
+                absolute: 100000
+                #Maximum percentage SU reaffected to an other interviewer / SU processed during synchronization
+                relative: 110
+          organization:
+            reaffectation:
+              threshold:
+                #Maximum number of SU reaffected to an other OU during synchronization
+                absolute: 100000
+                #Maximum percentage SU reaffected to an other OU / SU processed during synchronization
+                relative: 110
+
+#Keycloak configuration
+keycloak:
+  auth-server-url: http://localhost:7080
+  realm: sabiane
+  client:
+    id: webclient
+    secret: webclient
+  datacollection:
+    server: http://localhost:7080
+    registration-id: data-collection
+    realm: sabiane
+    client-id: webclient
+    client-secret: webclient
+
+api:
+  datacollection:
+    url: http://localhost:9999
