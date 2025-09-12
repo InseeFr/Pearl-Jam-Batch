@@ -1,12 +1,33 @@
 package fr.insee.pearljam.batch.service;
+
+import fr.insee.pearljam.batch.Constants;
+import fr.insee.pearljam.batch.campaign.Campaign;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import fr.insee.pearljam.batch.campaign.SurveyUnitType;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.*;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
+import fr.insee.pearljam.batch.utils.BatchErrorCode;
+import fr.insee.pearljam.batch.utils.PathUtils;
+import fr.insee.pearljam.batch.utils.PilotageMapper;
+import fr.insee.pearljam.batch.utils.XmlUtils;
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,29 +37,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
-
-import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-import fr.insee.pearljam.batch.config.ApplicationConfig;
-import fr.insee.pearljam.batch.context.Context;
-import fr.insee.pearljam.batch.enums.BatchOption;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.PathUtils;
-import fr.insee.pearljam.batch.utils.PilotageMapper;
-import fr.insee.pearljam.batch.utils.XmlUtils;
 
 /**
  * Launcher Service : this service contains all steps of Batch :
@@ -59,7 +57,6 @@ public class PilotageLauncherService {
 	private final DataCollectionService dataCollectionService;
 	private final CampaignDao campaignDao;
 	private final CampaignService campaignService;
-	private final ContextService contextService;
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
@@ -84,9 +81,6 @@ public class PilotageLauncherService {
 		if (PathUtils.isDirContainsFileExtension(Path.of(folderIn), name+".xml")) {
 			try {
 				switch (batchOption) {
-					case LOADCONTEXT:
-						XmlUtils.validateXMLSchema(Constants.MODEL_CONTEXT, folderIn + "/" + name +".xml");
-						break;
 					case DELETECAMPAIGN:
 						XmlUtils.validateXMLSchema(Constants.MODEL_DELETE_CAMPAIGN, folderIn + "/" + name +".xml");
 						break;
@@ -139,7 +133,6 @@ public class PilotageLauncherService {
 		return switch (batchOption) {
 			case DELETECAMPAIGN -> Constants.CAMPAIGN_TO_DELETE;
 			case EXTRACT -> Constants.CAMPAIGN_TO_EXTRACT;
-			case LOADCONTEXT -> Constants.CONTEXT;
 			case SAMPLEPROCESSING -> Constants.SAMPLEPROCESSING;
 			default -> null;
 		};
@@ -173,9 +166,6 @@ public class PilotageLauncherService {
 			case EXTRACT:
 				return extractCampaign(in, out);
 			// Create context when empty database
-			case LOADCONTEXT:
-				return loadContext(in);
-			// Create/Update survey units
 			case SAMPLEPROCESSING:
 				return loadSampleProcessing(in, processing);
 			default:
@@ -347,25 +337,6 @@ public class PilotageLauncherService {
 			}
 		}else {
 			throw new ValidateException(Constants.ERROR_CAMPAIGN_NULL);
-		}
-	}
-
-	/**
-	 * Specific function for load Context
-	 *
-	 * @param in
-	 * @return BatchErrorCode
-	 * @throws SQLException
-	 * @throws DataBaseException
-	 * @throws BatchException
-	 * @throws ValidateException
-	 */
-	public BatchErrorCode loadContext(String in) throws SQLException, DataBaseException, ValidateException {
-		Context contextXml = XmlUtils.xmlToObject(in, Context.class);
-		if(contextXml!=null) {
-			return contextService.createContext(contextXml);
-		}else {
-			throw new ValidateException("Error : context is null");
 		}
 	}
 

@@ -23,7 +23,6 @@ public class Constants {
 	public static final String CAMPAIGN = "campaign";
 	public static final String CAMPAIGN_TO_DELETE = "campaign.to.delete";
 	public static final String CAMPAIGN_TO_EXTRACT = "campaign.to.extract";
-	public static final String CONTEXT = "context";
 	public static final String SAMPLEPROCESSING = "sampleProcessing";
 
 	public static final String ERROR_CAMPAIGN_NULL = "Error : campaign is null";
