@@ -15,8 +15,6 @@ public class Constants {
 	public static final String SCHEMAS_FOLDER_PATH = "/xsd";
 	public static final String ESPACE = " ";
 
-	public static final String NATIONAL = "NATIONAL";
-
 	public static final String DATACOLLECTION = "datacollection";
 	public static final String PILOTAGE = "pilotage";
 
@@ -36,10 +34,7 @@ public class Constants {
 	public static final URL MODEL_EXTRACT_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/extract-campaign.xsd");
 
 	public static final URL MODEL_DELETE_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/delete-campaign.xsd");
-	/**
-	 * The URL to to access to context.xsd
-	 */
-	public static final URL MODEL_CONTEXT = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/context.xsd");
+
 	/**
 	 * The URL to to access to sampleProcessing.xsd
 	 */
