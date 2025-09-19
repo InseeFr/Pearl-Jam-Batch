@@ -73,3 +73,9 @@ keycloak:
 api:
   datacollection:
     url: http://localhost:8080
+    bulk:
+      size: 500
+
+logging:
+  level:
+    fr.insee.lunatic.utils.XslTransformation: WARN

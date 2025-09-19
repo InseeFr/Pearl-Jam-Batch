@@ -3,6 +3,7 @@ package fr.insee.pearljam.batch.service;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.insee.pearljam.batch.dao.DataCollectionRepository;
 import fr.insee.pearljam.batch.dto.CampaignDataCollectionDto;
+import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.exception.DataCollectionApiException;
 import fr.insee.pearljam.batch.exception.TransformationException;
 import fr.insee.pearljam.batch.exception.ValidateException;
@@ -51,36 +52,25 @@ public class DataCollectionService {
     }
 
     /**
-     * Create interrogation from queen sample
+     * Create interrogations from queen sample
      *
-     * @param questionnaire interrogation in platine batch format
+     * @param interrogations survey units in platine batch format
      * @param campaignId campaign id
-     * @return true if success, false otherwise
      */
-    public void createOrUpdateInterrogation(Campagne.Questionnaires.Questionnaire questionnaire, String campaignId) throws DataCollectionApiException, TransformationException {
+    public void saveInterrogations(List<InterrogationDataCollectionDto> interrogations, String campaignId) {
+        log.info("Starting creating/updating interrogations");
+        dataCollectionRepository.saveInterrogations(interrogations, campaignId);
+    }
+
+    public InterrogationDataCollectionDto buildInterrogation(Campagne.Questionnaires.Questionnaire questionnaire) throws TransformationException {
         String surveyUnitId = questionnaire
                 .getInformationsGenerales()
                 .getUniteEnquetee()
                 .getIdentifiant();
 
-        ObjectNode data = lunaticConverter.convertInterrogationData(questionnaire.getInformationsPersonnalisees().getData());
-        dataCollectionRepository.createOrUpdateInterrogation(questionnaire.getIdInterrogation(), surveyUnitId, questionnaire.getIdModele(), campaignId, data);
-    }
+        log.info("Building interrogation for survey unit id {}", surveyUnitId);
 
-    /**
-     * Delete interrogation
-     * @param questionnaire questionnaire to delete
-     * @return true if success, false otherwise
-     */
-    public boolean deleteInterrogation(Campagne.Questionnaires.Questionnaire questionnaire) {
-        String idInterrogation = questionnaire.getIdInterrogation();
-        try {
-            dataCollectionRepository.deleteInterrogation(idInterrogation);
-            return true;
-        } catch(DataCollectionApiException e) {
-            log.error(LOG_CONTEXT, e);
-            log.error("Error when deleting interrogation: {} and step DATACOLLECTION", idInterrogation);
-            return false;
-        }
+        ObjectNode data = lunaticConverter.convertInterrogationData(questionnaire.getInformationsPersonnalisees().getData());
+        return new InterrogationDataCollectionDto(questionnaire.getIdInterrogation(), surveyUnitId, questionnaire.getIdModele(), data);
     }
 }

@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dto.CampaignDataCollectionDto;
+import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.exception.DataCollectionApiException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
+
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -93,39 +96,6 @@ class DataCollectionRestRepositoryTest {
                 .hasMessageContaining("Error when retrieving campaign 789:, Code HTTP: 500");
     }
 
-    @Test
-    @DisplayName("Should delete interrogation successfully")
-    void testDeleteInterrogationSuccess() {
-        // given
-        String interrogationId = "018f63af-09e3-7e6d-8492-f26e32a6cd19";
-
-        wireMockServer.stubFor(delete(urlEqualTo("/api/interrogations/" + interrogationId))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())));
-
-        // when
-        dataCollectionRestRepository.deleteInterrogation(interrogationId);
-
-        // then
-        wireMockServer.verify(deleteRequestedFor(urlEqualTo("/api/interrogations/" + interrogationId)));
-    }
-
-    @Test
-    @DisplayName("Should throw exception when error occurs during interrogation deletion")
-    void testDeleteInterrogationServerError() {
-        // given
-        String interrogationId = "018f63af-09e3-7e6d-8492-f26e32a6cd19";
-
-        wireMockServer.stubFor(delete(urlEqualTo("/api/interrogations/" + interrogationId))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
-
-        // when & then
-        assertThatThrownBy(() -> dataCollectionRestRepository.deleteInterrogation(interrogationId))
-                .isInstanceOf(DataCollectionApiException.class)
-                .hasMessageContaining("Error when deleting interrogation " + interrogationId + ":, Code HTTP: 500");
-    }
-
 
     @Test
     @DisplayName("Should create interrogation successfully")
@@ -138,7 +108,7 @@ class DataCollectionRestRepositoryTest {
         ObjectNode data = JsonNodeFactory.instance.objectNode();
         data.put("key", "value");
         String expectedJson = """
-                {
+                [{
                   "id" : "018f63af-09e3-7e6d-8492-f26e32a6cd19",
                   "surveyUnitId" : "SU101",
                   "questionnaireId" : "questionnaire-id",
@@ -146,15 +116,16 @@ class DataCollectionRestRepositoryTest {
                   "data" : {
                     "key" : "value"
                   }
-                }
+                }]
                 """;
-        String resourceUri = "/api/campaign/" + campaignId + "/interrogation";
+        String resourceUri = "/api/campaigns/" + campaignId + "/interrogations";
         wireMockServer.stubFor(post(urlEqualTo(resourceUri))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())));
 
         // when
-        dataCollectionRestRepository.createOrUpdateInterrogation(interrogationId, surveyUnitId, questionnaireModelId, campaignId, data);
+        InterrogationDataCollectionDto interrogationDataCollectionDto = new InterrogationDataCollectionDto(interrogationId, surveyUnitId, questionnaireModelId, data);
+        dataCollectionRestRepository.saveInterrogations(List.of(interrogationDataCollectionDto), campaignId);
 
         // then
         wireMockServer
@@ -173,14 +144,15 @@ class DataCollectionRestRepositoryTest {
         ObjectNode data = JsonNodeFactory.instance.objectNode();
         data.put("key", "value");
 
-        String resourceUri = "/api/campaign/" + campaignId + "/interrogation";
+        String resourceUri = "/api/campaigns/" + campaignId + "/interrogations";
         wireMockServer.stubFor(post(urlEqualTo(resourceUri))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
         // when & then
-        assertThatThrownBy(() -> dataCollectionRestRepository.createOrUpdateInterrogation(interrogationId, surveyUnitId, questionnaireModelId, campaignId, data))
+        InterrogationDataCollectionDto interrogationDataCollectionDto = new InterrogationDataCollectionDto(interrogationId, surveyUnitId, questionnaireModelId, data);
+        assertThatThrownBy(() -> dataCollectionRestRepository.saveInterrogations(List.of(interrogationDataCollectionDto), campaignId))
                 .isInstanceOf(DataCollectionApiException.class)
-                .hasMessageContaining("Error when creating/updating interrogation: " + interrogationId + ", survey-unit: "+ surveyUnitId + ", Code HTTP: 500");
+                .hasMessageContaining("Error when creating interrogations for survey-units [SU101]: Code HTTP: 500");
     }
 }
