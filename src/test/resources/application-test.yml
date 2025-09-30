@@ -75,3 +75,5 @@ keycloak:
 api:
   datacollection:
     url: http://localhost:9999
+    bulk:
+      size: 500

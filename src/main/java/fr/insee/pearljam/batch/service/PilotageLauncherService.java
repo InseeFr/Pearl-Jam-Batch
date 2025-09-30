@@ -2,6 +2,7 @@ package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.exception.*;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -60,6 +62,8 @@ public class PilotageLauncherService {
 	private final CampaignDao campaignDao;
 	private final CampaignService campaignService;
 	private final ContextService contextService;
+	@Value("${api.datacollection.bulk.size}")
+	private final int dataCollectionBulkSize;
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
@@ -391,38 +395,57 @@ public class PilotageLauncherService {
 		dataCollectionService.validate(sampleProcessing);
 		logger.log(Level.INFO, "End split sample processing content");
 
-		// Create or update survey-units on pilotage and/or data-collection
-		boolean pilotageValidate;
-		SurveyUnitType oldSu;
+		List<InterrogationDataCollectionDto> interrogations = new ArrayList<>();
+		Map<String, SurveyUnitType> oldSuMap = new HashMap<>();
 		for(Questionnaire questionnaire : questionnaires) {
 			String interrogationId = questionnaire.getIdInterrogation();
-			pilotageValidate = true;
-			oldSu = null;
-			if(steps.contains(Constants.PILOTAGE)){
-				pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
-				if(pilotageValidate) {
-					logger.log(Level.INFO, "Creating interrogation {} in pilotage", interrogationId);
-					oldSu = campaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(interrogationId), campaignId);
-				} else {
+			if (steps.contains(Constants.PILOTAGE)) {
+				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
+				if(!pilotageValidate) {
 					logger.log(Level.WARN, "Interrogation {} is invalid", interrogationId);
+					returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
+					continue;
+				}
+
+				logger.log(Level.INFO, "Creating interrogation {} in pilotage", interrogationId);
+				SurveyUnitType oldSu = campaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(interrogationId), campaignId);
+				oldSuMap.put(interrogationId, oldSu);
+
+				try {
+					if (steps.contains(Constants.DATACOLLECTION)) {
+						logger.log(Level.INFO, "Building interrogation {} for data-collection", interrogationId);
+						interrogations.add(dataCollectionService.buildInterrogation(questionnaire));
+					}
+				} catch (TransformationException e) {
+					logger.log(Level.ERROR, e.getMessage());
+					//Rollback Survey unit creation/update on pearl BB
+					logger.log(Level.WARN, "Roll back for interrogation {} created in pilotage ...", interrogationId);
+					campaignService.rollbackSurveyUnit(interrogationId, oldSuMap.get(interrogationId), campaignId);
+					logger.log(Level.WARN, "Roll back ok");
 					returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
 				}
 			}
-			try{
-				if(pilotageValidate && steps.contains(Constants.DATACOLLECTION)){
-					logger.log(Level.INFO, "Creating interrogation {} in data-collection", interrogationId);
-					dataCollectionService.createOrUpdateInterrogation(questionnaire, campaignId);
+		}
+
+		List<InterrogationDataCollectionDto> interrogationsToProcess = new ArrayList<>();
+		for (InterrogationDataCollectionDto interrogation : interrogations) {
+				interrogationsToProcess.add(interrogation);
+
+				if (interrogationsToProcess.size() == dataCollectionBulkSize || interrogation.equals(interrogations.getLast())) {
+					try {
+						dataCollectionService.saveInterrogations(interrogationsToProcess, campaignId);
+					} catch(DataCollectionApiException e) {
+						logger.log(Level.ERROR, e.getMessage());
+						//Rollback Survey unit creation/update on pearl DB
+						logger.log(Level.WARN, "Roll back for interrogations created in pilotage ...");
+						for(InterrogationDataCollectionDto interroToDelete : interrogationsToProcess) {
+							campaignService.rollbackSurveyUnit(interroToDelete.id(), oldSuMap.get(interroToDelete.id()), campaignId);
+						}
+						logger.log(Level.WARN, "Roll back ok");
+						returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
+					}
+					interrogationsToProcess.clear();
 				}
-			}catch(DataCollectionApiException | TransformationException e){
-				logger.log(Level.ERROR, e.getMessage());
-				if(steps.contains(Constants.PILOTAGE)){
-					//Rollback Survey unit creation/update on pearl BB
-					logger.log(Level.WARN, "Roll back for interrogation {} created in pilotage ...", interrogationId);
-					campaignService.rollbackSurveyUnit(interrogationId, oldSu,  campaignId);
-					logger.log(Level.WARN, "Roll back ok");
-				}
-				returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
-			}
 		}
 
 		// Move files in out folder
