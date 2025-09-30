@@ -444,7 +444,7 @@ public class PilotageLauncherService {
 						logger.log(Level.WARN, "Roll back ok");
 						returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
 					}
-					interrogationsToProcess = new ArrayList<>();
+					interrogationsToProcess.clear();
 				}
 		}
 
