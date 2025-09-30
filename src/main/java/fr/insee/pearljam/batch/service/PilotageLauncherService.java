@@ -436,7 +436,7 @@ public class PilotageLauncherService {
 						dataCollectionService.saveInterrogations(interrogationsToProcess, campaignId);
 					} catch(DataCollectionApiException e) {
 						logger.log(Level.ERROR, e.getMessage());
-						//Rollback Survey unit creation/update on pearl BB
+						//Rollback Survey unit creation/update on pearl DB
 						logger.log(Level.WARN, "Roll back for interrogations created in pilotage ...");
 						for(InterrogationDataCollectionDto interroToDelete : interrogationsToProcess) {
 							campaignService.rollbackSurveyUnit(interroToDelete.id(), oldSuMap.get(interroToDelete.id()), campaignId);
