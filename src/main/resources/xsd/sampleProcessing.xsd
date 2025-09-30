@@ -30,7 +30,7 @@
 							<xs:element maxOccurs="unbounded" name="Questionnaire">
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element maxOccurs="1" name="InformationsGenerales">
+										<xs:element name="InformationsGenerales">
 											<xs:complexType>
 												<xs:sequence>
 													<xs:element name="UniteEnquetee">
@@ -61,7 +61,7 @@
 																		</xs:sequence>
 																	</xs:complexType>
 																</xs:element>
-																<xs:element minOccurs="0" maxOccurs="1" name="Affectation">
+																<xs:element minOccurs="0" name="Affectation">
 																	<xs:complexType>
 																		<xs:sequence>
 																			<xs:element name="UniteOrganisationnelleId" type="xs:string" />
@@ -69,7 +69,7 @@
 																		</xs:sequence>
 																	</xs:complexType>
 																</xs:element>
-																<xs:element minOccurs="0" maxOccurs="1" name="Commentaires">
+																<xs:element minOccurs="0" name="Commentaires">
 																	<xs:complexType>
 																		<xs:sequence>
 																			<xs:element minOccurs="0" maxOccurs="unbounded" name="Commentaire">
@@ -91,10 +91,14 @@
 																		</xs:sequence>
 																	</xs:complexType>
 																</xs:element>
+																<xs:element name="InformationCollectePrecedente"
+																			type="InformationCollectePrecedenteType"
+																			minOccurs="0"
+																/>
 															</xs:sequence>
 														</xs:complexType>
 													</xs:element>
-													<xs:element minOccurs="0" maxOccurs="1" name="MetadonneesCommunication">
+													<xs:element minOccurs="0" name="MetadonneesCommunication">
 														<xs:complexType>
 															<xs:sequence>
 																<xs:element name="CommunicationTemplate" minOccurs="0" maxOccurs="unbounded">
@@ -148,8 +152,8 @@
 																			<xs:element name="NomReferent" type="xs:string" />
 																			<xs:element name="PrenomReferent" type="xs:string" />
 																			<xs:element name="MailReferent" type="xs:string" />
-																			<xs:element name="MailFavori" type="xs:boolean" minOccurs="0" />
-																			<xs:element name="DateNaissance" type="xs:string" />
+																			<xs:element name="DateNaissance"
+																						type="xs:string" minOccurs="0"/>
 																			<xs:element name="Telephones">
 																				<xs:complexType>
 																					<xs:sequence>
@@ -206,7 +210,7 @@
 											</xs:complexType>
 
 										</xs:element>
-										<xs:element maxOccurs="1" name="InformationsPersonnalisees">
+										<xs:element name="InformationsPersonnalisees">
 											<xs:complexType>
 												<xs:sequence>
 													<xs:element name="Data" type="Data"/>
@@ -239,4 +243,50 @@
 			</xs:any>
 		</xs:sequence>
 	</xs:complexType>
+
+	<xs:complexType name="InformationCollectePrecedenteType">
+		<xs:all>
+			<xs:element name="BilanDeContact" type="BilanDeContactType" minOccurs="0"/>
+			<xs:element name="Contacts" type="ContactsPrecedentsType" minOccurs="0"/>
+			<xs:element name="CommentairePrecedent" type="CommentairePrecedentType" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:simpleType name="BilanDeContactType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="INA"/>
+			<xs:enumeration value="REF"/>
+			<xs:enumeration value="IMP"/>
+			<xs:enumeration value="UCD"/>
+			<xs:enumeration value="UTR"/>
+			<xs:enumeration value="ALA"/>
+			<xs:enumeration value="DUK"/>
+			<xs:enumeration value="DUU"/>
+			<xs:enumeration value="NUH"/>
+			<xs:enumeration value="DCD"/>
+			<xs:enumeration value="NOA"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="ContactsPrecedentsType">
+		<xs:sequence>
+			<xs:element name="Contact" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ContactPrecedentType">
+		<xs:sequence>
+			<xs:element name="Nom" type="xs:string" minOccurs="0"/>
+			<xs:element name="Prenom" type="xs:string" minOccurs="0"/>
+			<xs:element name="Telephone" type="xs:string" minOccurs="0"/>
+			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="CommentairePrecedentType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
+
 </xs:schema>

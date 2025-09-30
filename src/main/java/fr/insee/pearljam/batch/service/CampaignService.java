@@ -250,9 +250,8 @@ public class CampaignService {
 				campaignDao.deleteCampaign(campaign);
 				logger.log(Level.INFO, "Campaign {}", campaign.getId() + ", have been deleted");
 			} else {
-				String strList = String.join(",",
-						campaign.getSurveyUnits().getSurveyUnit().stream().map(SurveyUnitType::getId)
-								.collect(Collectors.toList()));
+				String strList = campaign.getSurveyUnits().getSurveyUnit().stream().map(SurveyUnitType::getId)
+                        .collect(Collectors.joining(","));
 				logger.log(Level.INFO,
 						"The following survey units of campaign {} : {}, have been deleted",
 						campaign.getId(),
@@ -352,6 +351,8 @@ public class CampaignService {
 		String interviewerAffectation = getInterviewerAffectation(surveyUnitType);
 		String organizationUnitAffectation = getOrganizationUnitAffectation(surveyUnitType);
 
+		// create contactHistory
+//		contactHistoryDao.createContactHistory(surveyUnitType.get)
 		// Create Survey Unit
 		surveyUnitDao.createSurveyUnit(campaignId, surveyUnitType, addressId, sampleIdentifierId,
 				interviewerAffectation, organizationUnitAffectation);

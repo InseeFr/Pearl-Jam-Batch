@@ -42,13 +42,16 @@ public class PersonDaoImpl implements PersonDao{
 	JdbcTemplate pilotageJdbcTemplate;
 	
 	private static final Logger logger = LogManager.getLogger(PersonDaoImpl.class);
-	
 
+
+	//TODO gérer l'extension pour les contactHistory optionels TT
 	@Override
 	public Long createPerson(PersonType person, String surveyUnitId) {
-		String qString = new StringBuilder("INSERT INTO person (birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) ")
-				.append("VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-				.toString();
+		String qString = """
+				INSERT INTO person
+				(birthdate, email, first_name, last_name, title, survey_unit_id, privileged, panel, contact_history_type)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				""";
 		Long parsedDate = null;
 		Integer parsedTitle = null;
 		try{
@@ -66,27 +69,25 @@ public class PersonDaoImpl implements PersonDao{
 		else {
 			logger.log(Level.ERROR,"Could not parse title of person '{} {}'", person.getFirstName(), person.getLastName());
 		}
-		boolean favoriteEmail= person.isFavoriteEmail()!=null?person.isFavoriteEmail():false;
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		final Long tempDate = parsedDate;
 		final Integer tempTitle = parsedTitle;
 		pilotageJdbcTemplate.update(
-		    new PreparedStatementCreator() {
-		        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		            PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
-		            ps.setLong(1, tempDate);
-		            ps.setString(2, person.getEmail());
-		            ps.setBoolean(3, favoriteEmail);
-		            ps.setString(4, person.getFirstName());
-		            ps.setString(5, person.getLastName());
-		            ps.setLong(6, tempTitle);
-		            ps.setString(7, surveyUnitId);
-		            ps.setBoolean(8, person.isPrivileged());
-		            return ps;
-		        }
-		    },
+				connection -> {
+					PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
+					ps.setLong(1, tempDate);
+					ps.setString(2, person.getEmail());
+					ps.setString(3, person.getFirstName());
+					ps.setString(4, person.getLastName());
+					ps.setLong(5, tempTitle);
+					ps.setString(6, surveyUnitId);
+					ps.setBoolean(7, person.isPrivileged());
+					ps.setBoolean(8, person.isPanel());
+					ps.setString(9, person.getContactHistoryType());
+					return ps;
+				},
 		    keyHolder);
-		return (Long) keyHolder.getKeyList().get(0).get("id");
+		return (Long) keyHolder.getKeyList().getFirst().get("id");
     }
 	
 	@Override
@@ -112,9 +113,10 @@ public class PersonDaoImpl implements PersonDao{
                 person.setDateOfBirth(df.format(new Date(dateTime)));
         	}
             person.setPrivileged(rs.getBoolean("privileged"));
-            person.setFavoriteEmail(rs.getBoolean("favorite_email"));
-            
-            Long id = rs.getLong("id");
+			person.setPanel(rs.getBoolean("panel"));
+			person.setContactHistoryType(rs.getString("contact_history_type"));
+
+			Long id = rs.getLong("id");
             
             return new AbstractMap.SimpleEntry<>(id, person);
         }
@@ -124,8 +126,8 @@ public class PersonDaoImpl implements PersonDao{
 	@Override
 	public List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id) {
 		String qString = "SELECT person.* FROM person WHERE survey_unit_id=?";
-		return pilotageJdbcTemplate.query(qString, new Object[] {id}, new PersonTypeTypeMapper());
+		return pilotageJdbcTemplate.query(qString, new PersonTypeTypeMapper(), id);
 	}
-	
-	
+
+
 }

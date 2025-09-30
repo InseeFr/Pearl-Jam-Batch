@@ -113,6 +113,7 @@ public class PilotageMapper {
 		return output;
 	}
 
+	// TODO :add contactHistory
 	private static PersonsType getPersonsFromSampleProcessing(Contacts contacts) {
 		PersonsType persons = new PersonsType();
 		for (Contact contact : contacts.getContact()) {
@@ -121,7 +122,6 @@ public class PilotageMapper {
 			person.setFirstName(contact.getPrenomReferent());
 			person.setLastName(contact.getNomReferent());
 			person.setEmail(contact.getMailReferent());
-			person.setFavoriteEmail(contact.isMailFavori() != null ? contact.isMailFavori() : false);
 			person.setPrivileged(contact.isPrincipal());
 			person.setDateOfBirth(contact.getDateNaissance());
 			person.setPhoneNumbers(getPhoneNumbersFromSampleProcessing(contact.getTelephones()));
@@ -129,6 +129,8 @@ public class PilotageMapper {
 		}
 		return persons;
 	}
+
+
 
 	private static PhoneNumbersType getPhoneNumbersFromSampleProcessing(Telephones telephones) {
 		PhoneNumbersType phoneNumbers = new PhoneNumbersType();

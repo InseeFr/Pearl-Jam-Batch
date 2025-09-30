@@ -12,7 +12,10 @@
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="NOIDENT" />
-							<xs:enumeration value="IASCO" />
+							<xs:enumeration value="HOUSEF2F"/>
+							<xs:enumeration value="HOUSETEL"/>
+							<xs:enumeration value="INDF2F"/>
+							<xs:enumeration value="INDTEL"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
@@ -157,8 +160,12 @@
 			<xs:element ref="ContactAttempts" minOccurs="0" />
 			<xs:element ref="ClosingCause" minOccurs="0" />
 			<xs:element ref="Identification" minOccurs="0" />
+			<xs:element ref="InformationCollectePrecedente" minOccurs="0"/>
+
 		</xs:all>
 	</xs:complexType>
+
+	<xs:element name="InformationCollectePrecedente" type="InformationCollectePrecedenteType"/>
 
 	<xs:complexType name="PersonType">
 		<xs:all>
@@ -167,7 +174,15 @@
 			<xs:element name="LastName" type="xs:string" />
 			<xs:element name="Email" type="xs:string" />
 			<xs:element name="Privileged" type="xs:boolean" />
-			<xs:element name="FavoriteEmail" type="xs:boolean" minOccurs="0" />
+			<xs:element name="Panel" type="xs:boolean"/>
+			<xs:element name="ContactHistoryType" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="NEXT"/>
+						<xs:enumeration value="PREVIOUS"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
 			<xs:element name="DateOfBirth">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -375,5 +390,52 @@
 			<xs:element name="surveyUnitId" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
+
+
+	<xs:complexType name="InformationCollectePrecedenteType">
+		<xs:all>
+			<xs:element name="BilanDeContact" type="BilanDeContactType" minOccurs="0"/>
+			<xs:element name="Contacts" type="ContactsPrecedentsType" minOccurs="0"/>
+			<xs:element name="CommentairePrecedent" type="CommentairePrecedentType" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:simpleType name="BilanDeContactType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="INA"/>
+			<xs:enumeration value="REF"/>
+			<xs:enumeration value="IMP"/>
+			<xs:enumeration value="UCD"/>
+			<xs:enumeration value="UTR"/>
+			<xs:enumeration value="ALA"/>
+			<xs:enumeration value="DUK"/>
+			<xs:enumeration value="DUU"/>
+			<xs:enumeration value="NUH"/>
+			<xs:enumeration value="DCD"/>
+			<xs:enumeration value="NOA"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="ContactsPrecedentsType">
+		<xs:sequence>
+			<xs:element name="Contact" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ContactPrecedentType">
+		<xs:sequence>
+			<xs:element name="Nom" type="xs:string" minOccurs="0"/>
+			<xs:element name="Prenom" type="xs:string" minOccurs="0"/>
+			<xs:element name="Telephone" type="xs:string" minOccurs="0"/>
+			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="CommentairePrecedentType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
+
 
 </xs:schema>
