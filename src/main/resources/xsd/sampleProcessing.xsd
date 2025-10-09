@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
 <xs:schema
-		attributeFormDefault="unqualified"
 		elementFormDefault="qualified"
 		xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb" jaxb:version="3.0"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -92,7 +91,7 @@
 																	</xs:complexType>
 																</xs:element>
 																<xs:element name="InformationCollectePrecedente"
-																			type="InformationCollectePrecedenteType"
+																			type="InformationCollectePrecedente"
 																			minOccurs="0"
 																/>
 															</xs:sequence>
@@ -141,23 +140,19 @@
 																	<xs:complexType>
 																		<xs:sequence>
 																			<xs:element name="Principal" type="xs:boolean" />
-																			<xs:element name="CiviliteReferent">
-																				<xs:simpleType>
-																					<xs:restriction base="xs:string">
-																						<xs:enumeration value="Mme" />
-																						<xs:enumeration value="M." />
-																					</xs:restriction>
-																				</xs:simpleType>
-																			</xs:element>
+																			<xs:element name="CiviliteReferent"
+																						type="CiviliteType"
+																						minOccurs="0" default="M."/>
 																			<xs:element name="NomReferent" type="xs:string" />
 																			<xs:element name="PrenomReferent" type="xs:string" />
 																			<xs:element name="MailReferent" type="xs:string" />
-																			<xs:element name="DateNaissance"
-																						type="xs:string" minOccurs="0"/>
+																			<xs:element name="DateNaissance" type="DateType" />
 																			<xs:element name="Telephones">
 																				<xs:complexType>
 																					<xs:sequence>
-																						<xs:element minOccurs="1" maxOccurs="unbounded" name="Telephone">
+																						<xs:element
+																								maxOccurs="unbounded"
+																								name="Telephone">
 																							<xs:complexType>
 																								<xs:sequence>
 																									<xs:element name="Source">
@@ -169,7 +164,10 @@
 																											</xs:restriction>
 																										</xs:simpleType>
 																									</xs:element>
-																									<xs:element name="Favori" type="xs:boolean" minOccurs="0" maxOccurs="1" />
+																									<xs:element
+																											name="Favori"
+																											type="xs:boolean"
+																											minOccurs="0"/>
 																									<xs:element name="Numero" type="xs:string" />
 																								</xs:sequence>
 																							</xs:complexType>
@@ -177,7 +175,7 @@
 																					</xs:sequence>
 																				</xs:complexType>
 																			</xs:element>
-																			<xs:element name="Adresse" minOccurs="0" maxOccurs="1">
+																			<xs:element name="Adresse" minOccurs="0">
 																				<xs:complexType>
 																					<xs:sequence>
 																						<xs:element name="NumeroVoie" type="xs:string" />
@@ -233,10 +231,10 @@
 	</xs:element>
 	<xs:complexType name="Data">
 		<xs:sequence>
-			<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded">
+			<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:appinfo>
-						<jaxb:dom type="w3c"/>
+						<jaxb:dom/>
 						<jaxb:property name="dataElements"/>
 					</xs:appinfo>
 				</xs:annotation>
@@ -244,10 +242,10 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="InformationCollectePrecedenteType">
+	<xs:complexType name="InformationCollectePrecedente">
 		<xs:all>
 			<xs:element name="BilanDeContact" type="BilanDeContactType" minOccurs="0"/>
-			<xs:element name="Contacts" type="ContactsPrecedentsType" minOccurs="0"/>
+			<xs:element name="Contacts" type="ContactsPrecedents" minOccurs="0"/>
 			<xs:element name="CommentairePrecedent" type="CommentairePrecedentType" minOccurs="0"/>
 		</xs:all>
 	</xs:complexType>
@@ -268,7 +266,7 @@
 		</xs:restriction>
 	</xs:simpleType>
 
-	<xs:complexType name="ContactsPrecedentsType">
+	<xs:complexType name="ContactsPrecedents">
 		<xs:sequence>
 			<xs:element name="Contact" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
@@ -276,9 +274,9 @@
 
 	<xs:complexType name="ContactPrecedentType">
 		<xs:sequence>
-			<xs:element name="Nom" type="xs:string" minOccurs="0"/>
-			<xs:element name="Prenom" type="xs:string" minOccurs="0"/>
-			<xs:element name="Telephone" type="xs:string" minOccurs="0"/>
+			<xs:element name="Civilite" type="CiviliteType" minOccurs="0" default="M."/>
+			<xs:element name="Prenom" type="xs:string"/>
+			<xs:element name="DateDeNaissance" type="DateType"/>
 			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -286,6 +284,19 @@
 	<xs:simpleType name="CommentairePrecedentType">
 		<xs:restriction base="xs:string">
 			<xs:maxLength value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="DateType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="|((0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)[0-9]{2})"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="CiviliteType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Mme"/>
+			<xs:enumeration value="M."/>
 		</xs:restriction>
 	</xs:simpleType>
 

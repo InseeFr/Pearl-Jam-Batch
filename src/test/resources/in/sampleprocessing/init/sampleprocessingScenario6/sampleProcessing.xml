@@ -34,6 +34,24 @@
 						<UniteOrganisationnelleId>OU-NORTH</UniteOrganisationnelleId>
 						<EnqueteurId>INTW1</EnqueteurId>
 					</Affectation>
+
+					<InformationCollectePrecedente>
+						<BilanDeContact>INA</BilanDeContact>
+						<CommentairePrecedent>C'était mieux avant</CommentairePrecedent>
+						<Contacts>
+							<Contact>
+								<Civilite>M.</Civilite>
+								<Prenom>Bob</Prenom>
+								<DateDeNaissance>06/02/1945</DateDeNaissance>
+								<Panel>true</Panel>
+							</Contact>
+							<Contact>
+								<Prenom>John</Prenom>
+								<DateDeNaissance/>
+							</Contact>
+						</Contacts>
+					</InformationCollectePrecedente>
+
 				</UniteEnquetee>
 				<Contacts>
 					<Contact>
@@ -42,7 +60,6 @@
 						<NomReferent>Doe</NomReferent>
 						<PrenomReferent>John</PrenomReferent>
 						<MailReferent>test@test.fr</MailReferent>
-						<MailFavori>true</MailFavori>
 						<DateNaissance>01/01/2000</DateNaissance>
 						<Telephones>
 							<Telephone>
@@ -76,7 +93,6 @@
 						<NomReferent>Doe</NomReferent>
 						<PrenomReferent>Jane</PrenomReferent>
 						<MailReferent>test2@test.fr</MailReferent>
-						<MailFavori>false</MailFavori>
 						<DateNaissance>01/01/2000</DateNaissance>
 						<Telephones>
 							<Telephone>

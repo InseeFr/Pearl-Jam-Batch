@@ -1,11 +1,19 @@
 package fr.insee.pearljam.batch.dao;
 
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import fr.insee.pearljam.batch.campaign.PersonType;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Service;
+
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -13,21 +21,6 @@ import java.util.AbstractMap;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
-
-import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.PersonType;
 
 /**
  * Service for the Person entity that implements the interface associated
@@ -42,6 +35,7 @@ public class PersonDaoImpl implements PersonDao{
 	JdbcTemplate pilotageJdbcTemplate;
 	
 	private static final Logger logger = LogManager.getLogger(PersonDaoImpl.class);
+	public static final String DATE_FORMAT = "dd/MM/yyyy";
 
 
 	//TODO gérer l'extension pour les contactHistory optionels TT
@@ -55,7 +49,7 @@ public class PersonDaoImpl implements PersonDao{
 		Long parsedDate = null;
 		Integer parsedTitle = null;
 		try{
-			parsedDate = new SimpleDateFormat(Constants.DATE_FORMAT_2).parse(person.getDateOfBirth()).getTime();
+			parsedDate = new SimpleDateFormat(DATE_FORMAT).parse(person.getDateOfBirth()).getTime();
 		} catch (ParseException e) {
 			logger.log(Level.ERROR, e.getMessage());
 		}
@@ -75,7 +69,11 @@ public class PersonDaoImpl implements PersonDao{
 		pilotageJdbcTemplate.update(
 				connection -> {
 					PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
-					ps.setLong(1, tempDate);
+					if (tempDate != null) {
+						ps.setLong(1, tempDate);
+					} else {
+						ps.setNull(1, Types.BIGINT);
+					}
 					ps.setString(2, person.getEmail());
 					ps.setString(3, person.getFirstName());
 					ps.setString(4, person.getLastName());
@@ -109,7 +107,7 @@ public class PersonDaoImpl implements PersonDao{
             person.setEmail(rs.getString("email"));
             long dateTime = rs.getLong("birthdate");
             if(!rs.wasNull()) {
-            	DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT_2);
+				DateFormat df = new SimpleDateFormat(DATE_FORMAT);
                 person.setDateOfBirth(df.format(new Date(dateTime)));
         	}
             person.setPrivileged(rs.getBoolean("privileged"));
