@@ -85,7 +85,7 @@
 			<xs:element name="IdentificationPhaseStartDate" type="DateTimeType"/>
 			<xs:element name="InterviewerStartDate" type="DateTimeType"/>
 			<xs:element name="ManagementStartDate" type="DateTimeType"/>
-			<xs:element name="EndDate" type="DateType"/>
+			<xs:element name="EndDate" type="DateTimeType"/>
 			<xs:element name="MailCourrier" type="xs:string" />
 			<xs:element name="TelephoneCourrier" type="xs:string" />
 			<xs:element name="UtilisationCourrier" type="xs:boolean" />
