@@ -9,8 +9,10 @@ import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Question
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact.Telephones.Telephone;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.Commentaires;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.IdentifiantsInsee;
+import fr.insee.pearljam.batch.sampleprocessing.CiviliteType;
+import fr.insee.pearljam.batch.sampleprocessing.InformationCollectePrecedente;
 
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Operation on XML Content
@@ -49,11 +51,12 @@ public class PilotageMapper {
 							su.getInformationsGenerales().getUniteEnquetee().getIdentifiantsInsee()));
 					surveyUnitType
 							.setPersons(getPersonsFromSampleProcessing(su.getInformationsGenerales().getContacts()));
+					surveyUnitType.setInformationCollectePrecedente(getInformationCollectePrecedenteFromSampleProcessing(su.getInformationsGenerales().getUniteEnquetee().getInformationCollectePrecedente()));
 					surveyUnitType.setComments(getCommentsFromSampleProcessing(
 							su.getInformationsGenerales().getUniteEnquetee().getCommentaires()));
 					surveyUnitType.setCommunicationMetadatas(getMetadataFromSampleProcessing(su.getInformationsGenerales().getMetadonneesCommunication(), campaignId));
 					return surveyUnitType;
-				}).collect(Collectors.toList()));
+				}).toList());
 		return campaign;
 	}
 
@@ -117,17 +120,42 @@ public class PilotageMapper {
 		PersonsType persons = new PersonsType();
 		for (Contact contact : contacts.getContact()) {
 			PersonType person = new PersonType();
-			person.setTitle(contact.getCiviliteReferent());
+			person.setTitle(contact.getCiviliteReferent().value());
 			person.setFirstName(contact.getPrenomReferent());
 			person.setLastName(contact.getNomReferent());
 			person.setEmail(contact.getMailReferent());
-			person.setFavoriteEmail(contact.isMailFavori() != null ? contact.isMailFavori() : false);
 			person.setPrivileged(contact.isPrincipal());
 			person.setDateOfBirth(contact.getDateNaissance());
 			person.setPhoneNumbers(getPhoneNumbersFromSampleProcessing(contact.getTelephones()));
 			persons.getPerson().add(person);
 		}
 		return persons;
+	}
+
+	private static InformationCollectePrecedenteType getInformationCollectePrecedenteFromSampleProcessing(InformationCollectePrecedente informationCollectePrecedente) {
+		if (informationCollectePrecedente == null) return null;
+		InformationCollectePrecedenteType icp = new InformationCollectePrecedenteType();
+		icp.setCommentairePrecedent(informationCollectePrecedente.getCommentairePrecedent());
+		//  BilanContact could be null
+		BilanDeContactType bilanContactValue = Optional.ofNullable(informationCollectePrecedente.getBilanDeContact())
+				.map(fr.insee.pearljam.batch.sampleprocessing.BilanDeContactType::value)
+				.map(BilanDeContactType::fromValue).orElse(null);
+				icp.setBilanDeContact(bilanContactValue);
+		ContactsPrecedentsType contactsPrecedents = new ContactsPrecedentsType();
+		contactsPrecedents.getContact().addAll(
+				informationCollectePrecedente.getContacts().getContact().stream().map(
+						contactPrecedentSample -> {
+							ContactPrecedentType contact = new ContactPrecedentType();
+							contact.setCivilite(Optional.ofNullable(contactPrecedentSample.getCivilite()).orElse(CiviliteType.M).value());
+							contact.setPrenom(contactPrecedentSample.getPrenom());
+							contact.setPanel(Optional.ofNullable(contactPrecedentSample.isPanel()).orElse(false));
+							contact.setDateDeNaissance( Optional.ofNullable(contactPrecedentSample.getDateDeNaissance()).orElse(null));
+							return contact;
+						}).toList()
+		);
+		icp.setContacts(contactsPrecedents);
+
+		return icp;
 	}
 
 	private static PhoneNumbersType getPhoneNumbersFromSampleProcessing(Telephones telephones) {
@@ -146,28 +174,22 @@ public class PilotageMapper {
 		InseeAddressType address = new InseeAddressType();
 		for (Contact contact : contacts.getContact()) {
 			if (contact.getAdresse() != null) {
-				address.setL1(new StringBuilder().append(contact.getCiviliteReferent())
-						.append(Constants.ESPACE)
-						.append(contact.getPrenomReferent())
-						.append(Constants.ESPACE)
-						.append(contact.getNomReferent()).toString());
+				address.setL1(String.join(Constants.ESPACE, contact.getCiviliteReferent().value(),
+						contact.getPrenomReferent(),
+						contact.getNomReferent()));
 				if (contact.getAdresse().getComplementAdresse().length() > 38) {
 					address.setL2(contact.getAdresse().getComplementAdresse().substring(0, 38));
 					address.setL3(contact.getAdresse().getComplementAdresse().substring(39));
 				} else {
 					address.setL2(contact.getAdresse().getComplementAdresse());
 				}
-				address.setL4(new StringBuilder().append(contact.getAdresse().getNumeroVoie())
-						.append(Constants.ESPACE)
-						.append(contact.getAdresse().getIndiceRepetition())
-						.append(Constants.ESPACE)
-						.append(contact.getAdresse().getTypeVoie())
-						.append(Constants.ESPACE)
-						.append(contact.getAdresse().getLibelleVoie()).toString());
+				address.setL4(String.join(Constants.ESPACE, contact.getAdresse().getNumeroVoie(),
+						contact.getAdresse().getIndiceRepetition(),
+						contact.getAdresse().getTypeVoie(),
+						contact.getAdresse().getLibelleVoie()));
 				address.setL5(contact.getAdresse().getMentionSpeciale());
-				address.setL6(new StringBuilder().append(contact.getAdresse().getCodePostal())
-						.append(Constants.ESPACE)
-						.append(contact.getAdresse().getLibelleCommune()).toString());
+				address.setL6(String.join(Constants.ESPACE, contact.getAdresse().getCodePostal(),
+						contact.getAdresse().getLibelleCommune()));
 				address.setL7(contact.getAdresse().getLibellePays());
 				address.setBuilding(contact.getAdresse().getBatiment());
 				address.setFloor(contact.getAdresse().getEtage());
