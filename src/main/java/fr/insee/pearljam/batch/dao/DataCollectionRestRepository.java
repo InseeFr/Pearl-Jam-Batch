@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
 
