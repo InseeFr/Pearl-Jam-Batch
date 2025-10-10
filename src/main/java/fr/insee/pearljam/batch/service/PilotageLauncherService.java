@@ -172,7 +172,7 @@ public class PilotageLauncherService {
 	/**
 	 * Global function of clean and reset.
 	 * Filenames depends on return code and batchOption
-	 * @param name
+	 * @param name batchOption name for file
 	 * @param in in folder
 	 * @param out out folder
 	 * @param returnCode previous returnCode for aggregation
@@ -216,7 +216,7 @@ public class PilotageLauncherService {
 	private String getFileName(String name, BatchOption batchOption, BatchErrorCode returnCode) throws ValidateException {
 		String ending = getEnding(returnCode) ;
 
-		String designation = null;
+		String designation;
 		String finalName = name;
 		switch(batchOption) {
 		case DELETECAMPAIGN:
@@ -252,12 +252,11 @@ public class PilotageLauncherService {
 
 	public void moveFileToProcessing(String name, String in,
 		  String processing, String campaignId) throws IOException {
-	  	String fileName = "";
-	  	fileName =  String.join(".",
+	  	String fileName = String.join(".",
 				name,
 				campaignId,
 				PathUtils.getTimestampForPath(),
-				".xml");
+				"xml");
     	pilotageFolderService.setFilename(fileName);
 		File file = new File(in);
 		if(file.exists()) {
@@ -323,7 +322,7 @@ public class PilotageLauncherService {
 		}
 	}
 
-	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SynchronizationException, SQLException {
+	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SQLException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 
 		// Move SampleProcessing File to processing folder and unmarshall
