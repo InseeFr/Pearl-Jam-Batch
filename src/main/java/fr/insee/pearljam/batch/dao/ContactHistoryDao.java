@@ -6,6 +6,8 @@ public interface ContactHistoryDao {
 
     void createContactHistory(InformationCollectePrecedenteType informationCollectePrecedente, String surveyUnitId);
 
-    InformationCollectePrecedenteType findBySurveyUnitId(String surveyUNitId);
+    InformationCollectePrecedenteType findBySurveyUnitId(String surveyUnitId);
+
+    void deleteBySurveyUnitId(String surveyUnitId);
 
 }

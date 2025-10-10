@@ -42,7 +42,7 @@ public class DataCollectionRestRepository implements DataCollectionRepository {
                 )
                 .onStatus(
                         HttpStatusCode::is2xxSuccessful,
-                        (request, response) -> log.info(String.format("Campaign %s found", campaignId)))
+                        (request, response) -> log.info("Campaign {} found", campaignId))
                 .body(CampaignDataCollectionDto.class);
     }
 

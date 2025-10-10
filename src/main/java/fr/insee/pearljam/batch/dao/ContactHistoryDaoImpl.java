@@ -4,8 +4,7 @@ import fr.insee.pearljam.batch.campaign.BilanDeContactType;
 import fr.insee.pearljam.batch.campaign.ContactPrecedentType;
 import fr.insee.pearljam.batch.campaign.ContactsPrecedentsType;
 import fr.insee.pearljam.batch.campaign.InformationCollectePrecedenteType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,10 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ContactHistoryDaoImpl implements ContactHistoryDao {
 
-    @Autowired
-    @Qualifier("pilotageJdbcTemplate")
-    JdbcTemplate pilotageJdbcTemplate;
+    private final JdbcTemplate pilotageJdbcTemplate;
 
     public void createContactHistory(InformationCollectePrecedenteType informationCollectePrecedente, String surveyUnitId) {
         String qString = """
@@ -75,6 +73,12 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
         }
 
         return info;
+    }
+
+    @Override
+    public void deleteBySurveyUnitId(String surveyUnitId) {
+        String qString = "DELETE FROM contact_history WHERE survey_unit_id=?";
+        pilotageJdbcTemplate.update(qString, surveyUnitId);
     }
 
     private static final class ContactPrecedentRowMapper implements RowMapper<ContactPrecedentType> {

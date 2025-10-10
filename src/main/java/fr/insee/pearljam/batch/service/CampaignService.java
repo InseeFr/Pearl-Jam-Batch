@@ -281,23 +281,25 @@ public class CampaignService {
 	}
 
 	private void deleteSurveyUnit(SurveyUnitType surveyUnit, boolean allSurveyUnit) throws SQLException {
-		Long addressId = surveyUnitDao.getAddressIdBySurveyUnitId(surveyUnit.getId());
-		Long sampleIdentifirId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnit.getId());
-		commentDao.deleteCommentBySurveyUnitId(surveyUnit.getId());
-		contactAttemptDao.deleteContactAttemptBySurveyUnitId(surveyUnit.getId());
-		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnit.getId());
-		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnit.getId());
-		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnit.getId());
-		personDao.deletePersonBySurveyUnitId(surveyUnit.getId());
-		stateDao.deleteStateBySurveyUnitId(surveyUnit.getId());
-		communicationMetadataDao.deleteBySurveyUnitId(surveyUnit.getId());
-		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnit.getId());
-		communicationRequestDao.deleteBySurveyUnitId(surveyUnit.getId());
-		surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
+		String surveyUnitId = surveyUnit.getId();
+		Long addressId = surveyUnitDao.getAddressIdBySurveyUnitId(surveyUnitId);
+		Long sampleIdentifirId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnitId);
+		commentDao.deleteCommentBySurveyUnitId(surveyUnitId);
+		contactAttemptDao.deleteContactAttemptBySurveyUnitId(surveyUnitId);
+		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnitId);
+		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitId);
+		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnitId);
+		personDao.deletePersonBySurveyUnitId(surveyUnitId);
+		stateDao.deleteStateBySurveyUnitId(surveyUnitId);
+		communicationMetadataDao.deleteBySurveyUnitId(surveyUnitId);
+		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnitId);
+		communicationRequestDao.deleteBySurveyUnitId(surveyUnitId);
+		contactHistoryDao.deleteBySurveyUnitId(surveyUnitId);
+		surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
 		addressDao.deleteAddressById(addressId);
 		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);
 		if (!allSurveyUnit) {
-			surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
+			surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
 		}
 	}
 

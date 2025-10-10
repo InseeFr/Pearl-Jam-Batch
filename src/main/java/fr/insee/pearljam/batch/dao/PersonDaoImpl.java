@@ -1,12 +1,10 @@
 package fr.insee.pearljam.batch.dao;
 
-
 import fr.insee.pearljam.batch.campaign.PersonType;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -28,17 +26,14 @@ import java.util.Map.Entry;
  *
  */
 @Service
+@RequiredArgsConstructor
 public class PersonDaoImpl implements PersonDao{
-	
-	@Autowired
-	@Qualifier("pilotageJdbcTemplate")
-	JdbcTemplate pilotageJdbcTemplate;
+
+	private final JdbcTemplate pilotageJdbcTemplate;
 	
 	private static final Logger logger = LogManager.getLogger(PersonDaoImpl.class);
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 
-
-	//TODO gérer l'extension pour les contactHistory optionels TT
 	@Override
 	public Long createPerson(PersonType person, String surveyUnitId) {
 		String qString = """
