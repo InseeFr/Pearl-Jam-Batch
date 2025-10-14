@@ -356,10 +356,10 @@ public class CampaignService {
 				interviewerAffectation, organizationUnitAffectation);
 
 		// create contactHistory
-		if (surveyUnitType.getInformationCollectePrecedente() != null) {
-			contactHistoryDao.createContactHistory(surveyUnitType.getInformationCollectePrecedente(), surveyUnitId);
+		if (surveyUnitType.getPreviousCollectionInformation() != null) {
+			contactHistoryDao.createContactHistory(surveyUnitType.getPreviousCollectionInformation(), surveyUnitId);
 
-			surveyUnitType.getInformationCollectePrecedente().getContacts().getContact().stream()
+			surveyUnitType.getPreviousCollectionInformation().getContacts().getContact().stream()
 					.map(previousContact -> {
 						PersonType person = new PersonType();
 						person.setTitle(previousContact.getTitle());

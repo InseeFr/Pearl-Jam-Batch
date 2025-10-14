@@ -12,11 +12,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractMap;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -32,7 +33,7 @@ public class PersonDaoImpl implements PersonDao{
 	private final JdbcTemplate pilotageJdbcTemplate;
 	
 	private static final Logger logger = LogManager.getLogger(PersonDaoImpl.class);
-	public static final String DATE_FORMAT = "dd/MM/yyyy";
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	@Override
 	public Long createPerson(PersonType person, String surveyUnitId) {
@@ -42,12 +43,19 @@ public class PersonDaoImpl implements PersonDao{
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 				""";
 		Long parsedDate = null;
-		Integer parsedTitle = null;
-		try{
-			parsedDate = new SimpleDateFormat(DATE_FORMAT).parse(person.getDateOfBirth()).getTime();
-		} catch (ParseException e) {
-			logger.log(Level.ERROR, e.getMessage());
+		String dob = person.getDateOfBirth();
+
+		if (dob != null && !dob.isBlank()) {
+			try {
+				LocalDate date = LocalDate.parse(dob, DATE_FORMATTER);
+				parsedDate = date.atStartOfDay(ZoneId.systemDefault())
+						.toInstant()
+						.toEpochMilli();
+			} catch (DateTimeParseException e) {
+				logger.error("Invalid date format for dob: {}", dob, e);
+			}
 		}
+		Integer parsedTitle = null;
 		String lowercaseTitle = person.getTitle().toLowerCase();
 		if(lowercaseTitle.contains("miss") || lowercaseTitle.contains("mme")) {
 			parsedTitle = 1;
@@ -92,26 +100,27 @@ public class PersonDaoImpl implements PersonDao{
 	private static final class PersonTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
-        	int title = rs.getInt("title");
-			if (!rs.wasNull()) {
-				person.setTitle(title == 0 ? "MISTER" : "MISS");
-			} else {
-				person.setTitle("MISTER");
-			}
+			Integer title = rs.getObject("title", Integer.class);
+			person.setTitle(title == null ? "MISTER" : (title == 0 ? "MISTER" : "MISS"));
+
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
             person.setEmail(rs.getString("email"));
-            long dateTime = rs.getLong("birthdate");
-            if(!rs.wasNull()) {
-				DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-                person.setDateOfBirth(df.format(new Date(dateTime)));
-        	}
-            person.setPrivileged(rs.getBoolean("privileged"));
-			person.setPanel(rs.getBoolean("panel"));
+
+			Long birthMillis = rs.getObject("birthdate", Long.class);
+			if (birthMillis != null) {
+				LocalDate date = Instant.ofEpochMilli(birthMillis).atZone(ZoneId.systemDefault()).toLocalDate();
+				person.setDateOfBirth(DATE_FORMATTER.format(date)); // "dd/MM/yyyy"
+			}
+			Boolean privileged = rs.getObject("privileged", Boolean.class);
+			person.setPrivileged(Boolean.TRUE.equals(privileged));
+
+			Boolean panel = rs.getObject("panel", Boolean.class);
+			person.setPanel(Boolean.TRUE.equals(panel));
+
 			person.setContactHistoryType(rs.getString("contact_history_type"));
 
 			Long id = rs.getLong("id");
-            
             return new AbstractMap.SimpleEntry<>(id, person);
         }
     }

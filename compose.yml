@@ -62,8 +62,8 @@ services:
       # issuer-uri is used to auto discover keycloak configuration endpoints and to validate the iss in the token (spring boot check that issuer-uri and iss are identical)
       # When using jwk-set-uri, issuer-uri is not used anymore to auto discover configuration.
       # That's what we want here. By authenticating with swagger, host machine is used and the iss generated in the token is equals to issuer-uri
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=${AUTH_SERVER_URL}/realms/${AUTH_REALM}
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/${AUTH_REALM}/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=${AUTH_SERVER_URL}/realms/${AUTH_REALM}
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://keycloak:8080/realms/${AUTH_REALM}/protocol/openid-connect/certs
       - FEATURE_PILOTAGE_ENABLED=true
       - FEATURE_PILOTAGE_URL=http://pearl-api:8080
       - FEATURE_SWAGGER_ENABLED=true

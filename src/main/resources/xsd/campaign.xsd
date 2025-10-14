@@ -117,12 +117,12 @@
 			<xs:element ref="ContactAttempts" minOccurs="0" />
 			<xs:element ref="ClosingCause" minOccurs="0" />
 			<xs:element ref="Identification" minOccurs="0" />
-			<xs:element ref="InformationCollectePrecedente" minOccurs="0"/>
+			<xs:element ref="PreviousCollectionInformation" minOccurs="0"/>
 
 		</xs:all>
 	</xs:complexType>
 
-	<xs:element name="InformationCollectePrecedente" type="PreviousCollectionInformationType"/>
+	<xs:element name="PreviousCollectionInformation" type="PreviousCollectionInformationType"/>
 
 	<xs:complexType name="PersonType">
 		<xs:all>
