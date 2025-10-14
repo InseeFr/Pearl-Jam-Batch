@@ -122,7 +122,7 @@
 		</xs:all>
 	</xs:complexType>
 
-	<xs:element name="InformationCollectePrecedente" type="InformationCollectePrecedenteType"/>
+	<xs:element name="InformationCollectePrecedente" type="PreviousCollectionInformationType"/>
 
 	<xs:complexType name="PersonType">
 		<xs:all>
@@ -329,15 +329,15 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="InformationCollectePrecedenteType">
+	<xs:complexType name="PreviousCollectionInformationType">
 		<xs:all>
-			<xs:element name="BilanDeContact" type="BilanDeContactType" minOccurs="0"/>
-			<xs:element name="Contacts" type="ContactsPrecedentsType" minOccurs="0"/>
-			<xs:element name="CommentairePrecedent" type="CommentairePrecedentType" minOccurs="0"/>
+			<xs:element name="ContactOutcome" type="PreviousContactOutcomeType" minOccurs="0"/>
+			<xs:element name="Contacts" type="PreviousContactsType" minOccurs="0"/>
+			<xs:element name="PreviousComment" type="PreviousCommentType" minOccurs="0"/>
 		</xs:all>
 	</xs:complexType>
 
-	<xs:simpleType name="BilanDeContactType">
+	<xs:simpleType name="PreviousContactOutcomeType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="INA"/>
 			<xs:enumeration value="REF"/>
@@ -353,22 +353,22 @@
 		</xs:restriction>
 	</xs:simpleType>
 
-	<xs:complexType name="ContactsPrecedentsType">
+	<xs:complexType name="PreviousContactsType">
 		<xs:sequence>
-			<xs:element name="Contact" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Contact" type="PreviousContactType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="ContactPrecedentType">
+	<xs:complexType name="PreviousContactType">
 		<xs:sequence>
-			<xs:element name="Civilite" type="xs:string" minOccurs="0"/>
-			<xs:element name="Prenom" type="xs:string"/>
-			<xs:element name="DateDeNaissance" type="DateType"/>
+			<xs:element name="Title" type="xs:string" minOccurs="0"/>
+			<xs:element name="FirstName" type="xs:string"/>
+			<xs:element name="DateOfBirth" type="DateType"/>
 			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:simpleType name="CommentairePrecedentType">
+	<xs:simpleType name="PreviousCommentType">
 		<xs:restriction base="xs:string">
 			<xs:maxLength value="999"/>
 		</xs:restriction>

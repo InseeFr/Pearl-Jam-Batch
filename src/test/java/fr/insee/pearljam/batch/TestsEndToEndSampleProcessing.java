@@ -1,8 +1,8 @@
 package fr.insee.pearljam.batch;
 
-import fr.insee.pearljam.batch.campaign.BilanDeContactType;
 import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import fr.insee.pearljam.batch.campaign.InformationCollectePrecedenteType;
+import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
+import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import fr.insee.pearljam.batch.dao.ContactHistoryDao;
 import fr.insee.pearljam.batch.enums.BatchOption;
@@ -157,27 +157,27 @@ class TestsEndToEndSampleProcessing {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
 
-		InformationCollectePrecedenteType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
+		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
 
-		assertEquals(BilanDeContactType.INA, actual.getBilanDeContact());
-		assertEquals("C'était mieux avant", actual.getCommentairePrecedent());
+		assertEquals(PreviousContactOutcomeType.INA, actual.getContactOutcome());
+		assertEquals("C'était mieux avant", actual.getPreviousComment());
 		var contacts = actual.getContacts().getContact();
 		assertEquals(2, contacts.size());
 
 
 		// check full provided contact
 		var firstContact = contacts.getFirst();
-		assertEquals("MISTER", firstContact.getCivilite());
-		assertEquals("Bob", firstContact.getPrenom());
+		assertEquals("MISTER", firstContact.getTitle());
+		assertEquals("Bob", firstContact.getFirstName());
 		assertTrue(firstContact.isPanel());
-		assertEquals("06/02/1945", firstContact.getDateDeNaissance());
+		assertEquals("06/02/1945", firstContact.getDateOfBirth());
 
 		// check empty contact creation
 		var secondContact = contacts.getLast();
-		assertEquals("MISTER", secondContact.getCivilite());
-		assertEquals("John", secondContact.getPrenom());
+		assertEquals("MISTER", secondContact.getTitle());
+		assertEquals("John", secondContact.getFirstName());
 		assertFalse(secondContact.isPanel());
-		assertNull(secondContact.getDateDeNaissance());
+		assertNull(secondContact.getDateOfBirth());
 
 	}
 

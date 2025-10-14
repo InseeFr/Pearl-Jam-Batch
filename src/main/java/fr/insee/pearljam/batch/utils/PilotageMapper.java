@@ -132,24 +132,24 @@ public class PilotageMapper {
 		return persons;
 	}
 
-	private static InformationCollectePrecedenteType getInformationCollectePrecedenteFromSampleProcessing(InformationCollectePrecedente informationCollectePrecedente) {
+	private static PreviousCollectionInformationType getInformationCollectePrecedenteFromSampleProcessing(InformationCollectePrecedente informationCollectePrecedente) {
 		if (informationCollectePrecedente == null) return null;
-		InformationCollectePrecedenteType icp = new InformationCollectePrecedenteType();
-		icp.setCommentairePrecedent(informationCollectePrecedente.getCommentairePrecedent());
+		PreviousCollectionInformationType icp = new PreviousCollectionInformationType();
+		icp.setPreviousComment(informationCollectePrecedente.getCommentairePrecedent());
 		//  BilanContact could be null
-		BilanDeContactType bilanContactValue = Optional.ofNullable(informationCollectePrecedente.getBilanDeContact())
+		PreviousContactOutcomeType bilanContactValue = Optional.ofNullable(informationCollectePrecedente.getBilanDeContact())
 				.map(fr.insee.pearljam.batch.sampleprocessing.BilanDeContactType::value)
-				.map(BilanDeContactType::fromValue).orElse(null);
-				icp.setBilanDeContact(bilanContactValue);
-		ContactsPrecedentsType contactsPrecedents = new ContactsPrecedentsType();
+				.map(PreviousContactOutcomeType::fromValue).orElse(null);
+				icp.setContactOutcome(bilanContactValue);
+		PreviousContactsType contactsPrecedents = new PreviousContactsType();
 		contactsPrecedents.getContact().addAll(
 				informationCollectePrecedente.getContacts().getContact().stream().map(
 						contactPrecedentSample -> {
-							ContactPrecedentType contact = new ContactPrecedentType();
-							contact.setCivilite(Optional.ofNullable(contactPrecedentSample.getCivilite()).orElse(CiviliteType.M).value());
-							contact.setPrenom(contactPrecedentSample.getPrenom());
+							PreviousContactType contact = new PreviousContactType();
+							contact.setTitle(Optional.ofNullable(contactPrecedentSample.getCivilite()).orElse(CiviliteType.M).value());
+							contact.setFirstName(contactPrecedentSample.getPrenom());
 							contact.setPanel(Optional.ofNullable(contactPrecedentSample.isPanel()).orElse(false));
-							contact.setDateDeNaissance( Optional.ofNullable(contactPrecedentSample.getDateDeNaissance()).orElse(null));
+							contact.setDateOfBirth( Optional.ofNullable(contactPrecedentSample.getDateDeNaissance()).orElse(null));
 							return contact;
 						}).toList()
 		);

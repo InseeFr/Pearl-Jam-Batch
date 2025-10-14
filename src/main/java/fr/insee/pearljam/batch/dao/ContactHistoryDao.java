@@ -1,12 +1,13 @@
 package fr.insee.pearljam.batch.dao;
 
-import fr.insee.pearljam.batch.campaign.InformationCollectePrecedenteType;
+
+import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
 
 public interface ContactHistoryDao {
 
-    void createContactHistory(InformationCollectePrecedenteType informationCollectePrecedente, String surveyUnitId);
+    void createContactHistory(PreviousCollectionInformationType previousCollectionInformation, String surveyUnitId);
 
-    InformationCollectePrecedenteType findBySurveyUnitId(String surveyUnitId);
+    PreviousCollectionInformationType findBySurveyUnitId(String surveyUnitId);
 
     void deleteBySurveyUnitId(String surveyUnitId);
 

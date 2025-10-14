@@ -362,9 +362,9 @@ public class CampaignService {
 			surveyUnitType.getInformationCollectePrecedente().getContacts().getContact().stream()
 					.map(previousContact -> {
 						PersonType person = new PersonType();
-						person.setTitle(previousContact.getCivilite());
-						person.setFirstName(previousContact.getPrenom());
-						Optional.ofNullable(previousContact.getDateDeNaissance()).ifPresent(person::setDateOfBirth);
+						person.setTitle(previousContact.getTitle());
+						person.setFirstName(previousContact.getFirstName());
+						Optional.ofNullable(previousContact.getDateOfBirth()).ifPresent(person::setDateOfBirth);
 						person.setPanel(previousContact.isPanel());
 						person.setContactHistoryType("PREVIOUS");
 						return person;

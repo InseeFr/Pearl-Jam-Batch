@@ -88,15 +88,16 @@ public class PersonDaoImpl implements PersonDao{
 		String qString = "DELETE FROM person WHERE survey_unit_id=?";
 		pilotageJdbcTemplate.update(qString, surveyUnitId);
 	}
-	
 
-	private static final class PersonTypeTypeMapper implements RowMapper<Entry<Long,PersonType>> {
+	private static final class PersonTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
         	int title = rs.getInt("title");
-        	if(!rs.wasNull()) {
-                person.setTitle(title == 0 ? "MISTER" : "MISS");
-        	}
+			if (!rs.wasNull()) {
+				person.setTitle(title == 0 ? "MISTER" : "MISS");
+			} else {
+				person.setTitle("MISTER");
+			}
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
             person.setEmail(rs.getString("email"));
@@ -119,7 +120,7 @@ public class PersonDaoImpl implements PersonDao{
 	@Override
 	public List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id) {
 		String qString = "SELECT person.* FROM person WHERE survey_unit_id=?";
-		return pilotageJdbcTemplate.query(qString, new PersonTypeTypeMapper(), id);
+		return pilotageJdbcTemplate.query(qString, new PersonTypeMapper(), id);
 	}
 
 

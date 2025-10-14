@@ -1,9 +1,10 @@
 package fr.insee.pearljam.batch.dao;
 
-import fr.insee.pearljam.batch.campaign.BilanDeContactType;
-import fr.insee.pearljam.batch.campaign.ContactPrecedentType;
-import fr.insee.pearljam.batch.campaign.ContactsPrecedentsType;
-import fr.insee.pearljam.batch.campaign.InformationCollectePrecedenteType;
+
+import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
+import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
+import fr.insee.pearljam.batch.campaign.PreviousContactType;
+import fr.insee.pearljam.batch.campaign.PreviousContactsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,30 +23,30 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
 
     private final JdbcTemplate pilotageJdbcTemplate;
 
-    public void createContactHistory(InformationCollectePrecedenteType informationCollectePrecedente, String surveyUnitId) {
+    public void createContactHistory(PreviousCollectionInformationType informationCollectePrecedente, String surveyUnitId) {
         String qString = """
                 INSERT INTO contact_history (survey_unit_id, contact_history_type,contact_outcome_value, comment)
                 VALUES (?, 'PREVIOUS',?,?)
                 """;
-        pilotageJdbcTemplate.update(qString, surveyUnitId, informationCollectePrecedente.getBilanDeContact().value(), informationCollectePrecedente.getCommentairePrecedent());
+        pilotageJdbcTemplate.update(qString, surveyUnitId, informationCollectePrecedente.getContactOutcome().value(), informationCollectePrecedente.getPreviousComment());
 
     }
 
     @Override
-    public InformationCollectePrecedenteType findBySurveyUnitId(String surveyUnitId) {
+    public PreviousCollectionInformationType findBySurveyUnitId(String surveyUnitId) {
         final String historySql = """
                 SELECT contact_outcome_value, comment
                 FROM contact_history
                 WHERE survey_unit_id = ? AND contact_history_type = 'PREVIOUS'
                 """;
 
-        InformationCollectePrecedenteType info = pilotageJdbcTemplate.query(historySql,
+        PreviousCollectionInformationType info = pilotageJdbcTemplate.query(historySql,
                 ps -> ps.setString(1, surveyUnitId),
                 rs -> {
                     if (!rs.next()) return null;
-                    InformationCollectePrecedenteType icp = new InformationCollectePrecedenteType();
-                    icp.setBilanDeContact(BilanDeContactType.fromValue(rs.getString("contact_outcome_value")));
-                    icp.setCommentairePrecedent(rs.getString("comment"));
+                    PreviousCollectionInformationType icp = new PreviousCollectionInformationType();
+                    icp.setContactOutcome(PreviousContactOutcomeType.fromValue(rs.getString("contact_outcome_value")));
+                    icp.setPreviousComment(rs.getString("comment"));
                     return icp;
                 }
         );
@@ -60,14 +61,14 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
                 WHERE survey_unit_id = ? AND contact_history_type = 'PREVIOUS'
                 """;
 
-        List<ContactPrecedentType> contacts = pilotageJdbcTemplate.query(
+        List<PreviousContactType> contacts = pilotageJdbcTemplate.query(
                 peopleSql,
                 ps -> ps.setString(1, surveyUnitId),
                 new ContactPrecedentRowMapper()
         );
 
         if (!contacts.isEmpty()) {
-            ContactsPrecedentsType wrapper = new ContactsPrecedentsType();
+            PreviousContactsType wrapper = new PreviousContactsType();
             wrapper.getContact().addAll(contacts);
             info.setContacts(wrapper);
         }
@@ -81,18 +82,24 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
         pilotageJdbcTemplate.update(qString, surveyUnitId);
     }
 
-    private static final class ContactPrecedentRowMapper implements RowMapper<ContactPrecedentType> {
+    private static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
         @Override
-        public ContactPrecedentType mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ContactPrecedentType contactPrecedent = new ContactPrecedentType();
+        public PreviousContactType mapRow(ResultSet rs, int rowNum) throws SQLException {
+            PreviousContactType contactPrecedent = new PreviousContactType();
 
-            contactPrecedent.setCivilite(rs.getInt("title") == 0 ? "MISTER" : "MISS");
-            contactPrecedent.setPrenom(rs.getString("first_name"));
+            int title = rs.getInt("title");
+            if (!rs.wasNull()) {
+                contactPrecedent.setTitle(title == 0 ? "MISTER" : "MISS");
+            } else {
+                contactPrecedent.setTitle("MISTER");
+            }
+            contactPrecedent.setFirstName(rs.getString("first_name"));
+            // if null -> default value is false
             contactPrecedent.setPanel(rs.getBoolean("panel"));
-            // getLong récupère un null il renvoie 0 => vérifier avec wasNull
+            // getLong on null returns 0 => handle this case with wasNull
             long birthDate = rs.getLong("birthdate");
             if (!rs.wasNull()) {
-                contactPrecedent.setDateDeNaissance(new SimpleDateFormat("dd/MM/yyyy").format(Date.from(Instant.ofEpochMilli(birthDate))));
+                contactPrecedent.setDateOfBirth(new SimpleDateFormat("dd/MM/yyyy").format(Date.from(Instant.ofEpochMilli(birthDate))));
             }
             return contactPrecedent;
         }

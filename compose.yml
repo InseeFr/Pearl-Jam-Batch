@@ -36,7 +36,7 @@ services:
       - ${QUESTIONNAIRE_DB_PORT}:5432
 
   questionnaire-api:
-    image: inseefr/queen-back-office:snapshot-feat-batch-interro
+    image: inseefr/queen-back-office:5.4.0
     depends_on:
       questionnaire-db:
         condition: service_healthy
