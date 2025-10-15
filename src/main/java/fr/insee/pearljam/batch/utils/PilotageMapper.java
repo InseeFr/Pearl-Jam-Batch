@@ -2,15 +2,14 @@ package fr.insee.pearljam.batch.utils;
 
 import fr.insee.pearljam.batch.Constants;
 import fr.insee.pearljam.batch.campaign.*;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne;
+import fr.insee.pearljam.batch.campaign.CommentType;
+import fr.insee.pearljam.batch.sampleprocessing.*;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact.Telephones;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact.Telephones.Telephone;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.Commentaires;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.IdentifiantsInsee;
-import fr.insee.pearljam.batch.sampleprocessing.CiviliteType;
-import fr.insee.pearljam.batch.sampleprocessing.InformationCollectePrecedente;
 
 import java.util.Optional;
 
@@ -102,26 +101,18 @@ public class PilotageMapper {
 		return comments;
 	}
 
-	private static String convertCommentType(String input) {
-		String output = "";
-		switch (input) {
-			case "enqueteur":
-				output = "INTERVIEWER";
-				break;
-			case "pilotage":
-				output = "MANAGEMENT";
-				break;
-			default:
-				break;
-		}
-		return output;
+	private static CampaignCommentType convertCommentType(SampleCommentType sampleType) {
+		return switch(sampleType){
+            case PILOTAGE -> CampaignCommentType.MANAGEMENT;
+            case ENQUETEUR -> CampaignCommentType.INTERVIEWER;
+        };
 	}
 
 	private static PersonsType getPersonsFromSampleProcessing(Contacts contacts) {
 		PersonsType persons = new PersonsType();
 		for (Contact contact : contacts.getContact()) {
 			PersonType person = new PersonType();
-			person.setTitle(contact.getCiviliteReferent().value());
+			person.setTitle(civilityToTitle(contact.getCiviliteReferent()));
 			person.setFirstName(contact.getPrenomReferent());
 			person.setLastName(contact.getNomReferent());
 			person.setEmail(contact.getMailReferent());
@@ -133,13 +124,21 @@ public class PilotageMapper {
 		return persons;
 	}
 
+	private static Title civilityToTitle(CiviliteType civility) {
+		if (civility == null) return Title.MISTER;
+		return switch (civility) {
+			case MME -> Title.MISS;
+			case M -> Title.MISTER;
+		};
+	}
+
 	private static PreviousCollectionInformationType getPreviousCollectionInformationFromSampleProcessing(InformationCollectePrecedente informationCollectePrecedente) {
 		if (informationCollectePrecedente == null) return null;
 		PreviousCollectionInformationType icp = new PreviousCollectionInformationType();
 		icp.setPreviousComment(informationCollectePrecedente.getCommentairePrecedent());
 		//  BilanContact could be null
 		PreviousContactOutcomeType bilanContactValue = Optional.ofNullable(informationCollectePrecedente.getBilanDeContact())
-				.map(fr.insee.pearljam.batch.sampleprocessing.BilanDeContactType::value)
+				.map(BilanDeContactType::value)
 				.map(PreviousContactOutcomeType::fromValue).orElse(null);
 				icp.setContactOutcome(bilanContactValue);
 		PreviousContactsType contactsPrecedents = new PreviousContactsType();
@@ -147,7 +146,7 @@ public class PilotageMapper {
 				informationCollectePrecedente.getContacts().getContact().stream().map(
 						contactPrecedentSample -> {
 							PreviousContactType contact = new PreviousContactType();
-							contact.setTitle((contactPrecedentSample.getCivilite() == null ? CiviliteType.M : contactPrecedentSample.getCivilite()).value());
+							contact.setTitle(civilityToTitle(contactPrecedentSample.getCivilite()));
 							contact.setFirstName(contactPrecedentSample.getPrenom());
 							contact.setPanel(contactPrecedentSample.isPanel() != null && contactPrecedentSample.isPanel());
 							contact.setDateOfBirth(contactPrecedentSample.getDateDeNaissance());

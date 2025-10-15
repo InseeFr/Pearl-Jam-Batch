@@ -247,7 +247,11 @@ public class CampaignService {
 				campaignDao.deleteCampaign(campaign);
 				logger.log(Level.INFO, "Campaign {}", campaign.getId() + ", have been deleted");
 			} else {
-				String strList = campaign.getSurveyUnits().getSurveyUnit().stream().map(SurveyUnitType::getId)
+				String strList = campaign
+						.getSurveyUnits()
+						.getSurveyUnit()
+						.stream()
+						.map(SurveyUnitType::getId)
                         .collect(Collectors.joining(","));
 				logger.log(Level.INFO,
 						"The following survey units of campaign {} : {}, have been deleted",
@@ -283,7 +287,7 @@ public class CampaignService {
 	private void deleteSurveyUnit(SurveyUnitType surveyUnit, boolean allSurveyUnit) throws SQLException {
 		String surveyUnitId = surveyUnit.getId();
 		Long addressId = surveyUnitDao.getAddressIdBySurveyUnitId(surveyUnitId);
-		Long sampleIdentifirId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnitId);
+		Long sampleIdentifierId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnitId);
 		commentDao.deleteCommentBySurveyUnitId(surveyUnitId);
 		contactAttemptDao.deleteContactAttemptBySurveyUnitId(surveyUnitId);
 		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnitId);
@@ -297,7 +301,7 @@ public class CampaignService {
 		contactHistoryDao.deleteBySurveyUnitId(surveyUnitId);
 		surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
 		addressDao.deleteAddressById(addressId);
-		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);
+		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifierId);
 		if (!allSurveyUnit) {
 			surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
 		}

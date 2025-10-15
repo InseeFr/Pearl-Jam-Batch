@@ -1,10 +1,7 @@
 package fr.insee.pearljam.batch.dao;
 
 
-import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
-import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
-import fr.insee.pearljam.batch.campaign.PreviousContactType;
-import fr.insee.pearljam.batch.campaign.PreviousContactsType;
+import fr.insee.pearljam.batch.campaign.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -89,9 +86,9 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
 
             int title = rs.getInt("title");
             if (!rs.wasNull()) {
-                contactPrecedent.setTitle(title == 0 ? "MISTER" : "MISS");
+                contactPrecedent.setTitle(title == 0 ? Title.MISTER : Title.MISS);
             } else {
-                contactPrecedent.setTitle("MISTER");
+                contactPrecedent.setTitle(Title.MISTER);
             }
             contactPrecedent.setFirstName(rs.getString("first_name"));
             // if null -> default value is false

@@ -74,14 +74,8 @@
 																			<xs:element minOccurs="0" maxOccurs="unbounded" name="Commentaire">
 																				<xs:complexType>
 																					<xs:sequence>
-																						<xs:element name="Type">
-																							<xs:simpleType>
-																								<xs:restriction base="xs:string">
-																									<xs:enumeration value="pilotage" />
-																									<xs:enumeration value="enqueteur" />
-																								</xs:restriction>
-																							</xs:simpleType>
-																						</xs:element>
+																						<xs:element name="Type"
+																									type="SampleCommentType"/>
 																						<xs:element name="Valeur" type="xs:string" />
 																					</xs:sequence>
 																				</xs:complexType>
@@ -241,6 +235,14 @@
 			</xs:any>
 		</xs:sequence>
 	</xs:complexType>
+
+	<xs:simpleType name="SampleCommentType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="pilotage"/>
+			<xs:enumeration value="enqueteur"/>
+		</xs:restriction>
+	</xs:simpleType>
+
 
 	<xs:complexType name="InformationCollectePrecedente">
 		<xs:all>

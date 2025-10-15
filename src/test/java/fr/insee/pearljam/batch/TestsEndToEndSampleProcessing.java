@@ -3,6 +3,7 @@ package fr.insee.pearljam.batch;
 import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
 import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
 import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
+import fr.insee.pearljam.batch.campaign.Title;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import fr.insee.pearljam.batch.dao.ContactHistoryDao;
 import fr.insee.pearljam.batch.enums.BatchOption;
@@ -167,14 +168,14 @@ class TestsEndToEndSampleProcessing {
 
 		// check full provided contact
 		var firstContact = contacts.getFirst();
-		assertEquals("MISTER", firstContact.getTitle());
+		assertEquals(Title.MISTER, firstContact.getTitle());
 		assertEquals("Bob", firstContact.getFirstName());
 		assertTrue(firstContact.isPanel());
 		assertEquals("06/02/1945", firstContact.getDateOfBirth());
 
 		// check empty contact creation
 		var secondContact = contacts.getLast();
-		assertEquals("MISTER", secondContact.getTitle());
+		assertEquals(Title.MISTER, secondContact.getTitle());
 		assertEquals("John", secondContact.getFirstName());
 		assertFalse(secondContact.isPanel());
 		assertNull(secondContact.getDateOfBirth());

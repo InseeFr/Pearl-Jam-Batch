@@ -1,8 +1,8 @@
 package fr.insee.pearljam.batch.dao;
 
 import fr.insee.pearljam.batch.campaign.PersonType;
+import fr.insee.pearljam.batch.campaign.Title;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,20 +55,13 @@ public class PersonDaoImpl implements PersonDao{
 				logger.error("Invalid date format for dob: {}", dob, e);
 			}
 		}
-		Integer parsedTitle = null;
-		String lowercaseTitle = person.getTitle().toLowerCase();
-		if(lowercaseTitle.contains("miss") || lowercaseTitle.contains("mme")) {
-			parsedTitle = 1;
-		}
-		else if(lowercaseTitle.equals("mister") || lowercaseTitle.equals("m.")) {
-			parsedTitle = 0;
-		}
-		else {
-			logger.log(Level.ERROR,"Could not parse title of person '{} {}'", person.getFirstName(), person.getLastName());
-		}
+		Title title = person.getTitle();
+		int dbTitle = switch (title){
+            case MISTER -> 0;
+            case MISS -> 1;
+        };
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		final Long tempDate = parsedDate;
-		final Integer tempTitle = parsedTitle;
 		pilotageJdbcTemplate.update(
 				connection -> {
 					PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
@@ -80,7 +73,7 @@ public class PersonDaoImpl implements PersonDao{
 					ps.setString(2, person.getEmail());
 					ps.setString(3, person.getFirstName());
 					ps.setString(4, person.getLastName());
-					ps.setLong(5, tempTitle);
+					ps.setLong(5, dbTitle);
 					ps.setString(6, surveyUnitId);
 					ps.setBoolean(7, person.isPrivileged());
 					ps.setBoolean(8, person.isPanel());
@@ -100,8 +93,8 @@ public class PersonDaoImpl implements PersonDao{
 	private static final class PersonTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
-			Integer title = rs.getObject("title", Integer.class);
-			person.setTitle(title == null ? "MISTER" : (title == 0 ? "MISTER" : "MISS"));
+			int dbTitle = rs.getInt("title");
+			person.setTitle(dbTitle == 0 ? Title.MISTER :Title.MISS);
 
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
