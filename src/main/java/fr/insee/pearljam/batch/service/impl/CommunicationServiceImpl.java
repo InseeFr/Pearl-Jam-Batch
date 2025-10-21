@@ -265,7 +265,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 
 	String generateRecipientName(PersonType person) {
-		String title = person.getTitle().equals("MISS") ? "MME" : "M";
+		String title = Title.MISS.equals(person.getTitle()) ? "MME" : "M";
 
 		String firstName = person.getFirstName();
 		List<String> composedFirstName = Arrays.stream(firstName.split("[ -]")).toList();
