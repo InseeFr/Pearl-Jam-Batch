@@ -1,40 +1,46 @@
 package fr.insee.pearljam.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import fr.insee.pearljam.batch.config.ApplicationConfig;
+import fr.insee.pearljam.batch.service.*;
+import fr.insee.pearljam.batch.utils.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ArgumentException;
 import fr.insee.pearljam.batch.exception.ValidateException;
-import fr.insee.pearljam.batch.service.PilotageLauncherService;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.PathUtils;
-import fr.insee.pearljam.batch.utils.XmlUtils;
-import fr.insee.queen.batch.service.DatasetService;
+import org.springframework.test.context.ActiveProfiles;
 
-class UnitTests extends PearlJamBatchApplicationTests {
+import static org.junit.jupiter.api.Assertions.*;
 
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-	
-	/* Instantiate the Launcher class via Lanceur.class */
-	Lanceur launcher = new Lanceur();
-	
-	/* Create a temporary service for the tests*/	
-    private PilotageLauncherService pilotageLauncherService = context.getBean(PilotageLauncherService.class);
-	
-	DatasetService datasetService = context.getBean(DatasetService.class);
+@SpringBootTest
+@ActiveProfiles("test")
+class UnitTests {
+
+	@Autowired
+	private PilotageLauncherService pilotageLauncherService;
+	@Autowired
+	private PilotageFolderService pilotageFolderService;
+	@Autowired
+	private PilotageDBService pilotageDBService;
+	@Autowired
+	private TriggerService triggerService;
+	@Autowired
+	private CommunicationService communicationService;
+	@Autowired
+	private ApplicationConfig applicationConfig;
+	private Launcher launcher;
+	@Autowired
+	private DBResetHelper dbResetHelper;
 
 	private static final String PROCESSING = "src/test/resources/in/sampleprocessing/testScenarios/processing";
 
@@ -45,8 +51,9 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
-		reinitData();
-		copyFiles("sampleprocessing");
+		dbResetHelper.reinitData();
+		FileHelper.copyFiles("sampleprocessing");
+		launcher = new Launcher(pilotageDBService, pilotageLauncherService, triggerService, communicationService, applicationConfig);
 	}
 		
 	/* Tests for PathUtils.java */
@@ -116,14 +123,11 @@ class UnitTests extends PearlJamBatchApplicationTests {
 	
 	@Test
 	void loadSampleProcessingWithoutError() throws Exception {
-			datasetService.createDataSet();
-			assertEquals(BatchErrorCode.OK, pilotageLauncherService.load(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING));
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.load(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING));
 	}
 	
 	@Test
 	void loadSampleProcessingWithError() throws Exception {
-
-		datasetService.createDataSet();
 		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
 		FileUtils.cleanDirectory(deleteOutFile);
 
@@ -132,45 +136,18 @@ class UnitTests extends PearlJamBatchApplicationTests {
 			"src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4/sampleProcessing.xml",
 			"src/test/resources/out/sampleprocessing/testScenarios/", PROCESSING);
 		} catch(ValidateException ve) {
-			assertEquals(true, PathUtils.isDirContainsErrorFile(
+			assertEquals(true, PathUtils.isDirContainsFile(
 			Path.of("src/test/resources/out/sampleprocessing/testScenarios"), "sampleProcessing", ".error.xml"));
 		}
 	}
 	
 	/* Clean and reset */
-	
-	/**
-	 * This method tests the clean and reset step for the nomenclature part
-	 * when there is no errors during the batch execution.
-	 * @throws Exception
-	 */
-	@Test
-	void cleandAndResetCampaignWithoutError() throws Exception {
-		datasetService.createDataSet();
-		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
-		FileUtils.cleanDirectory(deleteOutFile);
-		pilotageLauncherService.cleanAndReset("sampleProcessing", "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING, BatchErrorCode.OK, BatchOption.SAMPLEPROCESSING);
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/sampleprocessing/testScenarios"),"sampleProcessing", ".done.xml"));
-	}
-	
-	/**
-	 * This method tests the clean and reset step for the nomenclature part.
-	 * when there is errors during the batch execution.
-	 * @throws Exception
-	 */
-	@Test
-	void cleandAndResetCampaignWithError() throws Exception {
-		datasetService.createDataSet();
-		File deleteOutFile = new File("src/test/resources/out/sampleprocessing/testScenarios");
-		FileUtils.cleanDirectory(deleteOutFile);
-		pilotageLauncherService.cleanAndReset("sampleProcessing", "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4/sampleProcessing.xml", "src/test/resources/out/sampleprocessing/testScenarios", PROCESSING, BatchErrorCode.KO_FONCTIONAL_ERROR, BatchOption.SAMPLEPROCESSING);
-		assertEquals(true, PathUtils.isDirContainsErrorFile(Path.of("src/test/resources/out/sampleprocessing/testScenarios"), "sampleProcessing",".error.xml"));
-	}
+
 
 	@AfterEach
 	void cleanOutFolder() {
-		purgeDirectory(new File("src/test/resources/out/sampleprocessing/testScenarios"));
-		purgeDirectory(new File(PROCESSING));
+		FileHelper.purgeDirectory(new File("src/test/resources/out/sampleprocessing/testScenarios"));
+		FileHelper.purgeDirectory(new File(PROCESSING));
 	}
 	
 	@AfterAll

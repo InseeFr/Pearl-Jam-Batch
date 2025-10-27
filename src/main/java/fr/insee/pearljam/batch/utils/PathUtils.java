@@ -50,13 +50,13 @@ public class PathUtils {
 	}
 	
 	/**
-	 * This method check if a directory contains an error file created after the step "clean and reset"
+	 * This method check if a directory contains a file created after the step "clean and reset"
 	 * @param pathToDirectory
 	 * @param fileType
 	 * @param extension
 	 * @return boolean
 	 */
-	public static boolean isDirContainsErrorFile(Path pathToDirectory, String fileType, String extension) {
+	public static boolean isDirContainsFile(Path pathToDirectory, String fileType, String extension) {
 		boolean isDirContainsErrorFile = false;
 		List<String> fileNames = getListFileName(pathToDirectory);
 		for(int i=0; i < fileNames.size(); i++) {

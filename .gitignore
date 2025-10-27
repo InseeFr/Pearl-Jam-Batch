@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+logs/
 
 ### STS ###
 .apt_generated
@@ -29,9 +30,9 @@ build/
 src/test/resources/out
 src/test/resources/**/testScenarios
 
-application-*.properties
-application-*.yaml
-application-*.yml
+src/main/resources/application-*.properties
+src/main/resources/application-*.yaml
+src/main/resources/application-*.yml
 ### VS Code ###
 .vscode/
 

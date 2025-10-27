@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -31,8 +30,6 @@ import java.util.stream.Collectors;
 @Service
 public class CampaignService {
 
-	@Autowired
-	AnnotationConfigApplicationContext context;
 	@Autowired
 	@Qualifier("pilotageConnection")
 	Connection pilotageConnection;
@@ -86,27 +83,6 @@ public class CampaignService {
 	private static final Logger logger = LogManager.getLogger(CampaignService.class);
 
 	/**
-	 * Initialization of all DAO needed
-	 */
-	private void initDaos() {
-		campaignDao = context.getBean(CampaignDao.class);
-		surveyUnitDao = context.getBean(SurveyUnitDao.class);
-		stateDao = context.getBean(StateDao.class);
-		addressDao = context.getBean(AddressDao.class);
-		sampleIdentifierDao = context.getBean(SampleIdentifierDao.class);
-		visibilityDao = context.getBean(VisibilityDao.class);
-		phoneNumberDao = context.getBean(PhoneNumberDao.class);
-		commentDao = context.getBean(CommentDao.class);
-		contactAttemptDao = context.getBean(ContactAttemptDao.class);
-		contactOutcomeDao = context.getBean(ContactOutcomeDao.class);
-		organizationalUnitTypeDao = context.getBean(OrganizationalUnitTypeDao.class);
-		preferenceDao = context.getBean(PreferenceDao.class);
-		userDao = context.getBean(UserTypeDao.class);
-		messageDao = context.getBean(MessageDao.class);
-		interviewerTypeDao = context.getBean(InterviewerTypeDao.class);
-	}
-
-	/**
 	 * Archives and deletes a campaign, storing its data in an XML file before deletion.
 	 *
 	 * @param campaign The campaign to be archived and deleted.
@@ -118,7 +94,6 @@ public class CampaignService {
 	 */
 	public BatchErrorCode deleteCampaign(Campaign campaign, String out)
 			throws BatchException, SQLException, DataBaseException {
-		initDaos();
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 		// Archive datas in XML file
 		returnCode = archiveCampaign(campaign, returnCode, true);
@@ -490,7 +465,6 @@ public class CampaignService {
 	}
 
 	public BatchErrorCode extractCampaign(Campaign campaign, String out) throws DataBaseException, BatchException {
-		initDaos();
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 		// Archive datas in XML file
 		returnCode = archiveCampaign(campaign, returnCode, false);

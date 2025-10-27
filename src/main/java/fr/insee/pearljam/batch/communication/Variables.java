@@ -1,7 +1,7 @@
 package fr.insee.pearljam.batch.communication;
 
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.w3c.dom.Element;

@@ -3,26 +3,27 @@ package fr.insee.pearljam.batch;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.xml.stream.XMLStreamException;
-
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.exception.*;
 import fr.insee.pearljam.batch.service.CommunicationService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ExitCodeGenerator;
 
-import fr.insee.pearljam.batch.config.ApplicationContext;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.service.PilotageDBService;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
 import fr.insee.pearljam.batch.service.TriggerService;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Launcher : Pearl Jam Batch main class
@@ -30,61 +31,34 @@ import org.springframework.stereotype.Component;
  * @author Claudel Benjamin
  */
 @Component
-public class Launcher {
-    /**
-     * The in folder used to input batch file
-     */
-    @Value("${fr.insee.pearljam.folder.in}")
-    private String FOLDER_IN;
-    /**
-     * The out folder used to store logs, treated file and output files
-     */
-    @Value("${fr.insee.pearljam.folder.out}")
-    private String FOLDER_OUT;
+@Profile("!test")
+@RequiredArgsConstructor
+public class Launcher implements CommandLineRunner, ExitCodeGenerator {
+    private final PilotageDBService pilotageDBService;
+    private final PilotageLauncherService pilotageLauncherService;
+    private final TriggerService triggerService;
+    private final CommunicationService communicationService;
+    private final ApplicationConfig applicationConfig;
 
+    private BatchErrorCode exitCode = BatchErrorCode.OK;
 
-    @Autowired
-    private PilotageDBService pilotageDBService;
-
-    @Autowired
-    private PilotageLauncherService pilotageLauncherService;
-
-    @Autowired
-    private TriggerService triggerService;
-
-    @Autowired
-    private CommunicationService communicationService;
-
-
-    /**
-     * The class logger
-     */
     private static final Logger logger = LogManager.getLogger(Launcher.class);
 
-    public static void main(String[] args) throws IOException, ValidateException, SQLException, XMLStreamException {
-        // Spring context initialization
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContext.class);
-        Launcher launcher = context.getBean(Launcher.class);
-        launcher.run(args);
-    }
-
-    public void run(String[] args) throws  SQLException {
-        BatchErrorCode batchErrorCode = BatchErrorCode.OK;
+    public void run(String[] args) throws SQLException {
         try {
             initBatch();
             checkFolderTree();
-            batchErrorCode = runBatch(args);
-        } catch (ArgumentException | FolderException | IOException | SQLException | DataBaseException te) {
-            logger.error(te.getMessage(), te);
-            batchErrorCode = BatchErrorCode.KO_TECHNICAL_ERROR;
+            exitCode = runBatch(args);
         } catch (BatchException | XMLStreamException | ValidateException fe) {
             logger.error(fe.getMessage(), fe);
-            batchErrorCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+            exitCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+        } catch (Exception te) {
+            logger.error(te.getMessage(), te);
+            exitCode = BatchErrorCode.KO_TECHNICAL_ERROR;
         } finally {
-            logger.info(Constants.MSG_RETURN_CODE, batchErrorCode);
+            logger.info(Constants.MSG_RETURN_CODE, exitCode);
             pilotageDBService.closeConnection();
         }
-        System.exit(batchErrorCode.getCode());
     }
 
     /**
@@ -96,11 +70,13 @@ public class Launcher {
      * @throws DataBaseException e
      */
     public void initBatch() throws FolderException, DataBaseException, SQLException {
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
         // Check folder properties
-        if (StringUtils.isBlank(FOLDER_IN) || "${fr.insee.pearljam.folder.in}".equals(FOLDER_IN)) {
+        if (StringUtils.isBlank(folderIn) || "${fr.insee.pearljam.folder.in}".equals(folderIn)) {
             throw new FolderException("property fr.insee.pearljam.batch.folder.in is not defined in properties");
         }
-        if (StringUtils.isBlank(FOLDER_OUT) || "${fr.insee.pearljam.folder.out}".equals(FOLDER_OUT)) {
+        if (StringUtils.isBlank(folderOut) || "${fr.insee.pearljam.folder.out}".equals(folderOut)) {
             throw new FolderException("property fr.insee.pearljam.batch.folder.out is not defined in properties");
         }
         logger.log(Level.INFO, "Folder properties are OK");
@@ -118,17 +94,19 @@ public class Launcher {
      * @throws FolderException when I/O exception is thrown
      */
     public void checkFolderTree() throws FolderException {
-        PathUtils.createMissingFolder(FOLDER_IN);
-        PathUtils.createMissingFolder(FOLDER_IN + "/processing");
-        PathUtils.createMissingFolder(FOLDER_IN + "/sample");
-        PathUtils.createMissingFolder(FOLDER_IN + "/campaign");
-        PathUtils.createMissingFolder(FOLDER_OUT);
-        PathUtils.createMissingFolder(FOLDER_OUT + "/sample");
-        PathUtils.createMissingFolder(FOLDER_OUT + "/campaign");
-        PathUtils.createMissingFolder(FOLDER_OUT + "/synchro");
-        PathUtils.createMissingFolder(FOLDER_OUT + "/communication");
-        PathUtils.createMissingFolder(FOLDER_OUT + "/communication/success");
-        PathUtils.createMissingFolder(FOLDER_OUT + "/communication/fail");
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
+        PathUtils.createMissingFolder(folderIn);
+        PathUtils.createMissingFolder(folderIn + "/processing");
+        PathUtils.createMissingFolder(folderIn + "/sample");
+        PathUtils.createMissingFolder(folderIn + "/campaign");
+        PathUtils.createMissingFolder(folderOut);
+        PathUtils.createMissingFolder(folderOut + "/sample");
+        PathUtils.createMissingFolder(folderOut + "/campaign");
+        PathUtils.createMissingFolder(folderOut + "/synchro");
+        PathUtils.createMissingFolder(folderOut + "/communication");
+        PathUtils.createMissingFolder(folderOut + "/communication/success");
+        PathUtils.createMissingFolder(folderOut + "/communication/fail");
     }
 
 
@@ -143,11 +121,12 @@ public class Launcher {
      * @throws IOException        e
      * @throws SQLException       e
      * @throws XMLStreamException e
-     * @throws FolderException    e
      */
     public BatchErrorCode runBatch(String[] options)
             throws ArgumentException, ValidateException, BatchException, IOException, SQLException,
-            XMLStreamException, FolderException {
+            XMLStreamException {
+        String folderIn = applicationConfig.folderIn();
+        String folderOut = applicationConfig.folderOut();
         if (options.length == 0) {
             throw new ArgumentException(
                     "No batch type found in parameter, you must choose between [DELETECAMPAIGN] || [EXTRACT] || " +
@@ -167,7 +146,7 @@ public class Launcher {
             // Update states of survey units based on the visibility dates
             case DAILYUPDATE -> triggerService.updateStates();
             // synchronize interviewers and survey unit affectations for the interviewers
-            case SYNCHRONIZE -> triggerService.synchronizeWithOpale(FOLDER_OUT);
+            case SYNCHRONIZE -> triggerService.synchronizeWithOpale(folderOut);
             // send communications
             case COMMUNICATION -> {
                 try {
@@ -177,9 +156,14 @@ public class Launcher {
                 }
             }
             // use pilotage launcher
-            default -> pilotageLauncherService.validateLoadClean(batchOption, FOLDER_IN, FOLDER_OUT);
+            default -> pilotageLauncherService.validateLoadClean(batchOption, folderIn, folderOut);
         };
 
 
+    }
+
+    @Override
+    public int getExitCode() {
+        return exitCode.getCode();
     }
 }

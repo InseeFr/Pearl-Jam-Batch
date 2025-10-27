@@ -1,6 +1,9 @@
 package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
+import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
+import fr.insee.pearljam.batch.exception.*;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
@@ -18,11 +21,11 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -31,22 +34,13 @@ import fr.insee.pearljam.batch.campaign.Campaign;
 import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.context.Context;
-import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.enums.BatchOption;
-import fr.insee.pearljam.batch.exception.BatchException;
-import fr.insee.pearljam.batch.exception.DataBaseException;
-import fr.insee.pearljam.batch.exception.SynchronizationException;
-import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.DataCollectionMapper;
 import fr.insee.pearljam.batch.utils.PathUtils;
 import fr.insee.pearljam.batch.utils.PilotageMapper;
 import fr.insee.pearljam.batch.utils.XmlUtils;
-import fr.insee.queen.batch.object.Sample;
-import fr.insee.queen.batch.object.SurveyUnit;
-import fr.insee.queen.batch.service.LoadService;
 
 /**
  * Launcher Service : this service contains all steps of Batch :
@@ -58,20 +52,21 @@ import fr.insee.queen.batch.service.LoadService;
  *
  */
 @Service
+@RequiredArgsConstructor
 public class PilotageLauncherService {
 
-	@Autowired
-	AnnotationConfigApplicationContext context;
-
-	@Autowired
-	PilotageFolderService pilotageFolderService;
-
-	@Autowired
-	private CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
+	private final PilotageFolderService pilotageFolderService;
+	private final CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
+	private final ApplicationConfig appConfig;
+	private final DataCollectionService dataCollectionService;
+	private final CampaignDao campaignDao;
+	private final CampaignService campaignService;
+	private final ContextService contextService;
+	@Value("${api.datacollection.bulk.size}")
+	private final int dataCollectionBulkSize;
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
-	private static final String SAMPLE_PATH_IN = "/sample/sample.xml";
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -322,8 +317,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode deleteCampaign(String in, String out) throws BatchException, ValidateException, SQLException, DataBaseException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
-		CampaignDao campaignDao = context.getBean(CampaignDao.class);
-		CampaignService campaignService = context.getBean(CampaignService.class);
 		if(campaign!=null) {
 			if(campaignDao.existCampaign(campaign.getId())) {
 				return campaignService.deleteCampaign(campaign, out);
@@ -349,8 +342,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode extractCampaign(String in, String out) throws ValidateException, DataBaseException, BatchException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
-		CampaignDao campaignDao = context.getBean(CampaignDao.class);
-		CampaignService campaignService = context.getBean(CampaignService.class);
 		if(campaign!=null) {
 			if(campaignDao.existCampaign(campaign.getId())) {
 				return campaignService.extractCampaign(campaign, out);
@@ -375,7 +366,6 @@ public class PilotageLauncherService {
 	 */
 	public BatchErrorCode loadContext(String in) throws SQLException, DataBaseException, ValidateException {
 		Context contextXml = XmlUtils.xmlToObject(in, Context.class);
-		ContextService contextService = context.getBean(ContextService.class);
 		if(contextXml!=null) {
 			return contextService.createContext(contextXml);
 		}else {
@@ -385,8 +375,6 @@ public class PilotageLauncherService {
 
 	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SynchronizationException, SQLException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
-		CampaignService pilotageCampaignService = context.getBean(CampaignService.class);
-		LoadService dataCollectionloadService = context.getBean(LoadService.class);
 
 		// Move SampleProcessing File to processing folder and unmarshall
 		pilotageFolderService.setCampaignName(in);
@@ -397,49 +385,67 @@ public class PilotageLauncherService {
 		// Extract campaignId, list of steps and list of survey-unit id from sampleprocessing
 		String campaignId = sampleProcessing.getIdSource() + sampleProcessing.getMillesime() + sampleProcessing.getIdPeriode();
 		List<String> steps = sampleProcessing.getSteps().getStep().stream().map(Step::getName).collect(Collectors.toList());
-		List<String> surveyUnits = sampleProcessing
+		List<Questionnaire> questionnaires = sampleProcessing
 				.getQuestionnaires()
-				.getQuestionnaire()
-				.stream()
-				.map(Campagne.Questionnaires.Questionnaire::getIdInterrogation)
-				.toList();
+				.getQuestionnaire();
 
 		logger.log(Level.INFO, "Start split sample processing content");
-		Map<String, SurveyUnit> mapDataCollectionSu = extractAndValidateDatacollectionFromSamplProcessing(steps, campaignId, sampleProcessing);
+
 		Map<String, SurveyUnitType> mapPilotageSu = extractAndValidatePilotageFromSamplProcessing(steps, campaignId, sampleProcessing);
+		dataCollectionService.validate(sampleProcessing);
 		logger.log(Level.INFO, "End split sample processing content");
 
-		// Create or update survey-units on pilotage and/or data-collection
-		boolean pilotageValidate;
-		SurveyUnitType oldSu;
-		for(String su : surveyUnits) {
-			pilotageValidate = true;
-			oldSu = null;
-			if(steps.contains(Constants.PILOTAGE)){
-				pilotageValidate = pilotageCampaignService.validateInput(mapPilotageSu.get(su), campaignId);
-				if(pilotageValidate) {
-					logger.log(Level.INFO, "Creating survey-unit {} in pilotage", su);
-					oldSu = pilotageCampaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(su), campaignId);
-				} else {
-					logger.log(Level.WARN, "Survey-unit {} is invalid", su);
+		List<InterrogationDataCollectionDto> interrogations = new ArrayList<>();
+		Map<String, SurveyUnitType> oldSuMap = new HashMap<>();
+		for(Questionnaire questionnaire : questionnaires) {
+			String interrogationId = questionnaire.getIdInterrogation();
+			if (steps.contains(Constants.PILOTAGE)) {
+				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
+				if(!pilotageValidate) {
+					logger.log(Level.WARN, "Interrogation {} is invalid", interrogationId);
+					returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
+					continue;
+				}
+
+				logger.log(Level.INFO, "Creating interrogation {} in pilotage", interrogationId);
+				SurveyUnitType oldSu = campaignService.createOrUpdateSurveyUnit(mapPilotageSu.get(interrogationId), campaignId);
+				oldSuMap.put(interrogationId, oldSu);
+
+				try {
+					if (steps.contains(Constants.DATACOLLECTION)) {
+						logger.log(Level.INFO, "Building interrogation {} for data-collection", interrogationId);
+						interrogations.add(dataCollectionService.buildInterrogation(questionnaire));
+					}
+				} catch (TransformationException e) {
+					logger.log(Level.ERROR, e.getMessage());
+					//Rollback Survey unit creation/update on pearl BB
+					logger.log(Level.WARN, "Roll back for interrogation {} created in pilotage ...", interrogationId);
+					campaignService.rollbackSurveyUnit(interrogationId, oldSuMap.get(interrogationId), campaignId);
+					logger.log(Level.WARN, "Roll back ok");
 					returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
 				}
 			}
-			try{
-				if(pilotageValidate && steps.contains(Constants.DATACOLLECTION)){
-					logger.log(Level.INFO, "Creating survey-unit {} in data-collection", su);
-					dataCollectionloadService.createOrUpdateSurveyUnit(mapDataCollectionSu.get(su));
+		}
+
+		List<InterrogationDataCollectionDto> interrogationsToProcess = new ArrayList<>();
+		for (InterrogationDataCollectionDto interrogation : interrogations) {
+				interrogationsToProcess.add(interrogation);
+
+				if (interrogationsToProcess.size() == dataCollectionBulkSize || interrogation.equals(interrogations.getLast())) {
+					try {
+						dataCollectionService.saveInterrogations(interrogationsToProcess, campaignId);
+					} catch(DataCollectionApiException e) {
+						logger.log(Level.ERROR, e.getMessage());
+						//Rollback Survey unit creation/update on pearl DB
+						logger.log(Level.WARN, "Roll back for interrogations created in pilotage ...");
+						for(InterrogationDataCollectionDto interroToDelete : interrogationsToProcess) {
+							campaignService.rollbackSurveyUnit(interroToDelete.id(), oldSuMap.get(interroToDelete.id()), campaignId);
+						}
+						logger.log(Level.WARN, "Roll back ok");
+						returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
+					}
+					interrogationsToProcess.clear();
 				}
-			}catch(SQLException e){
-				logger.log(Level.ERROR, "Error when creating Survey-unit {} in data collection", su);
-				if(steps.contains(Constants.PILOTAGE)){
-					//Rollback Survey unit creation/update on pearl BB
-					logger.log(Level.WARN, "Roll back for Survey-unit {} created in pilotage ...", su);
-					pilotageCampaignService.rollbackSurveyUnit(su, oldSu,  campaignId);
-					logger.log(Level.WARN, "Roll back ok");
-				}
-				returnCode = BatchErrorCode.OK_FONCTIONAL_WARNING;
-			}
 		}
 
 		// Move files in out folder
@@ -449,20 +455,9 @@ public class PilotageLauncherService {
 
 
 	private void moveFilesInOutFolders(BatchErrorCode returnCode) throws IOException, ValidateException {
-		if(new File(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN).exists()) {
-			Files.move(Paths.get(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN),
-					Paths.get(new StringBuilder(ApplicationConfig.FOLDER_OUT_QUEEN)
-					.append("/sample/")
-					.append("sample")
-					.append(".")
-					.append(PathUtils.getTimestampForPath())
-					.append(".")
-					.append(getEnding(returnCode)).toString()));
-
-		}
-		if(new File(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN).exists()) {
-			Files.move(Paths.get(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN),
-					Paths.get(new StringBuilder(ApplicationConfig.FOLDER_OUT)
+		if(new File(appConfig.folderIn() + CAMPAIGN_PATH_IN).exists()) {
+			Files.move(Paths.get(appConfig.folderIn() + CAMPAIGN_PATH_IN),
+					Paths.get(new StringBuilder(appConfig.folderOut())
 							.append("/campaign/")
 							.append("campaign")
 							.append(".")
@@ -477,8 +472,7 @@ public class PilotageLauncherService {
 		if(!steps.contains(Constants.PILOTAGE)) {
 			return new HashMap<>();
 		}
-		CampaignDao pilotageCampaignDao = context.getBean(CampaignDao.class);
-		if(!pilotageCampaignDao.existCampaign(campaignId)){
+		if(!campaignDao.existCampaign(campaignId)){
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
@@ -502,40 +496,12 @@ public class PilotageLauncherService {
 			throw new ValidateException("Some communication templates are not linked to the campaign.");
 		}
 
-
-
 		logger.log(Level.INFO, "Extract Pilotage content");
 		Campaign pilotageCampaign = PilotageMapper.mapSampleProcessingToPilotageCampaign(sampleProcessing);
-		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN + CAMPAIGN_PATH_IN, pilotageCampaign);
+		XmlUtils.objectToXML(appConfig.folderIn() + CAMPAIGN_PATH_IN, pilotageCampaign);
 		logger.log(Level.INFO, "Validate Pilotage input");
 		return pilotageCampaign.getSurveyUnits().getSurveyUnit()
 				.stream()
 				.collect(Collectors.toMap(SurveyUnitType::getId, su-> su));
 	}
-
-	private Map<String, SurveyUnit> extractAndValidateDatacollectionFromSamplProcessing(List<String> steps, String campaignId, Campagne sampleProcessing) throws BatchException, ValidateException {
-		fr.insee.queen.batch.utils.XmlUtils dataCollectionXmlUtils = context.getBean(fr.insee.queen.batch.utils.XmlUtils.class);
-		fr.insee.queen.batch.dao.CampaignDao dataCollectionCampaignDao = context.getBean(fr.insee.queen.batch.dao.CampaignDao.class);
-		fr.insee.queen.batch.sample.Campaign dataCollectionCampaign = null;
-		if(!steps.contains(Constants.DATACOLLECTION)) {
-			return new HashMap<>();
-		}
-		if(!dataCollectionCampaignDao.exist(campaignId)){
-			logger.log(Level.INFO, "Campaign {} does not exist in Data-collection", campaignId);
-			throw new ValidateException("Campaign does not exist in Data-collection DB");
-		}
-		logger.log(Level.INFO, "Get Data-collection content");
-		dataCollectionCampaign = DataCollectionMapper.mapSampleProcessingToDataCollectionCampaign(sampleProcessing);
-		XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN_QUEEN + SAMPLE_PATH_IN, dataCollectionCampaign);
-		Sample dataCollectionSample = null;
-		try {
-			dataCollectionSample = dataCollectionXmlUtils.createSample(XmlUtils.objectToXML(ApplicationConfig.FOLDER_IN_QUEEN + "/sample.xml", dataCollectionCampaign).getPath());
-		} catch (Exception e) {
-			throw new ValidateException("Error on getting sample entity : " + e.getMessage());
-		}
-		return dataCollectionSample.getSurveyUnits()
-				.stream()
-				.collect(Collectors.toMap(SurveyUnit::getId, su-> su));
-	}
-
 }

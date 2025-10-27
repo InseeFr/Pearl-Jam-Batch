@@ -11,7 +11,7 @@ class CommunicationServiceImplTest {
     @BeforeEach
     void setUp() {
         communicationService = new CommunicationServiceImpl(   null, null, null, null, null,
-                null, null, null, null);
+                null, null, null, null, null);
     }
 
     @Test
