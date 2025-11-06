@@ -15,19 +15,32 @@ public class Constants {
 	public static final String SCHEMAS_FOLDER_PATH = "/xsd";
 	public static final String ESPACE = " ";
 
+	public static final String NATIONAL = "NATIONAL";
+
 	public static final String DATACOLLECTION = "datacollection";
 	public static final String PILOTAGE = "pilotage";
 
 	public static final String CAMPAIGN = "campaign";
 	public static final String CAMPAIGN_TO_DELETE = "campaign.to.delete";
 	public static final String CAMPAIGN_TO_EXTRACT = "campaign.to.extract";
+	public static final String CONTEXT = "context";
 	public static final String SAMPLEPROCESSING = "sampleProcessing";
 
 	public static final String ERROR_CAMPAIGN_NULL = "Error : campaign is null";
 
+	/**
+	 * Format for the dates
+	 */
+	public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
+	public static final String DATE_FORMAT_2 = "dd/MM/yyyy";
+
 	public static final URL MODEL_EXTRACT_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/extract-campaign.xsd");
 
 	public static final URL MODEL_DELETE_CAMPAIGN = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/delete-campaign.xsd");
+	/**
+	 * The URL to to access to context.xsd
+	 */
+	public static final URL MODEL_CONTEXT = Constants.class.getResource(SCHEMAS_FOLDER_PATH + "/context.xsd");
 	/**
 	 * The URL to to access to sampleProcessing.xsd
 	 */

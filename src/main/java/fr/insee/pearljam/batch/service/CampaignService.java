@@ -4,6 +4,7 @@ import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.*;
 import fr.insee.pearljam.batch.exception.BatchException;
 import fr.insee.pearljam.batch.exception.DataBaseException;
+import fr.insee.pearljam.batch.exception.SynchronizationException;
 import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +58,11 @@ public class CampaignService {
 	@Autowired
 	ContactOutcomeDao contactOutcomeDao;
 	@Autowired
+	OrganizationalUnitTypeDao organizationalUnitTypeDao;
+	@Autowired
 	PreferenceDao preferenceDao;
+	@Autowired
+	UserTypeDao userDao;
 	@Autowired
 	MessageDao messageDao;
 	@Autowired
@@ -72,8 +77,6 @@ public class CampaignService {
 	CommunicationRequestDao communicationRequestDao;
 	@Autowired
 	CommunicationRequestStatusDao communicationRequestStatusDao;
-	@Autowired
-	ContactHistoryDao contactHistoryDao;
 
 	boolean deleteAllSurveyUnits = false;
 
@@ -140,9 +143,9 @@ public class CampaignService {
 				ContactAttemptsType contAtt = new ContactAttemptsType();
 				StatesType state = new StatesType();
 				PersonsType persons = new PersonsType();
-				List<CommentType> listComment;
-				List<ContactAttemptType> listContactAttempt;
-				List<StateType> listState;
+				List<CommentType> listComment = new ArrayList<>();
+				List<ContactAttemptType> listContactAttempt = new ArrayList<>();
+				List<StateType> listState = new ArrayList<>();
 				List<PersonType> listPersons = new ArrayList<>();
 				try {
 					if (!this.deleteAllSurveyUnits) {
@@ -247,12 +250,9 @@ public class CampaignService {
 				campaignDao.deleteCampaign(campaign);
 				logger.log(Level.INFO, "Campaign {}", campaign.getId() + ", have been deleted");
 			} else {
-				String strList = campaign
-						.getSurveyUnits()
-						.getSurveyUnit()
-						.stream()
-						.map(SurveyUnitType::getId)
-                        .collect(Collectors.joining(","));
+				String strList = String.join(",",
+						campaign.getSurveyUnits().getSurveyUnit().stream().map(SurveyUnitType::getId)
+								.collect(Collectors.toList()));
 				logger.log(Level.INFO,
 						"The following survey units of campaign {} : {}, have been deleted",
 						campaign.getId(),
@@ -285,25 +285,23 @@ public class CampaignService {
 	}
 
 	private void deleteSurveyUnit(SurveyUnitType surveyUnit, boolean allSurveyUnit) throws SQLException {
-		String surveyUnitId = surveyUnit.getId();
-		Long addressId = surveyUnitDao.getAddressIdBySurveyUnitId(surveyUnitId);
-		Long sampleIdentifierId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnitId);
-		commentDao.deleteCommentBySurveyUnitId(surveyUnitId);
-		contactAttemptDao.deleteContactAttemptBySurveyUnitId(surveyUnitId);
-		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnitId);
-		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitId);
-		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnitId);
-		personDao.deletePersonBySurveyUnitId(surveyUnitId);
-		stateDao.deleteStateBySurveyUnitId(surveyUnitId);
-		communicationMetadataDao.deleteBySurveyUnitId(surveyUnitId);
-		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnitId);
-		communicationRequestDao.deleteBySurveyUnitId(surveyUnitId);
-		contactHistoryDao.deleteBySurveyUnitId(surveyUnitId);
-		surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
+		Long addressId = surveyUnitDao.getAddressIdBySurveyUnitId(surveyUnit.getId());
+		Long sampleIdentifirId = surveyUnitDao.getSampleIdentifiersIdBySurveyUnitId(surveyUnit.getId());
+		commentDao.deleteCommentBySurveyUnitId(surveyUnit.getId());
+		contactAttemptDao.deleteContactAttemptBySurveyUnitId(surveyUnit.getId());
+		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnit.getId());
+		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnit.getId());
+		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnit.getId());
+		personDao.deletePersonBySurveyUnitId(surveyUnit.getId());
+		stateDao.deleteStateBySurveyUnitId(surveyUnit.getId());
+		communicationMetadataDao.deleteBySurveyUnitId(surveyUnit.getId());
+		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnit.getId());
+		communicationRequestDao.deleteBySurveyUnitId(surveyUnit.getId());
+		surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
 		addressDao.deleteAddressById(addressId);
-		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifierId);
+		sampleIdentifierDao.deleteSampleIdentifiersById(sampleIdentifirId);
 		if (!allSurveyUnit) {
-			surveyUnitDao.deleteSurveyUnitById(surveyUnitId);
+			surveyUnitDao.deleteSurveyUnitById(surveyUnit.getId());
 		}
 	}
 
@@ -329,7 +327,8 @@ public class CampaignService {
 		}
 	}
 
-	SurveyUnitType createOrUpdateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) {
+	SurveyUnitType createOrUpdateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId)
+			throws SynchronizationException {
 		SurveyUnitType oldSu = null;
 		if (!surveyUnitDao.existSurveyUnit(surveyUnitType.getId())) {
 			createSurveyUnit(surveyUnitType, campaignId);
@@ -345,8 +344,6 @@ public class CampaignService {
 	}
 
 	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId)  {
-		String surveyUnitId = surveyUnitType.getId();
-
 		// Create address
 		Long addressId = addressDao.createAddress(surveyUnitType.getInseeAddress());
 		// Create sample identifier
@@ -359,25 +356,10 @@ public class CampaignService {
 		surveyUnitDao.createSurveyUnit(campaignId, surveyUnitType, addressId, sampleIdentifierId,
 				interviewerAffectation, organizationUnitAffectation);
 
-		// create contactHistory
-		if (surveyUnitType.getPreviousCollectionInformation() != null) {
-			contactHistoryDao.createContactHistory(surveyUnitType.getPreviousCollectionInformation(), surveyUnitId);
-
-			surveyUnitType.getPreviousCollectionInformation().getContacts().getContact().stream()
-					.map(previousContact -> {
-						PersonType person = new PersonType();
-						person.setTitle(previousContact.getTitle());
-						person.setFirstName(previousContact.getFirstName());
-						Optional.ofNullable(previousContact.getDateOfBirth()).ifPresent(person::setDateOfBirth);
-						person.setPanel(previousContact.isPanel());
-						person.setContactHistoryType("PREVIOUS");
-						return person;
-					}).forEach(person -> personDao.createPerson(person, surveyUnitId));
-		}
 		// Create persons
 		if (surveyUnitType.getPersons() != null) {
 			for (PersonType person : surveyUnitType.getPersons().getPerson()) {
-				Long personId = personDao.createPerson(person, surveyUnitId);
+				Long personId = personDao.createPerson(person, surveyUnitType.getId());
 				// Create phone numbers
 				for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
 					phoneNumberDao.createPhoneNumber(phoneNumber, personId);
@@ -386,12 +368,12 @@ public class CampaignService {
 		}
 
 		// Create State for the Survey Unit
-		stateDao.createState(System.currentTimeMillis(), "NVM", surveyUnitId);
+		stateDao.createState(System.currentTimeMillis(), "NVM", surveyUnitType.getId());
 
 		// Create Comments
 		if (surveyUnitType.getComments() != null) {
 			for (CommentType comment : surveyUnitType.getComments().getComment()) {
-				commentDao.createComment(comment, surveyUnitId);
+				commentDao.createComment(comment, surveyUnitType.getId());
 			}
 		}
 
@@ -399,7 +381,7 @@ public class CampaignService {
 		Map<String, List<CommunicationMetadataType>> metadataBySurveyUnit = new HashMap<>();
 
 		if (surveyUnitType.getCommunicationMetadatas() != null) {
-			metadataBySurveyUnit.put(surveyUnitId,
+			metadataBySurveyUnit.put(surveyUnitType.getId(),
 					surveyUnitType.getCommunicationMetadatas().getCommunicationMetadata());
 		}
 
@@ -412,7 +394,7 @@ public class CampaignService {
 
 	}
 
-	private void updateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) {
+	private void updateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SynchronizationException {
 		// Update address
 		addressDao.updateAddress(surveyUnitType.getInseeAddress(), surveyUnitType.getId());
 		// Update sample identifier
@@ -466,6 +448,22 @@ public class CampaignService {
 		return formatter.format(dateNow);
 	}
 
+	public void getOrganizationUnits(List<String> organizationUnits, String currentOu, boolean saveAllLevels) {
+		List<String> lstOu = organizationalUnitTypeDao.findChildren(currentOu);
+		if (lstOu.isEmpty()) {
+			if (!organizationUnits.contains(currentOu)) {
+				organizationUnits.add(currentOu);
+			}
+		} else {
+			if (saveAllLevels && !organizationUnits.contains(currentOu)) {
+				organizationUnits.add(currentOu);
+			}
+			for (String ou : lstOu) {
+				getOrganizationUnits(organizationUnits, ou, saveAllLevels);
+			}
+		}
+	}
+
 	public BatchErrorCode extractCampaign(Campaign campaign, String out) throws DataBaseException, BatchException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 		// Archive datas in XML file
@@ -492,7 +490,7 @@ public class CampaignService {
 	}
 
 	public void rollbackSurveyUnit(String surveyUnitId, SurveyUnitType oldSu, String campaignId)
-			throws SQLException {
+			throws SynchronizationException, SQLException {
 		if (oldSu == null) {
 			deleteSurveyUnit(surveyUnitDao.getSurveyUnitById(surveyUnitId), false);
 		} else {

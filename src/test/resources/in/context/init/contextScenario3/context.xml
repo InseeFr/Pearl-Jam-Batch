@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Users>
+        <User>
+            <Id>USER1</Id>
+            <FirstName>James</FirstName>
+            <LastName>Hetfield</LastName>
+        </User>
+        <User>
+            <Id>USER2</Id>
+            <FirstName>Kirk</FirstName>
+            <LastName>Hammett</LastName>
+        </User>
+        <User>
+            <Id>USER3</Id>
+            <FirstName>Jason</FirstName>
+            <LastName>Newsted</LastName>
+        </User>
+        <User>
+            <Id>USER4</Id>
+            <FirstName>Lars</FirstName>
+            <LastName>Ulrich</LastName>
+        </User>
+    </Users>
+</Context>

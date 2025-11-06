@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <OrganizationalUnits>
+        <OrganizationalUnit>
+            <Id>OU1</Id>
+            <Label>Local organizational unit 1</Label>
+            <Type>LOCAL</Type>
+            <UsersRef/>
+            <OrganizationalUnitsRef/>
+        </OrganizationalUnit>
+        <OrganizationalUnit>
+            <Id>OU2</Id>
+            <Label>Local organizational unit 2</Label>
+            <Type>LOCAL</Type>
+            <UsersRef/>
+            <OrganizationalUnitsRef/>
+        </OrganizationalUnit>
+        <OrganizationalUnit>
+            <Id>OU3</Id>
+            <Label>National organizational unit 1</Label>
+            <Type>NATIONAL</Type>
+            <UsersRef/>
+            <OrganizationalUnitsRef>
+                <OrganizationalUnitId>OU1</OrganizationalUnitId>
+                <OrganizationalUnitId>OU2</OrganizationalUnitId>
+            </OrganizationalUnitsRef>
+        </OrganizationalUnit>
+    </OrganizationalUnits>
+</Context>
