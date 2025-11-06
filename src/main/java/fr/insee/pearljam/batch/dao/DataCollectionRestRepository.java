@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
 
@@ -42,7 +41,7 @@ public class DataCollectionRestRepository implements DataCollectionRepository {
                 )
                 .onStatus(
                         HttpStatusCode::is2xxSuccessful,
-                        (request, response) -> log.info(String.format("Campaign %s found", campaignId)))
+                        (request, response) -> log.info("Campaign {} found", campaignId))
                 .body(CampaignDataCollectionDto.class);
     }
 
