@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Users>
+        <User>
+            <Id>USER1</Id>
+            <FirstName>James</FirstName>
+            <LastName>Hetfield</LastName>
+        </User>
+        <User>
+            <Id>USER2</Id>
+            <FirstName>Kirk</FirstName>
+            <LastName>Hammett</LastName>
+        </User>
+        <User>
+            <Id>USER3</Id>
+            <FirstName>Jason</FirstName>
+            <LastName>Newsted</LastName>
+        </User>
+    </Users>
+    <Interviewers>
+        <Interviewer>
+            <Id>INTW11</Id>
+            <FirstName>Lars </FirstName>
+            <LastName>Ulrich</LastName>
+            <Email>lars.urlich@test.com</Email>
+            <PhoneNumber>0101010101</PhoneNumber>
+            <Title>Mister</Title>
+        </Interviewer>
+        <Interviewer>
+            <Id>INTW22</Id>
+            <FirstName>Sarah</FirstName>
+            <LastName>Pink</LastName>
+            <Email>sarah.pink@test.com</Email>
+            <PhoneNumber>0202020202</PhoneNumber>
+            <Title>Miss</Title>
+        </Interviewer>
+        <Interviewer>
+            <Id>INTW33</Id>
+            <FirstName>John</FirstName>
+            <LastName>Doe</LastName>
+            <Email>john.doe@test.com</Email>
+            <PhoneNumber>0303030303</PhoneNumber>
+            <Title>Mister</Title>
+        </Interviewer>
+    </Interviewers>
+    <OrganizationalUnits>
+        <OrganizationalUnit>
+            <Id>OU1</Id>
+            <Label>Local organizational unit 1</Label>
+            <Type>LOCAL</Type>
+            <UsersRef>
+                <UserId>USER1</UserId>
+            </UsersRef>
+            <OrganizationalUnitsRef />
+        </OrganizationalUnit>
+        <OrganizationalUnit>
+            <Id>OU2</Id>
+            <Label>Local organizational unit 2</Label>
+            <Type>LOCAL</Type>
+            <UsersRef>
+                <UserId>USER2</UserId>
+            </UsersRef>
+            <OrganizationalUnitsRef>
+                <OrganizationalUnitId>OU1</OrganizationalUnitId>
+            </OrganizationalUnitsRef>
+        </OrganizationalUnit>
+        <OrganizationalUnit>
+            <Id>OU3</Id>
+            <Label>National organizational unit 1</Label>
+            <Type>NATIONAL</Type>
+            <UsersRef>
+                <UserId>USER3</UserId>
+            </UsersRef>
+            <OrganizationalUnitsRef>
+                <OrganizationalUnitId>OU1</OrganizationalUnitId>
+            </OrganizationalUnitsRef>
+        </OrganizationalUnit>
+    </OrganizationalUnits>
+</Context>

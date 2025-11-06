@@ -1,25 +1,26 @@
 package fr.insee.pearljam.batch.service;
-
-import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.Campaign;
 import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
-import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
-import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.*;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication.CommunicationTemplate;
-import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.PathUtils;
-import fr.insee.pearljam.batch.utils.PilotageMapper;
-import fr.insee.pearljam.batch.utils.XmlUtils;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.MetadonneesCommunication;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -28,16 +29,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
+import fr.insee.pearljam.batch.Constants;
+import fr.insee.pearljam.batch.campaign.Campaign;
+import fr.insee.pearljam.batch.campaign.SurveyUnitType;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
+import fr.insee.pearljam.batch.context.Context;
+import fr.insee.pearljam.batch.enums.BatchOption;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne.Steps.Step;
+import fr.insee.pearljam.batch.utils.BatchErrorCode;
+import fr.insee.pearljam.batch.utils.PathUtils;
+import fr.insee.pearljam.batch.utils.PilotageMapper;
+import fr.insee.pearljam.batch.utils.XmlUtils;
 
 /**
  * Launcher Service : this service contains all steps of Batch :
@@ -58,6 +61,7 @@ public class PilotageLauncherService {
 	private final DataCollectionService dataCollectionService;
 	private final CampaignDao campaignDao;
 	private final CampaignService campaignService;
+	private final ContextService contextService;
 	@Value("${api.datacollection.bulk.size}")
 	private final int dataCollectionBulkSize;
 
@@ -67,13 +71,14 @@ public class PilotageLauncherService {
 	/**
 	 * Global function that structure the batch execution depends on batchOption
 	 *
-	 * @param batchOption option
-	 * @param folderIn in folder
-	 * @param folderOut out folder
+	 * @param batchOption
+	 * @param folderIn
+	 * @param folderOut
 	 * @return BatchErrorCode
-	 * @throws IOException ioe
-	 * @throws ValidateException ve
-	 * @throws XMLStreamException xmlse
+	 * @throws BatchException
+	 * @throws IOException
+	 * @throws ValidateException
+	 * @throws XMLStreamException
 	 */
 	public BatchErrorCode validateLoadClean(BatchOption batchOption, String folderIn, String folderOut) throws IOException, ValidateException, XMLStreamException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
@@ -83,6 +88,9 @@ public class PilotageLauncherService {
 		if (PathUtils.isDirContainsFileExtension(Path.of(folderIn), name+".xml")) {
 			try {
 				switch (batchOption) {
+					case LOADCONTEXT:
+						XmlUtils.validateXMLSchema(Constants.MODEL_CONTEXT, folderIn + "/" + name +".xml");
+						break;
 					case DELETECAMPAIGN:
 						XmlUtils.validateXMLSchema(Constants.MODEL_DELETE_CAMPAIGN, folderIn + "/" + name +".xml");
 						break;
@@ -128,13 +136,14 @@ public class PilotageLauncherService {
 
 	/**
 	 * Get the reference name of batch execution depends on batchOption
-	 * @param batchOption option
+	 * @param batchOption
 	 * @return the reference name of batch execution
 	 */
 	private String getName(BatchOption batchOption) {
 		return switch (batchOption) {
 			case DELETECAMPAIGN -> Constants.CAMPAIGN_TO_DELETE;
 			case EXTRACT -> Constants.CAMPAIGN_TO_EXTRACT;
+			case LOADCONTEXT -> Constants.CONTEXT;
 			case SAMPLEPROCESSING -> Constants.SAMPLEPROCESSING;
 			default -> null;
 		};
@@ -144,40 +153,51 @@ public class PilotageLauncherService {
 	/**
 	 * Call load function depends on batchOption
 	 *
-	 * @param batchOption option
-	 * @param in in folder
-	 * @param out out folder
+	 * @param batchOption
+	 * @param in
+	 * @param out
 	 * @return BatchErrorCode
-	 * @throws IOException ioe
-	 * @throws SynchronizationException se
-	 * @throws ValidateException va
-	 * @throws DataBaseException dbe
-	 * @throws SQLException sqle
-	 * @throws BatchException be
-	 * @throws SAXException saxe
-	 * @throws ParserConfigurationException pce
+	 * @throws IOException
+	 * @throws SynchronizationException
+	 * @throws ValidateException
+	 * @throws DataBaseException
+	 * @throws SQLException
+	 * @throws BatchException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 * @throws Exception
+	 * @throws ParseException
 	 */
 	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, SynchronizationException, IOException, BatchException, ParserConfigurationException, SAXException {
-		return switch (batchOption) {
+		switch(batchOption) {
 			// Delete campaign
-			case DELETECAMPAIGN -> deleteCampaign(in, out);
+			case DELETECAMPAIGN:
+				return deleteCampaign(in, out);
 			// extract campaign data
-			case EXTRACT -> extractCampaign(in, out);
+			case EXTRACT:
+				return extractCampaign(in, out);
 			// Create context when empty database
-			case SAMPLEPROCESSING -> loadSampleProcessing(in, processing);
-			default -> null;
-		};
+			case LOADCONTEXT:
+				return loadContext(in);
+			// Create/Update survey units
+			case SAMPLEPROCESSING:
+				return loadSampleProcessing(in, processing);
+			default:
+				return null;
+		}
 	}
 
 	/**
 	 * Global function of clean and reset.
 	 * Filenames depends on return code and batchOption
-	 * @param name batchOption name for file
-	 * @param in in folder
-	 * @param out out folder
-	 * @param returnCode previous returnCode for aggregation
-	 * @param batchOption option
+	 * @param name
+	 * @param in
+	 * @param out
+	 * @param returnCode
+	 * @param batchOption
 	 * @return BatchErrorCode
+	 * @throws IOException
+	 * @throws ValidateException
 	 */
 	public BatchErrorCode cleanAndReset(String name, String in, String out, String processing, BatchErrorCode returnCode, BatchOption batchOption) throws IOException, ValidateException {
 		String fileName = getFileName(name, batchOption, returnCode);
@@ -216,7 +236,7 @@ public class PilotageLauncherService {
 	private String getFileName(String name, BatchOption batchOption, BatchErrorCode returnCode) throws ValidateException {
 		String ending = getEnding(returnCode) ;
 
-		String designation;
+		String designation = null;
 		String finalName = name;
 		switch(batchOption) {
 		case DELETECAMPAIGN:
@@ -234,29 +254,40 @@ public class PilotageLauncherService {
 			designation = "";
 			break;
 		}
-		return String.join(".",
-				finalName,
-				PathUtils.getTimestampForPath(),
-				designation,
-				ending);
+		return new StringBuilder(finalName)
+				.append(".")
+				.append(PathUtils.getTimestampForPath())
+				.append(".")
+				.append(designation)
+				.append(".")
+				.append(ending).toString();
 	}
 
 	private String getEnding(BatchErrorCode returnCode) throws ValidateException {
-        return switch (returnCode) {
-            case KO_TECHNICAL_ERROR, KO_FONCTIONAL_ERROR -> "error.xml";
-            case OK_TECHNICAL_WARNING, OK_FONCTIONAL_WARNING -> "warning.xml";
-            case OK -> "done.xml";
-            default -> throw new ValidateException("Unknown return code");
-        };
+		switch(returnCode) {
+		case KO_TECHNICAL_ERROR:
+		case KO_FONCTIONAL_ERROR:
+			return "error.xml";
+		case OK_TECHNICAL_WARNING:
+		case OK_FONCTIONAL_WARNING:
+			return "warning.xml";
+		case OK:
+			return "done.xml";
+		default:
+			throw new ValidateException("Unknown return code");
+		}
 	}
 
 	public void moveFileToProcessing(String name, String in,
 		  String processing, String campaignId) throws IOException {
-	  	String fileName = String.join(".",
-				name,
-				campaignId,
-				PathUtils.getTimestampForPath(),
-				"xml");
+	  	String fileName = "";
+	  	fileName = new StringBuilder(name)
+                .append(".")
+                .append(campaignId)
+                .append(".")
+                .append(PathUtils.getTimestampForPath())
+                .append(".xml")
+                .toString();
     	pilotageFolderService.setFilename(fileName);
 		File file = new File(in);
 		if(file.exists()) {
@@ -276,13 +307,13 @@ public class PilotageLauncherService {
 	/**
 	 * Specific function for delete Campaign
 	 *
-	 * @param in in folder
-	 * @param out out folder
+	 * @param in
+	 * @param out
 	 * @return BatchErrorCode
-	 * @throws BatchException be
-	 * @throws ValidateException ve
-	 * @throws SQLException sqle
-	 * @throws DataBaseException dbe
+	 * @throws BatchException
+	 * @throws ValidateException
+	 * @throws SQLException
+	 * @throws DataBaseException
 	 */
 	public BatchErrorCode deleteCampaign(String in, String out) throws BatchException, ValidateException, SQLException, DataBaseException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
@@ -301,12 +332,13 @@ public class PilotageLauncherService {
 	/**
 	 * Specific function for extract Campaign
 	 *
-	 * @param in in folder
-	 * @param out out folder
+	 * @param in
+	 * @param out
 	 * @return BatchErrorCode
-	 * @throws BatchException be
-	 * @throws ValidateException ve
-	 * @throws DataBaseException dbe
+	 * @throws BatchException
+	 * @throws ValidateException
+	 * @throws SQLException
+	 * @throws DataBaseException
 	 */
 	public BatchErrorCode extractCampaign(String in, String out) throws ValidateException, DataBaseException, BatchException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
@@ -322,7 +354,26 @@ public class PilotageLauncherService {
 		}
 	}
 
-	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SQLException {
+	/**
+	 * Specific function for load Context
+	 *
+	 * @param in
+	 * @return BatchErrorCode
+	 * @throws SQLException
+	 * @throws DataBaseException
+	 * @throws BatchException
+	 * @throws ValidateException
+	 */
+	public BatchErrorCode loadContext(String in) throws SQLException, DataBaseException, ValidateException {
+		Context contextXml = XmlUtils.xmlToObject(in, Context.class);
+		if(contextXml!=null) {
+			return contextService.createContext(contextXml);
+		}else {
+			throw new ValidateException("Error : context is null");
+		}
+	}
+
+	public BatchErrorCode loadSampleProcessing(String in, String processing) throws ParserConfigurationException, SAXException, IOException, ValidateException, BatchException, SynchronizationException, SQLException {
 		BatchErrorCode returnCode = BatchErrorCode.OK;
 
 		// Move SampleProcessing File to processing folder and unmarshall

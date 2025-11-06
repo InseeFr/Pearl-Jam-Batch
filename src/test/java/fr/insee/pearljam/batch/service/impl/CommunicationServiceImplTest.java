@@ -1,11 +1,8 @@
 package fr.insee.pearljam.batch.service.impl;
-
 import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.campaign.Title;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CommunicationServiceImplTest {
 
@@ -19,49 +16,49 @@ class CommunicationServiceImplTest {
 
     @Test
     void testSimpleFemaleName()  {
-        PersonType person = new MockPerson(Title.MISS, "Alice", "Durand");
+        PersonType person = new MockPerson("MISS", "Alice", "Durand");
         String result = communicationService.generateRecipientName(person);
         assertEquals("MME Alice Durand", result);
     }
 
     @Test
     void testSimpleMaleName()  {
-        PersonType person = new MockPerson(Title.MISTER, "Pierre", "Martin");
+        PersonType person = new MockPerson("MR", "Pierre", "Martin");
         String result = communicationService.generateRecipientName(person);
         assertEquals("M Pierre Martin", result);
     }
 
     @Test
     void testHyphenatedFemaleName()  {
-        PersonType person = new MockPerson(Title.MISS, "Marie-Claire", "Moreau");
+        PersonType person = new MockPerson("MISS", "Marie-Claire", "Moreau");
         String result = communicationService.generateRecipientName(person);
         assertEquals("MME Marie-Claire Moreau", result);
     }
 
     @Test
     void testMaleComposedNameKeepFirst()  {
-        PersonType person = new MockPerson(Title.MISTER, "Jean Michel Louis", "DupontelEstVraimentLong");
+        PersonType person = new MockPerson("MR", "Jean Michel Louis", "DupontelEstVraimentLong");
         String result = communicationService.generateRecipientName(person);
         assertEquals("M Jean DupontelEstVraimentLong", result);
     }
 
     @Test
     void testMaleComposedFirstNameFallbackToAcronym()  {
-        PersonType person = new MockPerson(Title.MISTER, "Maxence Michel-Arnaud", "DupontelleEstVraimentTrèsLong");
+        PersonType person = new MockPerson("MR", "Maxence Michel-Arnaud", "DupontelleEstVraimentTrèsLong");
         String result = communicationService.generateRecipientName(person);
         assertEquals("M M.M.A DupontelleEstVraimentTrèsLong", result);
     }
 
     @Test
     void testFemaleKeepOnlyName()  {
-        PersonType person = new MockPerson(Title.MISS, "Catherine", "DucheminVraimentTrèsLongNomComposé");
+        PersonType person = new MockPerson("MISS", "Catherine", "DucheminVraimentTrèsLongNomComposé");
         String result = communicationService.generateRecipientName(person);
         assertEquals("MME DucheminVraimentTrèsLongNomComposé", result);
     }
 
     @Test
     void testFemaleNameFallbackToTruncation()  {
-        PersonType person = new MockPerson(Title.MISS, "Catherine", "DeLaVallièreVraimentTrèsLongNomComposé");
+        PersonType person = new MockPerson("MISS", "Catherine", "DeLaVallièreVraimentTrèsLongNomComposé");
         String result = communicationService.generateRecipientName(person);
         assertEquals("MME DeLaVallièreVraimentTrèsLongNomCom", result);
         assertEquals(38, result.length());
@@ -69,18 +66,18 @@ class CommunicationServiceImplTest {
 
     // Helper mock implementation of PersonType
     static class MockPerson extends PersonType {
-        private final Title title;
+        private final String title;
         private final String firstName;
         private final String lastName;
 
-        public MockPerson(Title title, String firstName, String lastName) {
+        public MockPerson(String title, String firstName, String lastName) {
             this.title = title;
             this.firstName = firstName;
             this.lastName = lastName;
         }
 
         @Override
-        public Title getTitle() {
+        public String getTitle() {
             return title;
         }
 
