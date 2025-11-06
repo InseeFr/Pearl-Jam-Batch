@@ -71,13 +71,13 @@ INSERT INTO public.address (dtype,l1,l2,l3,l4,l5,l6,l7,building,floor,door,stair
      ('InseeAddress','Christopher Lewis','','','8 route du moulin','','35000 Rennes','France','','','','',true,true);
 
 INSERT INTO public.campaign (id,"label",email,identification_configuration,contact_attempt_configuration,contact_outcome_configuration) VALUES
-	 ('SIMPSONS2020X00','Survey on the Simpsons tv show 2020',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('VQS2021X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('STATE2020X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('STATE2021X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('STATE2022X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('STATE2023X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F'),
-	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'HOUSEF2F','F2F','F2F');
+	 ('SIMPSONS2020X00','Survey on the Simpsons tv show 2020',NULL,'IASCO','F2F','F2F'),
+	 ('VQS2021X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
+	 ('STATE2020X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
+	 ('STATE2021X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
+	 ('STATE2022X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
+	 ('STATE2023X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F'),
+	 ('STATE2024X00','Everyday life and health survey 2021',NULL,'IASCO','F2F','F2F');
 INSERT INTO public.communication_template (meshuggah_id, medium, type, campaign_id) VALUES
 	 ('meshuggahId1','LETTER','REMINDER', 'SIMPSONS2020X00');
 INSERT INTO communication_request ( survey_unit_id, campaign_id, meshuggah_id, reason, emitter) VALUES
@@ -157,8 +157,8 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 	 ('27','business-id-27',false,12,'STATE2023X00','INTW1',12,'OU-NORTH',false,NULL),
 	 ('28','business-id-28',true,13,'STATE2024X00','INTW1',13,'OU-NORTH',false,NULL);
 
-INSERT INTO public.person ( birthdate, email, first_name, last_name, title, survey_unit_id, privileged) VALUES
-     (537535800000, 'ted.farmer@test.com', 'Ted', 'Farmer', 0, '11', true );
+INSERT INTO public.person ( birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) VALUES
+     (537535800000, 'ted.farmer@test.com', true, 'Ted', 'Farmer', 0, '11', true );
 
 
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES

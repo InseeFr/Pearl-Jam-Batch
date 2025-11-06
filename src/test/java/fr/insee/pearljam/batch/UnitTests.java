@@ -47,7 +47,7 @@ class UnitTests {
 	/**
 	 * This method is executed before each test in this class.
 	 * It setup the environment by inserting the data and copying the necessaries files.
-	 * @throws Exception e
+	 * @throws Exception 
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
@@ -60,22 +60,22 @@ class UnitTests {
 	
 	@Test
 	void directoryShouldExist() {
-		assertTrue(PathUtils.isDirectoryExist("src/test/resources/in"));
+		assertEquals(true, PathUtils.isDirectoryExist("src/test/resources/in"));
 	}
 	
 	@Test
 	void directoryShouldntExist() {
-		assertFalse(PathUtils.isDirectoryExist("src/test/resources/test"));
+		assertEquals(false, PathUtils.isDirectoryExist("src/test/resources/test"));
 	}
 	
 	@Test
 	void directoryShouldContainsExtension() {
-		assertTrue(PathUtils.isDirContainsFileExtension(Path.of("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5"), "sampleProcessing.xml"));
+		assertEquals(true, PathUtils.isDirContainsFileExtension(Path.of("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5"), "sampleProcessing.xml"));
 	}
 	
 	@Test
 	void fileShouldExist() {
-		assertTrue(PathUtils.isFileExist("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml"));
+		assertEquals(true, PathUtils.isFileExist("src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml"));
 	}
 	
 	/* Run Batch */
@@ -91,26 +91,32 @@ class UnitTests {
 	
 	/**
 	 * This method tests the validation part of the file campaign.xml.
+	 * @throws Exception
 	 */
 	@Test
 	void shouldValidateCampaignWithoutError() {
-		assertDoesNotThrow(() ->
-				XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING,
-						"src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml"));
-
+		boolean error = false;
+		try {
+			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario5/sampleProcessing.xml");
+		} catch (Exception e) {
+			error = true;
+		}
+		assertEquals(false, error);
 	}
 	
 	/**
 	 * This method tests the validation part of the file campaignWithErrors.xml.
+	 * @throws Exception
 	 */
 	@Test
 	void shouldValidateCampaignWithError() {
-		assertThrows(
-				Exception.class, // or a more specific type e.g. SAXException
-				() -> XmlUtils.validateXMLSchema(
-						Constants.MODEL_SAMPLEPROCESSING,
-						"src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1/sampleProcessing.xml")
-		);
+		boolean error = false;
+		try {
+			XmlUtils.validateXMLSchema(Constants.MODEL_SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario1/sampleProcessing.xml");
+		} catch (Exception e) {
+			error = true;
+		}
+		assertEquals(true, error);
 	}
 	
 	/* Load */
@@ -130,8 +136,8 @@ class UnitTests {
 			"src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario4/sampleProcessing.xml",
 			"src/test/resources/out/sampleprocessing/testScenarios/", PROCESSING);
 		} catch(ValidateException ve) {
-			assertTrue(PathUtils.isDirContainsFile(
-					Path.of("src/test/resources/out/sampleprocessing/testScenarios"), "sampleProcessing", ".error.xml"));
+			assertEquals(true, PathUtils.isDirContainsFile(
+			Path.of("src/test/resources/out/sampleprocessing/testScenarios"), "sampleProcessing", ".error.xml"));
 		}
 	}
 	

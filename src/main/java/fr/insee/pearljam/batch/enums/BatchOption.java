@@ -2,6 +2,7 @@ package fr.insee.pearljam.batch.enums;
 
 public enum BatchOption {
 	DELETECAMPAIGN("DELETECAMPAIGN"),
+	LOADCONTEXT("LOADCONTEXT"),
 	DAILYUPDATE("DAILYUPDATE"),
 	SYNCHRONIZE("SYNCHRONIZE"),
 	EXTRACT("EXTRACT"),

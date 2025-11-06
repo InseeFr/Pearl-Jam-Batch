@@ -2,8 +2,7 @@ package fr.insee.pearljam.batch.utils;
 
 import fr.insee.pearljam.batch.Constants;
 import fr.insee.pearljam.batch.campaign.*;
-import fr.insee.pearljam.batch.campaign.CommentType;
-import fr.insee.pearljam.batch.sampleprocessing.*;
+import fr.insee.pearljam.batch.sampleprocessing.Campagne;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.Contacts.Contact.Telephones;
@@ -11,7 +10,7 @@ import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Question
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.Commentaires;
 import fr.insee.pearljam.batch.sampleprocessing.Campagne.Questionnaires.Questionnaire.InformationsGenerales.UniteEnquetee.IdentifiantsInsee;
 
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Operation on XML Content
@@ -50,13 +49,11 @@ public class PilotageMapper {
 							su.getInformationsGenerales().getUniteEnquetee().getIdentifiantsInsee()));
 					surveyUnitType
 							.setPersons(getPersonsFromSampleProcessing(su.getInformationsGenerales().getContacts()));
-					PreviousCollectionInformationType previousInformation = getPreviousCollectionInformationFromSampleProcessing(su.getInformationsGenerales().getUniteEnquetee().getInformationCollectePrecedente());
-					surveyUnitType.setPreviousCollectionInformation(previousInformation);
 					surveyUnitType.setComments(getCommentsFromSampleProcessing(
 							su.getInformationsGenerales().getUniteEnquetee().getCommentaires()));
 					surveyUnitType.setCommunicationMetadatas(getMetadataFromSampleProcessing(su.getInformationsGenerales().getMetadonneesCommunication(), campaignId));
 					return surveyUnitType;
-				}).toList());
+				}).collect(Collectors.toList()));
 		return campaign;
 	}
 
@@ -101,61 +98,36 @@ public class PilotageMapper {
 		return comments;
 	}
 
-	private static CampaignCommentType convertCommentType(SampleCommentType sampleType) {
-		return switch(sampleType){
-            case PILOTAGE -> CampaignCommentType.MANAGEMENT;
-            case ENQUETEUR -> CampaignCommentType.INTERVIEWER;
-        };
+	private static String convertCommentType(String input) {
+		String output = "";
+		switch (input) {
+			case "enqueteur":
+				output = "INTERVIEWER";
+				break;
+			case "pilotage":
+				output = "MANAGEMENT";
+				break;
+			default:
+				break;
+		}
+		return output;
 	}
 
 	private static PersonsType getPersonsFromSampleProcessing(Contacts contacts) {
 		PersonsType persons = new PersonsType();
 		for (Contact contact : contacts.getContact()) {
 			PersonType person = new PersonType();
-			person.setTitle(civilityToTitle(contact.getCiviliteReferent()));
+			person.setTitle(contact.getCiviliteReferent());
 			person.setFirstName(contact.getPrenomReferent());
 			person.setLastName(contact.getNomReferent());
 			person.setEmail(contact.getMailReferent());
+			person.setFavoriteEmail(contact.isMailFavori() != null ? contact.isMailFavori() : false);
 			person.setPrivileged(contact.isPrincipal());
 			person.setDateOfBirth(contact.getDateNaissance());
 			person.setPhoneNumbers(getPhoneNumbersFromSampleProcessing(contact.getTelephones()));
 			persons.getPerson().add(person);
 		}
 		return persons;
-	}
-
-	private static Title civilityToTitle(CiviliteType civility) {
-		if (civility == null) return Title.MISTER;
-		return switch (civility) {
-			case MME -> Title.MISS;
-			case M -> Title.MISTER;
-		};
-	}
-
-	private static PreviousCollectionInformationType getPreviousCollectionInformationFromSampleProcessing(InformationCollectePrecedente informationCollectePrecedente) {
-		if (informationCollectePrecedente == null) return null;
-		PreviousCollectionInformationType icp = new PreviousCollectionInformationType();
-		icp.setPreviousComment(informationCollectePrecedente.getCommentairePrecedent());
-		//  BilanContact could be null
-		PreviousContactOutcomeType bilanContactValue = Optional.ofNullable(informationCollectePrecedente.getBilanDeContact())
-				.map(BilanDeContactType::value)
-				.map(PreviousContactOutcomeType::fromValue).orElse(null);
-				icp.setContactOutcome(bilanContactValue);
-		PreviousContactsType contactsPrecedents = new PreviousContactsType();
-		contactsPrecedents.getContact().addAll(
-				informationCollectePrecedente.getContacts().getContact().stream().map(
-						contactPrecedentSample -> {
-							PreviousContactType contact = new PreviousContactType();
-							contact.setTitle(civilityToTitle(contactPrecedentSample.getCivilite()));
-							contact.setFirstName(contactPrecedentSample.getPrenom());
-							contact.setPanel(contactPrecedentSample.isPanel() != null && contactPrecedentSample.isPanel());
-							contact.setDateOfBirth(contactPrecedentSample.getDateDeNaissance());
-							return contact;
-						}).toList()
-		);
-		icp.setContacts(contactsPrecedents);
-
-		return icp;
 	}
 
 	private static PhoneNumbersType getPhoneNumbersFromSampleProcessing(Telephones telephones) {
@@ -174,22 +146,28 @@ public class PilotageMapper {
 		InseeAddressType address = new InseeAddressType();
 		for (Contact contact : contacts.getContact()) {
 			if (contact.getAdresse() != null) {
-				address.setL1(String.join(Constants.ESPACE, contact.getCiviliteReferent().value(),
-						contact.getPrenomReferent(),
-						contact.getNomReferent()));
+				address.setL1(new StringBuilder().append(contact.getCiviliteReferent())
+						.append(Constants.ESPACE)
+						.append(contact.getPrenomReferent())
+						.append(Constants.ESPACE)
+						.append(contact.getNomReferent()).toString());
 				if (contact.getAdresse().getComplementAdresse().length() > 38) {
 					address.setL2(contact.getAdresse().getComplementAdresse().substring(0, 38));
 					address.setL3(contact.getAdresse().getComplementAdresse().substring(39));
 				} else {
 					address.setL2(contact.getAdresse().getComplementAdresse());
 				}
-				address.setL4(String.join(Constants.ESPACE, contact.getAdresse().getNumeroVoie(),
-						contact.getAdresse().getIndiceRepetition(),
-						contact.getAdresse().getTypeVoie(),
-						contact.getAdresse().getLibelleVoie()));
+				address.setL4(new StringBuilder().append(contact.getAdresse().getNumeroVoie())
+						.append(Constants.ESPACE)
+						.append(contact.getAdresse().getIndiceRepetition())
+						.append(Constants.ESPACE)
+						.append(contact.getAdresse().getTypeVoie())
+						.append(Constants.ESPACE)
+						.append(contact.getAdresse().getLibelleVoie()).toString());
 				address.setL5(contact.getAdresse().getMentionSpeciale());
-				address.setL6(String.join(Constants.ESPACE, contact.getAdresse().getCodePostal(),
-						contact.getAdresse().getLibelleCommune()));
+				address.setL6(new StringBuilder().append(contact.getAdresse().getCodePostal())
+						.append(Constants.ESPACE)
+						.append(contact.getAdresse().getLibelleCommune()).toString());
 				address.setL7(contact.getAdresse().getLibellePays());
 				address.setBuilding(contact.getAdresse().getBatiment());
 				address.setFloor(contact.getAdresse().getEtage());

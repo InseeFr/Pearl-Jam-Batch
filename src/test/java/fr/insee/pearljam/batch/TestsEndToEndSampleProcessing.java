@@ -1,34 +1,33 @@
 package fr.insee.pearljam.batch;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
-import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
-import fr.insee.pearljam.batch.campaign.Title;
+import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
-import fr.insee.pearljam.batch.dao.ContactHistoryDao;
-import fr.insee.pearljam.batch.enums.BatchOption;
-import fr.insee.pearljam.batch.exception.ValidateException;
-import fr.insee.pearljam.batch.service.PilotageLauncherService;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.DBResetHelper;
 import fr.insee.pearljam.batch.utils.FileHelper;
-import fr.insee.pearljam.batch.utils.PathUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import fr.insee.pearljam.batch.campaign.PersonType;
+import fr.insee.pearljam.batch.dao.PersonDao;
+import fr.insee.pearljam.batch.enums.BatchOption;
+import fr.insee.pearljam.batch.exception.ValidateException;
+import fr.insee.pearljam.batch.service.PilotageLauncherService;
+import fr.insee.pearljam.batch.utils.BatchErrorCode;
+import fr.insee.pearljam.batch.utils.PathUtils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -37,11 +36,13 @@ class TestsEndToEndSampleProcessing {
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
 	@Autowired
+	private PersonDao  personDao;
+	@Autowired
 	private CommunicationMetadataDao  communicationMetadataDao;
 	@Autowired
-	private ContactHistoryDao contactHistoryDao;
-	@Autowired
 	private DBResetHelper dbResetHelper;
+	@Autowired
+	private ApplicationConfig applicationConfig;
 
 	private final String outDirectory = "src/test/resources/out/sampleprocessing/testScenarios";
 	private final String outCampaignDirectory = "src/test/resources/out/campaign";
@@ -149,38 +150,28 @@ class TestsEndToEndSampleProcessing {
 	}
 
 	/**
-	 * Scenario 6 : integrate with ContactHistory elements
-	 *
+	 * Scenario 6 : Check if favorite_email is populated
 	 * @throws Exception e
 	 */
 	@Test
 	void testScenario6() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
 
-		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
-
-		assertEquals(PreviousContactOutcomeType.INA, actual.getContactOutcome());
-		assertEquals("C'était mieux avant", actual.getPreviousComment());
-		var contacts = actual.getContacts().getContact();
-		assertEquals(2, contacts.size());
-
-
-		// check full provided contact
-		var firstContact = contacts.getFirst();
-		assertEquals(Title.MISTER, firstContact.getTitle());
-		assertEquals("Bob", firstContact.getFirstName());
-		assertTrue(firstContact.isPanel());
-		assertEquals("06/02/1945", firstContact.getDateOfBirth());
-
-		// check empty contact creation
-		var secondContact = contacts.getLast();
-		assertEquals(Title.MISTER, secondContact.getTitle());
-		assertEquals("John", secondContact.getFirstName());
-		assertFalse(secondContact.isPanel());
-		assertNull(secondContact.getDateOfBirth());
-
+		List<Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
+		List<PersonType> persons = personsMap.stream().map(Entry::getValue).toList();
+		PersonType truePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("John")).findFirst().get();
+		PersonType falsePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Jane")).findFirst().get();
+		PersonType missingPreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Pat")).findFirst().get();
+		// XML with true
+		assertEquals(true,truePreferedEmailPerson.isFavoriteEmail());
+		// XML with false
+		assertEquals(false,falsePreferedEmailPerson.isFavoriteEmail());
+		// missing XML
+		assertEquals(false,missingPreferedEmailPerson.isFavoriteEmail());
 	}
+
 
 	@AfterEach
 	void cleanOutFolder() {
