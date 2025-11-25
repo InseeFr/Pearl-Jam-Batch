@@ -92,7 +92,7 @@ public class XmlUtils {
 				validator.validate(new StreamSource(fis));
 			}
 		} catch (Exception e) {
-			ve = new ValidateException("Error during validation : " + e.getMessage());
+			ve = new ValidateException("Error during validation : " + e.getMessage(), e);
 		} finally {
 			if(xmlEncoding!=null)xmlEncoding.close();
 		}
@@ -129,7 +129,7 @@ public class XmlUtils {
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			return clazz.cast(unmarshaller.unmarshal(xmlStream));
 		} catch (ParserConfigurationException | SAXException | IOException | TransformerException | JAXBException e) {
-			throw new ValidateException("Error during transfo xml to object : " + e.getMessage());
+			throw new ValidateException("Error during transfo xml to object : " + e.getMessage(), e);
 		}
 	}
 	
