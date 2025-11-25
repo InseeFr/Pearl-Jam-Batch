@@ -163,7 +163,7 @@ class TestsEndToEndSampleProcessing {
 		assertEquals(PreviousContactOutcomeType.INA, actual.getContactOutcome());
 		assertEquals("C'était mieux avant", actual.getPreviousComment());
 		var contacts = actual.getContacts().getContact();
-		assertEquals(2, contacts.size());
+		assertEquals(3, contacts.size());
 
 
 		// check full provided contact
@@ -174,11 +174,18 @@ class TestsEndToEndSampleProcessing {
 		assertEquals("06/02/1945", firstContact.getDateOfBirth());
 
 		// check empty contact creation
-		var secondContact = contacts.getLast();
-		assertEquals(Title.MISTER, secondContact.getTitle());
+		var secondContact = contacts.get(1);
+		assertNull(secondContact.getTitle());
 		assertEquals("John", secondContact.getFirstName());
-		assertFalse(secondContact.isPanel());
+		assertNull(secondContact.isPanel());
 		assertNull(secondContact.getDateOfBirth());
+
+		// check empty contact creation
+		var thirdContact = contacts.getLast();
+		assertNull(thirdContact.getTitle());
+		assertEquals("Robert", thirdContact.getFirstName());
+		assertNull(thirdContact.isPanel());
+		assertNull(thirdContact.getDateOfBirth());
 
 	}
 

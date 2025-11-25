@@ -56,12 +56,16 @@ public class PersonDaoImpl implements PersonDao{
 			}
 		}
 		Title title = person.getTitle();
-		int dbTitle = switch (title){
-            case MISTER -> 0;
-            case MISS -> 1;
-        };
+		Integer dbTitle = null;
+		if(title != null) {
+			dbTitle = switch (title) {
+				case MISTER -> 0;
+				case MISS -> 1;
+			};
+		}
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		final Long tempDate = parsedDate;
+		final Integer tempTitle = dbTitle;
 		pilotageJdbcTemplate.update(
 				connection -> {
 					PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
@@ -73,10 +77,18 @@ public class PersonDaoImpl implements PersonDao{
 					ps.setString(2, person.getEmail());
 					ps.setString(3, person.getFirstName());
 					ps.setString(4, person.getLastName());
-					ps.setLong(5, dbTitle);
+					if (tempTitle != null) {
+						ps.setLong(5, tempTitle);
+					} else {
+						ps.setNull(5, Types.BIGINT);
+					}
 					ps.setString(6, surveyUnitId);
 					ps.setBoolean(7, person.isPrivileged());
-					ps.setBoolean(8, person.isPanel());
+					if (person.isPanel() == null) {
+						ps.setNull(8, Types.BOOLEAN);
+					} else {
+						ps.setBoolean(8, person.isPanel());
+					}
 					ps.setString(9, person.getContactHistoryType());
 					return ps;
 				},
@@ -93,9 +105,17 @@ public class PersonDaoImpl implements PersonDao{
 	private static final class PersonTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
-			int dbTitle = rs.getInt("title");
-			person.setTitle(dbTitle == 0 ? Title.MISTER :Title.MISS);
 
+			Title title = null;
+			int dbTitle = rs.getInt("title");
+			if (!rs.wasNull()) {
+				title = switch (dbTitle) {
+					case 0 -> Title.MISTER;
+					case 1 -> Title.MISS;
+                    default -> throw new IllegalStateException("Unexpected value: " + dbTitle);
+                };
+			}
+			person.setTitle(title);
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
             person.setEmail(rs.getString("email"));
@@ -109,7 +129,7 @@ public class PersonDaoImpl implements PersonDao{
 			person.setPrivileged(Boolean.TRUE.equals(privileged));
 
 			Boolean panel = rs.getObject("panel", Boolean.class);
-			person.setPanel(Boolean.TRUE.equals(panel));
+			person.setPanel(panel);
 
 			person.setContactHistoryType(rs.getString("contact_history_type"));
 

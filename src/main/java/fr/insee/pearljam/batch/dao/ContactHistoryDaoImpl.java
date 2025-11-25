@@ -87,12 +87,9 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
             int title = rs.getInt("title");
             if (!rs.wasNull()) {
                 contactPrecedent.setTitle(title == 0 ? Title.MISTER : Title.MISS);
-            } else {
-                contactPrecedent.setTitle(Title.MISTER);
             }
             contactPrecedent.setFirstName(rs.getString("first_name"));
-            // if null -> default value is false
-            contactPrecedent.setPanel(rs.getBoolean("panel"));
+            contactPrecedent.setPanel(rs.getObject("panel", Boolean.class));
             // getLong on null returns 0 => handle this case with wasNull
             long birthDate = rs.getLong("birthdate");
             if (!rs.wasNull()) {

@@ -143,13 +143,20 @@ public class PilotageMapper {
 				icp.setContactOutcome(bilanContactValue);
 		PreviousContactsType contactsPrecedents = new PreviousContactsType();
 		contactsPrecedents.getContact().addAll(
-				informationCollectePrecedente.getContacts().getContact().stream().map(
+				informationCollectePrecedente.getIndividus().getIndividu().stream().map(
 						contactPrecedentSample -> {
+							CiviliteType civiliteType = contactPrecedentSample.getCivilite() != null ? contactPrecedentSample.getCivilite().getValue() : null;
+							Boolean panel = contactPrecedentSample.getPanel() != null ? contactPrecedentSample.getPanel().getValue() : null;
+							String birthDate = contactPrecedentSample.getDateDeNaissance() != null ? contactPrecedentSample.getDateDeNaissance().getValue() : null;
+
 							PreviousContactType contact = new PreviousContactType();
-							contact.setTitle(civilityToTitle(contactPrecedentSample.getCivilite()));
+							if(civiliteType != null) {
+								contact.setTitle(civilityToTitle(civiliteType));
+							}
+
 							contact.setFirstName(contactPrecedentSample.getPrenom());
-							contact.setPanel(contactPrecedentSample.isPanel() != null && contactPrecedentSample.isPanel());
-							contact.setDateOfBirth(contactPrecedentSample.getDateDeNaissance());
+							contact.setPanel(panel);
+							contact.setDateOfBirth(birthDate);
 							return contact;
 						}).toList()
 		);

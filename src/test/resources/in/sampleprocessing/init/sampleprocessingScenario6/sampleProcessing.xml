@@ -38,18 +38,21 @@
 					<InformationCollectePrecedente>
 						<BilanDeContact>INA</BilanDeContact>
 						<CommentairePrecedent>C'était mieux avant</CommentairePrecedent>
-						<Contacts>
-							<Contact>
+						<Individus>
+							<Individu>
 								<Civilite>M.</Civilite>
 								<Prenom>Bob</Prenom>
 								<DateDeNaissance>06/02/1945</DateDeNaissance>
 								<Panel>true</Panel>
-							</Contact>
-							<Contact>
+							</Individu>
+							<Individu>
 								<Prenom>John</Prenom>
 								<DateDeNaissance/>
-							</Contact>
-						</Contacts>
+							</Individu>
+							<Individu>
+								<Prenom>Robert</Prenom>
+							</Individu>
+						</Individus>
 					</InformationCollectePrecedente>
 
 				</UniteEnquetee>
