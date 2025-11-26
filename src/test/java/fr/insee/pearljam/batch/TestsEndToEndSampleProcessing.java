@@ -13,10 +13,7 @@ import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.DBResetHelper;
 import fr.insee.pearljam.batch.utils.FileHelper;
 import fr.insee.pearljam.batch.utils.PathUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -186,6 +183,16 @@ class TestsEndToEndSampleProcessing {
 		assertEquals("Robert", thirdContact.getFirstName());
 		assertNull(thirdContact.isPanel());
 		assertNull(thirdContact.getDateOfBirth());
+
+	}
+
+	@Test
+	@DisplayName("Should sample validation failed if prenom has empty string")
+	void testScenario7() {
+		Exception ex = assertThrows(
+				ValidateException.class,
+				() -> pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario7", outDirectory));
+		assertTrue(ex.getMessage().contains("NonEmptyString"));
 
 	}
 
