@@ -379,7 +379,7 @@
 			<xs:element name="Title" type="Title" minOccurs="0"/>
 			<xs:element name="FirstName" type="xs:string"/>
 			<xs:element name="DateOfBirth" type="DateType"/>
-			<xs:element name="Panel" type="xs:boolean" minOccurs="0" nillable="true"/>
+			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
