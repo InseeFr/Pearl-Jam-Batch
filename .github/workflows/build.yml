@@ -32,4 +32,4 @@ jobs:
 
       - name: Build and test with coverage
         timeout-minutes: 15
-        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar --batch-mode --no-transfer-progress -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=https://sonarcloud.io
+        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar --batch-mode --no-transfer-progress -Dsonar.host.url=https://sonarcloud.io
