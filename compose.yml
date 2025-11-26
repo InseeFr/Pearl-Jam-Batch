@@ -90,7 +90,7 @@ services:
       - ./container/keycloak/realms:/opt/keycloak/data/import
 
   pearl-api:
-    image: inseefr/pearl-jam-back-office:snapshot-feat-add-contact-history
+    image: inseefr/pearl-jam-back-office:snapshot-fix-optional-panel
     depends_on:
       pearl-db:
         condition: service_healthy
