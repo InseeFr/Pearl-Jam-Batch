@@ -131,7 +131,7 @@
 			<xs:element name="LastName" type="xs:string" />
 			<xs:element name="Email" type="xs:string" />
 			<xs:element name="Privileged" type="xs:boolean" />
-			<xs:element name="Panel" type="xs:boolean"/>
+			<xs:element name="Panel" type="xs:boolean" nillable="true"/>
 			<xs:element name="ContactHistoryType" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -379,7 +379,7 @@
 			<xs:element name="Title" type="Title" minOccurs="0"/>
 			<xs:element name="FirstName" type="xs:string"/>
 			<xs:element name="DateOfBirth" type="DateType"/>
-			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Panel" type="xs:boolean" minOccurs="0" nillable="true"/>
 		</xs:sequence>
 	</xs:complexType>
 
