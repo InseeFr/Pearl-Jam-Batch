@@ -103,9 +103,6 @@ public class PilotageLauncherService {
 				logger.log(Level.INFO, "Start {}", batchOption.getLabel());
 				returnCode = load(batchOption, folderIn +"/"+ name +".xml", folderOut, processingFolder);
 				logger.log(Level.INFO, "Finish {}", batchOption.getLabel());
-			} catch (SynchronizationException  e) {
-				ve = new ValidateException("Error during process, error loading "+name+" : "+e.getMessage(), e);
-				returnCode = BatchErrorCode.KO_TECHNICAL_ERROR;
 			} catch (Exception e) {
 				ve = new ValidateException("Error during process, error loading "+name+" : "+e.getMessage(), e);
 				returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
