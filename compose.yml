@@ -36,7 +36,7 @@ services:
       - ${QUESTIONNAIRE_DB_PORT}:5432
 
   questionnaire-api:
-    image: inseefr/queen-back-office:5.4.0
+    image: inseefr/queen-back-office:5.4.1
     depends_on:
       questionnaire-db:
         condition: service_healthy
@@ -90,7 +90,7 @@ services:
       - ./container/keycloak/realms:/opt/keycloak/data/import
 
   pearl-api:
-    image: inseefr/pearl-jam-back-office:snapshot-feat-add-contact-history
+    image: inseefr/pearl-jam-back-office:snapshot-fix-panel-optional
     depends_on:
       pearl-db:
         condition: service_healthy

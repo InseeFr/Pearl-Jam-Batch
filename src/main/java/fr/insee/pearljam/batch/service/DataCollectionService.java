@@ -36,7 +36,7 @@ public class DataCollectionService {
         try {
             campaignApi = dataCollectionRepository.retrieveCampaign(campaignId);
         } catch(DataCollectionApiException e) {
-            throw new ValidateException(e.getMessage());
+            throw new ValidateException(e.getMessage(), e);
         }
 
         List<String> questionnaireIds = campaignApi.questionnaireIds();

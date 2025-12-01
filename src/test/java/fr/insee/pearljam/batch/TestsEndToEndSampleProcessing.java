@@ -13,10 +13,7 @@ import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.DBResetHelper;
 import fr.insee.pearljam.batch.utils.FileHelper;
 import fr.insee.pearljam.batch.utils.PathUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -163,7 +160,7 @@ class TestsEndToEndSampleProcessing {
 		assertEquals(PreviousContactOutcomeType.INA, actual.getContactOutcome());
 		assertEquals("C'était mieux avant", actual.getPreviousComment());
 		var contacts = actual.getContacts().getContact();
-		assertEquals(2, contacts.size());
+		assertEquals(3, contacts.size());
 
 
 		// check full provided contact
@@ -174,11 +171,28 @@ class TestsEndToEndSampleProcessing {
 		assertEquals("06/02/1945", firstContact.getDateOfBirth());
 
 		// check empty contact creation
-		var secondContact = contacts.getLast();
-		assertEquals(Title.MISTER, secondContact.getTitle());
+		var secondContact = contacts.get(1);
+		assertNull(secondContact.getTitle());
 		assertEquals("John", secondContact.getFirstName());
-		assertFalse(secondContact.isPanel());
+		assertNull(secondContact.isPanel());
 		assertNull(secondContact.getDateOfBirth());
+
+		// check empty contact creation
+		var thirdContact = contacts.getLast();
+		assertNull(thirdContact.getTitle());
+		assertEquals("Robert", thirdContact.getFirstName());
+		assertNull(thirdContact.isPanel());
+		assertNull(thirdContact.getDateOfBirth());
+
+	}
+
+	@Test
+	@DisplayName("Should sample validation failed if prenom has empty string")
+	void testScenario7() {
+		Exception ex = assertThrows(
+				ValidateException.class,
+				() -> pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario7", outDirectory));
+		assertTrue(ex.getMessage().contains("NonEmptyString"));
 
 	}
 

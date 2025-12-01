@@ -247,7 +247,7 @@
 	<xs:complexType name="InformationCollectePrecedente">
 		<xs:all>
 			<xs:element name="BilanDeContact" type="BilanDeContactType" minOccurs="0"/>
-			<xs:element name="Contacts" type="ContactsPrecedents" minOccurs="0"/>
+			<xs:element name="Individus" type="ContactsPrecedents" minOccurs="0"/>
 			<xs:element name="CommentairePrecedent" type="CommentairePrecedentType" minOccurs="0"/>
 		</xs:all>
 	</xs:complexType>
@@ -270,16 +270,16 @@
 
 	<xs:complexType name="ContactsPrecedents">
 		<xs:sequence>
-			<xs:element name="Contact" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Individu" type="ContactPrecedentType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="ContactPrecedentType">
 		<xs:sequence>
-			<xs:element name="Civilite" type="CiviliteType" minOccurs="0" default="M."/>
-			<xs:element name="Prenom" type="xs:string"/>
-			<xs:element name="DateDeNaissance" type="DateType"/>
-			<xs:element name="Panel" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Civilite" type="CiviliteType" minOccurs="0" nillable="true"/>
+			<xs:element name="Prenom" type="NonEmptyString"/>
+			<xs:element name="DateDeNaissance" type="DateType" minOccurs="0" nillable="true"/>
+			<xs:element name="Panel" type="xs:boolean" minOccurs="0" nillable="true"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -302,4 +302,9 @@
 		</xs:restriction>
 	</xs:simpleType>
 
+	<xs:simpleType name="NonEmptyString">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
 </xs:schema>

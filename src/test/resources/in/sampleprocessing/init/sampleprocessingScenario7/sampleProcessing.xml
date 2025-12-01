@@ -40,17 +40,7 @@
 						<CommentairePrecedent>C'était mieux avant</CommentairePrecedent>
 						<Individus>
 							<Individu>
-								<Civilite>M.</Civilite>
-								<Prenom>Bob</Prenom>
-								<DateDeNaissance>06/02/1945</DateDeNaissance>
-								<Panel>true</Panel>
-							</Individu>
-							<Individu>
-								<Prenom>John</Prenom>
-								<DateDeNaissance/>
-							</Individu>
-							<Individu>
-								<Prenom>Robert</Prenom>
+								<Prenom></Prenom>
 							</Individu>
 						</Individus>
 					</InformationCollectePrecedente>
