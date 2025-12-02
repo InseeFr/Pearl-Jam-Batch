@@ -11,4 +11,6 @@ public interface ContactHistoryDao {
 
     void deleteBySurveyUnitId(String surveyUnitId);
 
+    void deletePreviousContactTypeBySurveyUnitId(String surveyUnitId);
+
 }

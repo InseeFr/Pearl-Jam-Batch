@@ -151,8 +151,9 @@ class TestsEndToEndSampleProcessing {
 	 * @throws Exception e
 	 */
 	@Test
-	void testScenario6() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
+	void shouldIntegrateContactHistory() throws Exception {
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory);
+		assertEquals(BatchErrorCode.OK, code);
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
 
 		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
@@ -181,6 +182,47 @@ class TestsEndToEndSampleProcessing {
 		var thirdContact = contacts.getLast();
 		assertNull(thirdContact.getTitle());
 		assertEquals("Robert", thirdContact.getFirstName());
+		assertNull(thirdContact.isPanel());
+		assertNull(thirdContact.getDateOfBirth());
+
+	}
+
+	@Test
+	@DisplayName("Should replace old previous contacts by new when reintegrating a sample processing")
+	void shouldReintegrateContactHistory() throws Exception {
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8/", outDirectory);
+		assertEquals(BatchErrorCode.OK, code);
+
+		BatchErrorCode code2 = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario9/", outDirectory);
+		assertEquals(BatchErrorCode.OK, code2);
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+
+		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
+
+		assertEquals(PreviousContactOutcomeType.UTR, actual.getContactOutcome());
+		assertEquals("C'était mieux", actual.getPreviousComment());
+		var contacts = actual.getContacts().getContact();
+		assertEquals(3, contacts.size());
+
+
+		// check full provided contact
+		var firstContact = contacts.getFirst();
+		assertEquals(Title.MISS, firstContact.getTitle());
+		assertEquals("Bob", firstContact.getFirstName());
+		assertFalse(firstContact.isPanel());
+		assertEquals("06/02/1944", firstContact.getDateOfBirth());
+
+		// check empty contact creation
+		var secondContact = contacts.get(1);
+		assertNull(secondContact.getTitle());
+		assertEquals("Joe", secondContact.getFirstName());
+		assertNull(secondContact.isPanel());
+		assertNull(secondContact.getDateOfBirth());
+
+		// check empty contact creation
+		var thirdContact = contacts.getLast();
+		assertNull(thirdContact.getTitle());
+		assertEquals("Rob", thirdContact.getFirstName());
 		assertNull(thirdContact.isPanel());
 		assertNull(thirdContact.getDateOfBirth());
 
