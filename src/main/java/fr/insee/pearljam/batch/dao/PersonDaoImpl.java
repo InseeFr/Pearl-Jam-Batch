@@ -97,7 +97,7 @@ public class PersonDaoImpl implements PersonDao{
     }
 	
 	@Override
-	public void deletePersonBySurveyUnitId(String surveyUnitId) {
+	public void deletePersonAndContactsBySurveyUnitId(String surveyUnitId) {
 		String qString = "DELETE FROM person WHERE survey_unit_id=?";
 		pilotageJdbcTemplate.update(qString, surveyUnitId);
 	}
@@ -141,7 +141,7 @@ public class PersonDaoImpl implements PersonDao{
 
 	@Override
 	public List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id) {
-		String qString = "SELECT person.* FROM person WHERE survey_unit_id=?";
+		String qString = "SELECT person.* FROM person WHERE survey_unit_id=? and contact_history_type is NULL";
 		return pilotageJdbcTemplate.query(qString, new PersonTypeMapper(), id);
 	}
 

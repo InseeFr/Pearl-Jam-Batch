@@ -79,6 +79,12 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
         pilotageJdbcTemplate.update(qString, surveyUnitId);
     }
 
+    @Override
+    public void deletePreviousContactTypeBySurveyUnitId(String surveyUnitId) {
+        String qString = "DELETE FROM contact_history WHERE survey_unit_id=? and contact_history_type='PREVIOUS'";
+        pilotageJdbcTemplate.update(qString, surveyUnitId);
+    }
+
     private static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
         @Override
         public PreviousContactType mapRow(ResultSet rs, int rowNum) throws SQLException {

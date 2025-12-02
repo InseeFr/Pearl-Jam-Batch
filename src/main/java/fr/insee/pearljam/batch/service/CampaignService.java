@@ -293,7 +293,7 @@ public class CampaignService {
 		contactOutcomeDao.deleteContactOutcomeBySurveyUnitId(surveyUnitId);
 		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitId);
 		closingCauseDao.deleteAllClosingCausesOfSurveyUnit(surveyUnitId);
-		personDao.deletePersonBySurveyUnitId(surveyUnitId);
+		personDao.deletePersonAndContactsBySurveyUnitId(surveyUnitId);
 		stateDao.deleteStateBySurveyUnitId(surveyUnitId);
 		communicationMetadataDao.deleteBySurveyUnitId(surveyUnitId);
 		communicationRequestStatusDao.deleteBySurveyUnitId(surveyUnitId);
@@ -359,21 +359,7 @@ public class CampaignService {
 		surveyUnitDao.createSurveyUnit(campaignId, surveyUnitType, addressId, sampleIdentifierId,
 				interviewerAffectation, organizationUnitAffectation);
 
-		// create contactHistory
-		if (surveyUnitType.getPreviousCollectionInformation() != null) {
-			contactHistoryDao.createContactHistory(surveyUnitType.getPreviousCollectionInformation(), surveyUnitId);
-
-			surveyUnitType.getPreviousCollectionInformation().getContacts().getContact().stream()
-					.map(previousContact -> {
-						PersonType person = new PersonType();
-						person.setTitle(previousContact.getTitle());
-						person.setFirstName(previousContact.getFirstName());
-						Optional.ofNullable(previousContact.getDateOfBirth()).ifPresent(person::setDateOfBirth);
-						person.setPanel(previousContact.isPanel());
-						person.setContactHistoryType("PREVIOUS");
-						return person;
-					}).forEach(person -> personDao.createPerson(person, surveyUnitId));
-		}
+		createContactHistory(surveyUnitType);
 		// Create persons
 		if (surveyUnitType.getPersons() != null) {
 			for (PersonType person : surveyUnitType.getPersons().getPerson()) {
@@ -422,13 +408,36 @@ public class CampaignService {
 
 		// Replace persons
 		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitType.getId());
-		personDao.deletePersonBySurveyUnitId(surveyUnitType.getId());
+		// this next method person and contacts !!!
+		personDao.deletePersonAndContactsBySurveyUnitId(surveyUnitType.getId());
 		for (PersonType person : surveyUnitType.getPersons().getPerson()) {
 			Long personId = personDao.createPerson(person, surveyUnitType.getId());
 			// Create phone numbers
 			for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
 				phoneNumberDao.createPhoneNumber(phoneNumber, personId);
 			}
+		}
+		contactHistoryDao.deletePreviousContactTypeBySurveyUnitId(surveyUnitType.getId());
+		createContactHistory(surveyUnitType);
+	}
+
+	private void createContactHistory(SurveyUnitType surveyUnitType) {
+		// create contactHistory
+		String surveyUnitId = surveyUnitType.getId();
+		if (surveyUnitType.getPreviousCollectionInformation() != null) {
+			logger.info("Create contact history for survey unit id {}", surveyUnitId);
+			contactHistoryDao.createContactHistory(surveyUnitType.getPreviousCollectionInformation(), surveyUnitId);
+
+			surveyUnitType.getPreviousCollectionInformation().getContacts().getContact().stream()
+					.map(previousContact -> {
+						PersonType person = new PersonType();
+						person.setTitle(previousContact.getTitle());
+						person.setFirstName(previousContact.getFirstName());
+						Optional.ofNullable(previousContact.getDateOfBirth()).ifPresent(person::setDateOfBirth);
+						person.setPanel(previousContact.isPanel());
+						person.setContactHistoryType("PREVIOUS");
+						return person;
+					}).forEach(person -> personDao.createPerson(person, surveyUnitId));
 		}
 	}
 
