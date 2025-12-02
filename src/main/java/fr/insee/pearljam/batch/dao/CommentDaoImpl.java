@@ -48,6 +48,6 @@ public class CommentDaoImpl implements CommentDao{
 	@Override
 	public void createComment(CommentType comment, String surveyUnitId) {
 		String qString = "INSERT INTO comment (type, value, survey_unit_id) VALUES (?, ?, ?)";
-		pilotageJdbcTemplate.update(qString, comment.getType(), comment.getValue(),surveyUnitId);
+		pilotageJdbcTemplate.update(qString, comment.getType().value(), comment.getValue(),surveyUnitId);
 	}
 }
