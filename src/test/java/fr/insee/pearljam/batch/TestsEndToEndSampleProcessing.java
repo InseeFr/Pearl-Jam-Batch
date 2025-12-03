@@ -192,7 +192,7 @@ class TestsEndToEndSampleProcessing {
 	void shouldReintegrateContactHistory() throws Exception {
 		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8", outDirectory);
 		assertEquals(BatchErrorCode.OK, code);
-
+		cleanOutFolder();
 		BatchErrorCode code2 = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario9", outDirectory);
 		assertEquals(BatchErrorCode.OK, code2);
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
