@@ -190,10 +190,10 @@ class TestsEndToEndSampleProcessing {
 	@Test
 	@DisplayName("Should replace old previous contacts by new when reintegrating a sample processing")
 	void shouldReintegrateContactHistory() throws Exception {
-		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8/", outDirectory);
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8", outDirectory);
 		assertEquals(BatchErrorCode.OK, code);
 
-		BatchErrorCode code2 = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario9/", outDirectory);
+		BatchErrorCode code2 = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario9", outDirectory);
 		assertEquals(BatchErrorCode.OK, code2);
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
 
