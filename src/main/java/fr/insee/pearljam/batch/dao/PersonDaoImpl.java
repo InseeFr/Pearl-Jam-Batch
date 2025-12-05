@@ -145,5 +145,11 @@ public class PersonDaoImpl implements PersonDao{
 		return pilotageJdbcTemplate.query(qString, new PersonTypeMapper(), id);
 	}
 
+	@Override
+	public List<Entry<Long, PersonType>> getPersonsIncludingHistoryBySurveyUnitId(String id) {
+		String qString = "SELECT person.* FROM person WHERE survey_unit_id=?";
+		return pilotageJdbcTemplate.query(qString, new PersonTypeMapper(), id);
+	}
+
 
 }
