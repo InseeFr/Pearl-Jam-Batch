@@ -19,10 +19,6 @@ spring:
     password: mypostgrespassword
     driver-class-name: org.postgresql.Driver
 
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:sql/pilotage/reinit-data.sql
 
   jpa:
     hibernate:
