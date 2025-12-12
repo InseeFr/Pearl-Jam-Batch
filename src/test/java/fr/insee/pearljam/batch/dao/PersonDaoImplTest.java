@@ -1,6 +1,8 @@
 package fr.insee.pearljam.batch.dao;
 
 import fr.insee.pearljam.batch.campaign.PersonType;
+import fr.insee.pearljam.batch.utils.DBResetHelper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,16 +20,24 @@ class PersonDaoImplTest {
     @Autowired
     private PersonDaoImpl personDao;
 
+    @Autowired
+    private DBResetHelper dbResetHelper;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        dbResetHelper.reinitData();
+    }
+
     @Test
     void testGetPersonsBySurveyUnitId() {
         List<Entry<Long, PersonType>> persons =
                 personDao.getPersonsBySurveyUnitId("11");
 
-        assertThat(persons).hasSize(3);
+        assertThat(persons).hasSize(1);
 
         assertThat(persons)
                 .extracting(entry -> entry.getValue().getLastName())
-                .containsExactlyInAnyOrder("Farmer", "Aguilar", "Walker");
+                .containsExactlyInAnyOrder("Farmer");
 
         assertThat(persons)
                 .allSatisfy(entry ->
@@ -40,9 +50,11 @@ class PersonDaoImplTest {
         List<Entry<Long, PersonType>> persons =
                 personDao.getPersonsIncludingHistoryBySurveyUnitId("11");
 
+        assertThat(persons).hasSize(3);
+
         assertThat(persons)
                 .extracting(entry -> entry.getValue().getLastName())
-                .containsExactlyInAnyOrder("Farmer", "Aguilar", "Walker","Ture", "Vious", "Nel", "Champ");
+                .containsExactlyInAnyOrder("Farmer", "Next", "Previous");
 
         assertThat(persons)
                 .allSatisfy(entry ->
