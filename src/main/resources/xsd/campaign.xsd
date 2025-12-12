@@ -365,6 +365,10 @@
 			<xs:enumeration value="NUH"/>
 			<xs:enumeration value="DCD"/>
 			<xs:enumeration value="NOA"/>
+            <xs:enumeration value="NPA"/>
+            <xs:enumeration value="NPI"/>
+            <xs:enumeration value="NPX"/>
+            <xs:enumeration value="ROW"/>
 		</xs:restriction>
 	</xs:simpleType>
 
