@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version>
+		<version>3.5.8</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>fr.insee.pearljam</groupId>
 	<artifactId>pearljam-batch</artifactId>
-	<version>3.6.4</version>
+	<version>3.6.5</version>
 	<packaging>jar</packaging>
 	<name>pearljam-batch</name>
 	<description>PearlJam Batch</description>
@@ -144,6 +144,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-docker-compose</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
