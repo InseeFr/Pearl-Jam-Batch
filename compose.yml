@@ -1,8 +1,3 @@
-x-react-volumes: &react-volumes
-  - ./:/opt/app
-  - /mnt/wslg/.X11-unix:/tmp/.X11-unix
-  - /opt/app/node_modules
-
 services:
   pearl-db:
     image: postgres:14.15
@@ -90,7 +85,7 @@ services:
       - ./container/keycloak/realms:/opt/keycloak/data/import
 
   pearl-api:
-    image: inseefr/pearl-jam-back-office:snapshot-fix-panel-optional
+    image: inseefr/pearl-jam-back-office:5.13.4-rc
     depends_on:
       pearl-db:
         condition: service_healthy
