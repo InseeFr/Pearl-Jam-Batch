@@ -361,9 +361,7 @@
 			<xs:enumeration value="UTR"/>
 			<xs:enumeration value="ALA"/>
 			<xs:enumeration value="DUK"/>
-			<xs:enumeration value="DUU"/>
 			<xs:enumeration value="NUH"/>
-			<xs:enumeration value="DCD"/>
 			<xs:enumeration value="NOA"/>
             <xs:enumeration value="NPA"/>
             <xs:enumeration value="NPI"/>
