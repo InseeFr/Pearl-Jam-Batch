@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -243,7 +244,7 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 
 	private void updateStatus(List<CommunicationData> allData, String templateId, boolean success) {
-		long timestamp = System.currentTimeMillis();
+		long timestamp = Instant.now().plusSeconds(10).toEpochMilli();
 		String status = success ? "SUBMITTED" : "FAILED";
 		allData.stream()
 				.filter(d -> templateId.equals(d.getCommunicationTemplateId()))
