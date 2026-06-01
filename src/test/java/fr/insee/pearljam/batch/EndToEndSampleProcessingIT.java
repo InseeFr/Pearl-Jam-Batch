@@ -264,7 +264,7 @@ class EndToEndSampleProcessingIT {
 		FileHelper.purgeDirectory(new File(outCampaignDirectory));
 		File sample = new File("src/test/resources/in");
 		if(sample.exists()) {
-			sample.delete();
+			assertTrue(sample.delete());
 		}
 	}
 
