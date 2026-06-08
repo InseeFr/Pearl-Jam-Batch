@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestsEndToEndDeleteCampaign {
+class EndToEndDeleteCampaignIT {
 	
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
