@@ -56,12 +56,12 @@ class EndToEndSampleProcessingIT {
 
 		File dir = new File(outDirectory +"/campaign");
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 		dir = new File(outCampaignDirectory);
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 	}
