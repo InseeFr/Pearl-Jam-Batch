@@ -91,7 +91,7 @@
 						</Adresse>
 					</Contact>
 					<Contact>
-						<Principal>false</Principal>
+						<Principal>true</Principal>
 						<CiviliteReferent>M.</CiviliteReferent>
 						<NomReferent>Doe</NomReferent>
 						<PrenomReferent>Jane</PrenomReferent>

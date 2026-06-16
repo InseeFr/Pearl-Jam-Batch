@@ -1,11 +1,10 @@
 package fr.insee.pearljam.batch;
 
-import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
-import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
-import fr.insee.pearljam.batch.campaign.Title;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import fr.insee.pearljam.batch.dao.ContactHistoryDao;
+import fr.insee.pearljam.batch.dao.PersonDao;
+
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
@@ -37,6 +36,8 @@ class EndToEndSampleProcessingIT {
 	private CommunicationMetadataDao  communicationMetadataDao;
 	@Autowired
 	private ContactHistoryDao contactHistoryDao;
+	@Autowired
+	private PersonDao personDao;
 	@Autowired
 	private DBResetHelper dbResetHelper;
 
@@ -226,6 +227,25 @@ class EndToEndSampleProcessingIT {
 		assertNull(thirdContact.isPanel());
 		assertNull(thirdContact.getDateOfBirth());
 
+	}
+
+	@Test
+	void testScenario8() throws Exception {
+		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8", outDirectory));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
+
+		List<Map.Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
+		List<PersonType> persons = personsMap.stream().map(Map.Entry::getValue).toList();
+		PersonType truePreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("John")).findFirst().get();
+		PersonType falsePreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Jane")).findFirst().get();
+		PersonType missingPreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Pat")).findFirst().get();
+		// XML with true
+		assertEquals(true,truePreferredEmailPerson.isFavoriteEmail());
+		// XML with false
+		assertEquals(false,falsePreferredEmailPerson.isFavoriteEmail());
+		// missing XML
+		assertEquals(false,missingPreferredEmailPerson.isFavoriteEmail());
 	}
 
 	@Test
