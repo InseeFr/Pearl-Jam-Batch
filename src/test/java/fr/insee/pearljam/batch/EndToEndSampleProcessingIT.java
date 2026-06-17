@@ -3,7 +3,6 @@ package fr.insee.pearljam.batch;
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import fr.insee.pearljam.batch.dao.ContactHistoryDao;
-import fr.insee.pearljam.batch.dao.PersonDao;
 
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ValidateException;
@@ -36,8 +35,6 @@ class EndToEndSampleProcessingIT {
 	private CommunicationMetadataDao  communicationMetadataDao;
 	@Autowired
 	private ContactHistoryDao contactHistoryDao;
-	@Autowired
-	private PersonDao personDao;
 	@Autowired
 	private DBResetHelper dbResetHelper;
 
