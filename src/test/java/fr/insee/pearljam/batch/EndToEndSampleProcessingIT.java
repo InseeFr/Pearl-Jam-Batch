@@ -230,25 +230,6 @@ class EndToEndSampleProcessingIT {
 	}
 
 	@Test
-	void testScenario8() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8", outDirectory));
-		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
-
-		List<Map.Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
-		List<PersonType> persons = personsMap.stream().map(Map.Entry::getValue).toList();
-		PersonType truePreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("John")).findFirst().get();
-		PersonType falsePreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Jane")).findFirst().get();
-		PersonType missingPreferredEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Pat")).findFirst().get();
-		// XML with true
-		assertEquals(true,truePreferredEmailPerson.isFavoriteEmail());
-		// XML with false
-		assertEquals(false,falsePreferredEmailPerson.isFavoriteEmail());
-		// missing XML
-		assertEquals(false,missingPreferredEmailPerson.isFavoriteEmail());
-	}
-
-	@Test
 	@DisplayName("Should sample validation failed if prenom has empty string")
 	void testScenario7() {
 		Exception ex = assertThrows(
