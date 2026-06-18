@@ -427,7 +427,9 @@ public class CampaignService {
 		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitType.getId());
 		// this next method person and contacts !!!
 		personDao.deletePersonAndContactsBySurveyUnitId(surveyUnitType.getId());
-		for (PersonType person : surveyUnitType.getPersons().getPerson()) {
+
+		List<PersonType> onlyOnePreferredPersons = ensureSinglePrivilegedPerson(surveyUnitType.getPersons().getPerson());
+		for (PersonType person : onlyOnePreferredPersons) {
 			Long personId = personDao.createPerson(person, surveyUnitType.getId());
 			// Create phone numbers
 			for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
