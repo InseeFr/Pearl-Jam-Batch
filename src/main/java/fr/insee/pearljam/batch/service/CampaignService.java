@@ -401,14 +401,14 @@ public class CampaignService {
 
 	protected List<PersonType> ensureSinglePrivilegedPerson(List<PersonType> persons) {
 
-		boolean privilegedPersonFound = false;
+		boolean firstPrivilegedPersonFound = false;
 
 		for (PersonType person : persons) {
 			if (person.isPrivileged()) {
-				if (privilegedPersonFound) {
+				if (firstPrivilegedPersonFound) {
 					person.setPrivileged(false);
 				} else {
-					privilegedPersonFound = true;
+					firstPrivilegedPersonFound = true;
 				}
 			}
 		}
