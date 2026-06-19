@@ -38,11 +38,14 @@ public class AddressDaoImpl implements AddressDao {
 
 	@Override
 	public void updateAddress(InseeAddressType inseeAddress, String surveyUnitId) {
-		String qString = new StringBuilder("UPDATE public.address as adrs ")
-				.append("SET l1=?, l2=?, l3=?, l4=?, l5=?, l6=?, l7=?, building=?, floor=?, door=?, staircase=?, elevator=?, city_priority_district=?"
-						+ "FROM survey_unit su ")
-				.append("WHERE su.address_id=adrs.id AND su.id=?")
-				.toString();
+		String qString = """
+				UPDATE public.address as adrs
+				SET l1=?, l2=?, l3=?, l4=?, l5=?, l6=?, l7=?,
+				building=?, floor=?, door=?, staircase=?, elevator=?, city_priority_district=?
+				FROM survey_unit su
+				WHERE su.address_id=adrs.id AND su.id=?
+				""";
+
 		pilotageJdbcTemplate.update(qString, inseeAddress.getL1(), inseeAddress.getL2(), inseeAddress.getL3(),
 				inseeAddress.getL4(), inseeAddress.getL5(), inseeAddress.getL6(), inseeAddress.getL7(),
 				inseeAddress.getBuilding(), inseeAddress.getFloor(), inseeAddress.getDoor(),
