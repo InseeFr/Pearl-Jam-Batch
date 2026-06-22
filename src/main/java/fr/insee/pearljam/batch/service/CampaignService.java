@@ -362,7 +362,8 @@ public class CampaignService {
 		createContactHistory(surveyUnitType);
 		// Create persons
 		if (surveyUnitType.getPersons() != null) {
-			for (PersonType person : surveyUnitType.getPersons().getPerson()) {
+			List<PersonType> onlyOnePreferredPersons = ensureSinglePrivilegedPerson(surveyUnitType.getPersons().getPerson());
+			for (PersonType person : onlyOnePreferredPersons) {
 				Long personId = personDao.createPerson(person, surveyUnitId);
 				// Create phone numbers
 				for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
@@ -398,6 +399,22 @@ public class CampaignService {
 
 	}
 
+	protected List<PersonType> ensureSinglePrivilegedPerson(List<PersonType> persons) {
+
+		boolean firstPrivilegedPersonFound = false;
+
+		for (PersonType person : persons) {
+			if (person.isPrivileged()) {
+				if (firstPrivilegedPersonFound) {
+					person.setPrivileged(false);
+				} else {
+					firstPrivilegedPersonFound = true;
+				}
+			}
+		}
+		return persons;
+	}
+
 	private void updateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) {
 		// Update address
 		addressDao.updateAddress(surveyUnitType.getInseeAddress(), surveyUnitType.getId());
@@ -410,7 +427,9 @@ public class CampaignService {
 		phoneNumberDao.deletePhoneNumbersBySurveyUnitId(surveyUnitType.getId());
 		// this next method person and contacts !!!
 		personDao.deletePersonAndContactsBySurveyUnitId(surveyUnitType.getId());
-		for (PersonType person : surveyUnitType.getPersons().getPerson()) {
+
+		List<PersonType> onlyOnePreferredPersons = ensureSinglePrivilegedPerson(surveyUnitType.getPersons().getPerson());
+		for (PersonType person : onlyOnePreferredPersons) {
 			Long personId = personDao.createPerson(person, surveyUnitType.getId());
 			// Create phone numbers
 			for (PhoneNumberType phoneNumber : person.getPhoneNumbers().getPhoneNumber()) {
