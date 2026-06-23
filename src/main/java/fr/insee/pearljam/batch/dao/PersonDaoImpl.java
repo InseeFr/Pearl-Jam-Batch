@@ -1,33 +1,25 @@
 package fr.insee.pearljam.batch.dao;
 
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.Date;
-import java.util.List;
-import java.util.Map.Entry;
-
-import org.apache.logging.log4j.Level;
+import fr.insee.pearljam.batch.campaign.PersonType;
+import fr.insee.pearljam.batch.campaign.Title;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
-import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.PersonType;
+import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * Service for the Person entity that implements the interface associated
@@ -35,87 +27,113 @@ import fr.insee.pearljam.batch.campaign.PersonType;
  *
  */
 @Service
+@RequiredArgsConstructor
 public class PersonDaoImpl implements PersonDao{
-	
-	@Autowired
-	@Qualifier("pilotageJdbcTemplate")
-	JdbcTemplate pilotageJdbcTemplate;
+
+	private final JdbcTemplate pilotageJdbcTemplate;
 	
 	private static final Logger logger = LogManager.getLogger(PersonDaoImpl.class);
-	
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	@Override
 	public Long createPerson(PersonType person, String surveyUnitId) {
-		String qString = new StringBuilder("INSERT INTO person (birthdate, email, favorite_email, first_name, last_name, title, survey_unit_id, privileged) ")
-				.append("VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-				.toString();
+		String qString = """
+				INSERT INTO person
+				(birthdate, email, first_name, last_name, title, survey_unit_id, privileged, panel, contact_history_type)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				""";
 		Long parsedDate = null;
-		Integer parsedTitle = null;
-		try{
-			parsedDate = new SimpleDateFormat(Constants.DATE_FORMAT_2).parse(person.getDateOfBirth()).getTime();
-		} catch (ParseException e) {
-			logger.log(Level.ERROR, e.getMessage());
+		String dob = person.getDateOfBirth();
+
+		if (dob != null && !dob.isBlank()) {
+			try {
+				LocalDate date = LocalDate.parse(dob, DATE_FORMATTER);
+				parsedDate = date.atStartOfDay(ZoneId.systemDefault())
+						.toInstant()
+						.toEpochMilli();
+			} catch (DateTimeParseException e) {
+				logger.error("Invalid date format for dob: {}", dob, e);
+			}
 		}
-		String lowercaseTitle = person.getTitle().toLowerCase();
-		if(lowercaseTitle.contains("miss") || lowercaseTitle.contains("mme")) {
-			parsedTitle = 1;
+		Title title = person.getTitle();
+		Integer dbTitle = null;
+		if(title != null) {
+			dbTitle = switch (title) {
+				case MISTER -> 0;
+				case MISS -> 1;
+			};
 		}
-		else if(lowercaseTitle.equals("mister") || lowercaseTitle.equals("m.")) {
-			parsedTitle = 0;
-		}
-		else {
-			logger.log(Level.ERROR,"Could not parse title of person '{} {}'", person.getFirstName(), person.getLastName());
-		}
-		boolean favoriteEmail= person.isFavoriteEmail()!=null?person.isFavoriteEmail():false;
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		final Long tempDate = parsedDate;
-		final Integer tempTitle = parsedTitle;
+		final Integer tempTitle = dbTitle;
 		pilotageJdbcTemplate.update(
-		    new PreparedStatementCreator() {
-		        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		            PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
-		            ps.setLong(1, tempDate);
-		            ps.setString(2, person.getEmail());
-		            ps.setBoolean(3, favoriteEmail);
-		            ps.setString(4, person.getFirstName());
-		            ps.setString(5, person.getLastName());
-		            ps.setLong(6, tempTitle);
-		            ps.setString(7, surveyUnitId);
-		            ps.setBoolean(8, person.isPrivileged());
-		            return ps;
-		        }
-		    },
+				connection -> {
+					PreparedStatement ps = connection.prepareStatement(qString, Statement.RETURN_GENERATED_KEYS);
+					if (tempDate != null) {
+						ps.setLong(1, tempDate);
+					} else {
+						ps.setNull(1, Types.BIGINT);
+					}
+					ps.setString(2, person.getEmail());
+					ps.setString(3, person.getFirstName());
+					ps.setString(4, person.getLastName());
+					if (tempTitle != null) {
+						ps.setLong(5, tempTitle);
+					} else {
+						ps.setNull(5, Types.BIGINT);
+					}
+					ps.setString(6, surveyUnitId);
+					ps.setBoolean(7, person.isPrivileged());
+					if (person.isPanel() == null) {
+						ps.setNull(8, Types.BOOLEAN);
+					} else {
+						ps.setBoolean(8, person.isPanel());
+					}
+					ps.setString(9, person.getContactHistoryType());
+					return ps;
+				},
 		    keyHolder);
-		return (Long) keyHolder.getKeyList().get(0).get("id");
+		return (Long) keyHolder.getKeyList().getFirst().get("id");
     }
 	
 	@Override
-	public void deletePersonBySurveyUnitId(String surveyUnitId) {
+	public void deletePersonAndContactsBySurveyUnitId(String surveyUnitId) {
 		String qString = "DELETE FROM person WHERE survey_unit_id=?";
 		pilotageJdbcTemplate.update(qString, surveyUnitId);
 	}
-	
 
-	private static final class PersonTypeTypeMapper implements RowMapper<Entry<Long,PersonType>> {
+	private static final class PersonTypeMapper implements RowMapper<Entry<Long,PersonType>> {
         public Entry<Long,PersonType> mapRow(ResultSet rs, int rowNum) throws SQLException         {
         	PersonType person = new PersonType();
-        	int title = rs.getInt("title");
-        	if(!rs.wasNull()) {
-                person.setTitle(title == 0 ? "MISTER" : "MISS");
-        	}
+
+			Title title = null;
+			int dbTitle = rs.getInt("title");
+			if (!rs.wasNull()) {
+				title = switch (dbTitle) {
+					case 0 -> Title.MISTER;
+					case 1 -> Title.MISS;
+                    default -> throw new IllegalStateException("Unexpected value: " + dbTitle);
+                };
+			}
+			person.setTitle(title);
             person.setFirstName(rs.getString("first_name"));
             person.setLastName(rs.getString("last_name"));
             person.setEmail(rs.getString("email"));
-            long dateTime = rs.getLong("birthdate");
-            if(!rs.wasNull()) {
-            	DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT_2);
-                person.setDateOfBirth(df.format(new Date(dateTime)));
-        	}
-            person.setPrivileged(rs.getBoolean("privileged"));
-            person.setFavoriteEmail(rs.getBoolean("favorite_email"));
-            
-            Long id = rs.getLong("id");
-            
+
+			Long birthMillis = rs.getObject("birthdate", Long.class);
+			if (birthMillis != null) {
+				LocalDate date = Instant.ofEpochMilli(birthMillis).atZone(ZoneId.systemDefault()).toLocalDate();
+				person.setDateOfBirth(DATE_FORMATTER.format(date)); // "dd/MM/yyyy"
+			}
+			Boolean privileged = rs.getObject("privileged", Boolean.class);
+			person.setPrivileged(Boolean.TRUE.equals(privileged));
+
+			Boolean panel = rs.getObject("panel", Boolean.class);
+			person.setPanel(panel);
+
+			person.setContactHistoryType(rs.getString("contact_history_type"));
+
+			Long id = rs.getLong("id");
             return new AbstractMap.SimpleEntry<>(id, person);
         }
     }
@@ -123,9 +141,9 @@ public class PersonDaoImpl implements PersonDao{
 
 	@Override
 	public List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id) {
-		String qString = "SELECT person.* FROM person WHERE survey_unit_id=?";
-		return pilotageJdbcTemplate.query(qString, new Object[] {id}, new PersonTypeTypeMapper());
+		String qString = "SELECT person.* FROM person WHERE survey_unit_id=? and contact_history_type is NULL";
+		return pilotageJdbcTemplate.query(qString, new PersonTypeMapper(), id);
 	}
-	
-	
+
+
 }

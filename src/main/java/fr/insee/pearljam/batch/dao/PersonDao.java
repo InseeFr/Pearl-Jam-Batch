@@ -14,7 +14,7 @@ public interface PersonDao {
 
 	Long createPerson(PersonType person, String surveyUnitId);
 
-	void deletePersonBySurveyUnitId(String surveyUnitId);
+	void deletePersonAndContactsBySurveyUnitId(String surveyUnitId);
 
 	List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id);
     

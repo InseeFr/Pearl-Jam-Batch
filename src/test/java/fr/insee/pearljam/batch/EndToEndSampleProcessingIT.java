@@ -1,48 +1,42 @@
 package fr.insee.pearljam.batch;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
-import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import fr.insee.pearljam.batch.config.ApplicationConfig;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
+import fr.insee.pearljam.batch.dao.ContactHistoryDao;
+
+import fr.insee.pearljam.batch.enums.BatchOption;
+import fr.insee.pearljam.batch.exception.ValidateException;
+import fr.insee.pearljam.batch.service.PilotageLauncherService;
+import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.DBResetHelper;
 import fr.insee.pearljam.batch.utils.FileHelper;
+import fr.insee.pearljam.batch.utils.PathUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.FileSystemUtils;
 
-import fr.insee.pearljam.batch.campaign.PersonType;
-import fr.insee.pearljam.batch.dao.PersonDao;
-import fr.insee.pearljam.batch.enums.BatchOption;
-import fr.insee.pearljam.batch.exception.ValidateException;
-import fr.insee.pearljam.batch.service.PilotageLauncherService;
-import fr.insee.pearljam.batch.utils.BatchErrorCode;
-import fr.insee.pearljam.batch.utils.PathUtils;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestsEndToEndSampleProcessing {
+class EndToEndSampleProcessingIT {
 
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
 	@Autowired
-	private PersonDao  personDao;
-	@Autowired
 	private CommunicationMetadataDao  communicationMetadataDao;
 	@Autowired
-	private DBResetHelper dbResetHelper;
+	private ContactHistoryDao contactHistoryDao;
 	@Autowired
-	private ApplicationConfig applicationConfig;
+	private DBResetHelper dbResetHelper;
 
 	private final String outDirectory = "src/test/resources/out/sampleprocessing/testScenarios";
 	private final String outCampaignDirectory = "src/test/resources/out/campaign";
@@ -59,12 +53,12 @@ class TestsEndToEndSampleProcessing {
 
 		File dir = new File(outDirectory +"/campaign");
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 		dir = new File(outCampaignDirectory);
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 	}
@@ -150,28 +144,97 @@ class TestsEndToEndSampleProcessing {
 	}
 
 	/**
-	 * Scenario 6 : Check if favorite_email is populated
+	 * Scenario 6 : integrate with ContactHistory elements
+	 *
 	 * @throws Exception e
 	 */
 	@Test
-	void testScenario6() throws Exception {
-		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory));
+	void shouldIntegrateContactHistory() throws Exception {
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario6", outDirectory);
+		assertEquals(BatchErrorCode.OK, code);
 		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
-		assertTrue(PathUtils.isDirContainsFile(Path.of(outCampaignDirectory), "campaign", ".done.xml"));
 
-		List<Entry<Long, PersonType>> personsMap = personDao.getPersonsBySurveyUnitId("SIM1234");
-		List<PersonType> persons = personsMap.stream().map(Entry::getValue).toList();
-		PersonType truePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("John")).findFirst().get();
-		PersonType falsePreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Jane")).findFirst().get();
-		PersonType missingPreferedEmailPerson = persons.stream().filter(p->p.getFirstName().equals("Pat")).findFirst().get();
-		// XML with true
-		assertEquals(true,truePreferedEmailPerson.isFavoriteEmail());
-		// XML with false
-		assertEquals(false,falsePreferedEmailPerson.isFavoriteEmail());
-		// missing XML
-		assertEquals(false,missingPreferedEmailPerson.isFavoriteEmail());
+		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
+
+		assertEquals(PreviousContactOutcomeType.INA, actual.getContactOutcome());
+		assertEquals("C'était mieux avant", actual.getPreviousComment());
+		var contacts = actual.getContacts().getContact();
+		assertEquals(3, contacts.size());
+
+
+		// check full provided contact
+		var firstContact = contacts.getFirst();
+		assertEquals(Title.MISTER, firstContact.getTitle());
+		assertEquals("Bob", firstContact.getFirstName());
+		assertTrue(firstContact.isPanel());
+		assertEquals("06/02/1945", firstContact.getDateOfBirth());
+
+		// check empty contact creation
+		var secondContact = contacts.get(1);
+		assertNull(secondContact.getTitle());
+		assertEquals("John", secondContact.getFirstName());
+		assertNull(secondContact.isPanel());
+		assertNull(secondContact.getDateOfBirth());
+
+		// check empty contact creation
+		var thirdContact = contacts.getLast();
+		assertNull(thirdContact.getTitle());
+		assertEquals("Robert", thirdContact.getFirstName());
+		assertNull(thirdContact.isPanel());
+		assertNull(thirdContact.getDateOfBirth());
+
 	}
 
+	@Test
+	@DisplayName("Should replace old previous contacts by new when reintegrating a sample processing")
+	void shouldReintegrateContactHistory() throws Exception {
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario8", outDirectory);
+		assertEquals(BatchErrorCode.OK, code);
+		cleanOutFolder();
+		BatchErrorCode code2 = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario9", outDirectory);
+		assertEquals(BatchErrorCode.OK, code2);
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+
+		PreviousCollectionInformationType actual = contactHistoryDao.findBySurveyUnitId("SIM1234");
+
+		assertEquals(PreviousContactOutcomeType.UTR, actual.getContactOutcome());
+		assertEquals("C'était mieux", actual.getPreviousComment());
+		var contacts = actual.getContacts().getContact();
+		assertEquals(3, contacts.size());
+
+
+		// check full provided contact
+		var firstContact = contacts.getFirst();
+		assertEquals(Title.MISS, firstContact.getTitle());
+		assertEquals("Bob", firstContact.getFirstName());
+		assertFalse(firstContact.isPanel());
+		assertEquals("06/02/1944", firstContact.getDateOfBirth());
+
+		// check empty contact creation
+		var secondContact = contacts.get(1);
+		assertNull(secondContact.getTitle());
+		assertEquals("Joe", secondContact.getFirstName());
+		assertNull(secondContact.isPanel());
+		assertNull(secondContact.getDateOfBirth());
+
+		// check empty contact creation
+		var thirdContact = contacts.getLast();
+		assertNull(thirdContact.getTitle());
+		assertEquals("Rob", thirdContact.getFirstName());
+		assertNull(thirdContact.isPanel());
+		assertNull(thirdContact.getDateOfBirth());
+
+	}
+
+	@Test
+	@DisplayName("Should sample validation failed if prenom has empty string")
+	void testScenario7() {
+		Exception ex = assertThrows(
+				ValidateException.class,
+				() -> pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario7", outDirectory));
+		assertTrue(ex.getMessage().contains("NonEmptyString"));
+
+	}
 
 	@AfterEach
 	void cleanOutFolder() {
@@ -179,7 +242,7 @@ class TestsEndToEndSampleProcessing {
 		FileHelper.purgeDirectory(new File(outCampaignDirectory));
 		File sample = new File("src/test/resources/in");
 		if(sample.exists()) {
-			sample.delete();
+			assertTrue(sample.delete());
 		}
 	}
 

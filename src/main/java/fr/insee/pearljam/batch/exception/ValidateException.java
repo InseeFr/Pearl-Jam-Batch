@@ -20,7 +20,15 @@ public class ValidateException extends Exception {
 	 * Constructor for a ValidateException
 	 * @param message
 	 */
-	public ValidateException(String s) {
-		super(s);
+	public ValidateException(String message) {
+		super(message);
+	}
+
+	/**
+	 * Constructor for a ValidateException
+	 * @param message
+	 */
+	public ValidateException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }

@@ -36,21 +36,21 @@
 					</Affectation>
 
 					<InformationCollectePrecedente>
-						<BilanDeContact>INA</BilanDeContact>
-						<CommentairePrecedent>C'était mieux avant</CommentairePrecedent>
+						<BilanDeContact>UTR</BilanDeContact>
+						<CommentairePrecedent>C'était mieux</CommentairePrecedent>
 						<Individus>
 							<Individu>
-								<Civilite>M.</Civilite>
+								<Civilite>Mme</Civilite>
 								<Prenom>Bob</Prenom>
-								<DateDeNaissance>06/02/1945</DateDeNaissance>
-								<Panel>true</Panel>
+								<DateDeNaissance>06/02/1944</DateDeNaissance>
+								<Panel>false</Panel>
 							</Individu>
 							<Individu>
-								<Prenom>John</Prenom>
+								<Prenom>Joe</Prenom>
 								<DateDeNaissance/>
 							</Individu>
 							<Individu>
-								<Prenom>Robert</Prenom>
+								<Prenom>Rob</Prenom>
 							</Individu>
 						</Individus>
 					</InformationCollectePrecedente>

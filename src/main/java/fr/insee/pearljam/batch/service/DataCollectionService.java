@@ -1,6 +1,6 @@
 package fr.insee.pearljam.batch.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import fr.insee.pearljam.batch.dao.DataCollectionRepository;
 import fr.insee.pearljam.batch.dto.CampaignDataCollectionDto;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class DataCollectionService {
-    private static final String LOG_CONTEXT = "context";
     private final DataCollectionValidation dataCollectionValidation;
     private final DataCollectionRepository dataCollectionRepository;
     private final XmlToJsonLunaticConverter lunaticConverter;
@@ -36,7 +35,7 @@ public class DataCollectionService {
         try {
             campaignApi = dataCollectionRepository.retrieveCampaign(campaignId);
         } catch(DataCollectionApiException e) {
-            throw new ValidateException(e.getMessage());
+            throw new ValidateException(e.getMessage(), e);
         }
 
         List<String> questionnaireIds = campaignApi.questionnaireIds();
