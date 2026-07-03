@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,9 @@ public class PilotageLauncherService {
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
+
+	@Value("${app.environment}")
+	private String environment;
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -346,6 +350,19 @@ public class PilotageLauncherService {
 		for(Questionnaire questionnaire : questionnaires) {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
+
+				Campaign campaign = campaignDao.findById(campaignId);
+				Instant now = Instant.now();
+				boolean afterIdentificationStarted = campaign.getOrganizationalUnits().getOrganizationalUnit().stream().anyMatch(
+						ou -> now.isAfter(new Date(Long.parseLong(ou.getIdentificationPhaseStartDate())).toInstant()));
+
+				if(afterIdentificationStarted && environment.equals("prod"))
+				{
+					logger.log(Level.ERROR, "Can not integrate sample processing, idendification start date {} already in the past", interrogationId);
+					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+					continue;
+				}
+
 				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(!pilotageValidate) {
 					logger.log(Level.WARN, "Interrogation {} is invalid", interrogationId);

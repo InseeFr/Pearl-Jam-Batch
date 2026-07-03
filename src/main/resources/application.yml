@@ -79,3 +79,6 @@ api:
 logging:
   level:
     fr.insee.lunatic.utils.XslTransformation: WARN
+
+app:
+  environment: development
