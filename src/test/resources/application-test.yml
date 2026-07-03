@@ -77,3 +77,6 @@ api:
     url: http://localhost:9999
     bulk:
       size: 500
+
+app:
+  environment: development

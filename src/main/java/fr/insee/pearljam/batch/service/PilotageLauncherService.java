@@ -1,9 +1,7 @@
 package fr.insee.pearljam.batch.service;
 
 import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
@@ -353,12 +351,18 @@ public class PilotageLauncherService {
 
 				Campaign campaign = campaignDao.findById(campaignId);
 				Instant now = Instant.now();
-				boolean afterIdentificationStarted = campaign.getOrganizationalUnits().getOrganizationalUnit().stream().anyMatch(
-						ou -> now.isAfter(new Date(Long.parseLong(ou.getIdentificationPhaseStartDate())).toInstant()));
+				OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
+
+				boolean afterIdentificationStarted = false;
+				if(organizationalUnitType != null)
+				{
+					afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
+							ou -> now.isAfter(new Date(Long.parseLong(ou.getIdentificationPhaseStartDate())).toInstant()));
+				}
 
 				if(afterIdentificationStarted && environment.equals("prod"))
 				{
-					logger.log(Level.ERROR, "Can not integrate sample processing, idendification start date {} already in the past", interrogationId);
+					logger.log(Level.WARN, "Can not integrate sample processing, idendification start date for {} already in the past", interrogationId);
 					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
 					continue;
 				}
