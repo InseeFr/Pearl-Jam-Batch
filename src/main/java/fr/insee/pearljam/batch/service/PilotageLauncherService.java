@@ -351,11 +351,7 @@ public class PilotageLauncherService {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
 
-				returnCode = isIntegrationFeasible(campaignId, interrogationId, returnCode);
-				if(returnCode.equals(BatchErrorCode.KO_FONCTIONAL_ERROR))
-				{
-					continue;
-				}
+				isIntegrationFeasible(campaignId, interrogationId);
 
 				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(!pilotageValidate) {
@@ -410,9 +406,14 @@ public class PilotageLauncherService {
 		return returnCode;
 	}
 
-	private BatchErrorCode isIntegrationFeasible(String campaignId, String interrogationId, BatchErrorCode returnCode) {
+	private void isIntegrationFeasible(String campaignId, String interrogationId) throws BatchException {
 		Campaign campaign = campaignDao.findById(campaignId);
 		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
+
+		if(allowWhenIdentificationStarted)
+		{
+			return;
+		}
 
 		boolean afterIdentificationStarted = false;
 		if(organizationalUnitType != null)
@@ -430,12 +431,10 @@ public class PilotageLauncherService {
 					});
 		}
 
-		if(afterIdentificationStarted && !allowWhenIdentificationStarted)
+		if(afterIdentificationStarted)
 		{
-			logger.log(Level.WARN, "Can not integrate sample processing, idendification start date for {} already in the past", interrogationId);
-			returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+			throw new BatchException(String.format("Can not integrate sample processing, idendification start date for %s already in the past", interrogationId));
 		}
-		return returnCode;
 	}
 
 
