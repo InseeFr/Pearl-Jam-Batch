@@ -65,7 +65,7 @@ public class PilotageLauncherService {
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 
-	@Value("${application.feature.sampleprocessing.allowwhenindentificationstarted}")
+	@Value("${application.feature.sampleprocessing.allowwhenidentificationstarted}")
 	private boolean allowWhenIdentificationStarted;
 
 	/**
