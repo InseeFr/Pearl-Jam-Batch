@@ -65,8 +65,8 @@ public class PilotageLauncherService {
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 
-	@Value("${app.environment}")
-	private String environment;
+	@Value("${application.feature.sampleprocessing.allowwhenindentificationstarted}")
+	private boolean allowWhenIdentificationStarted;
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -351,29 +351,9 @@ public class PilotageLauncherService {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
 
-				Campaign campaign = campaignDao.findById(campaignId);
-				OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
-
-				boolean afterIdentificationStarted = false;
-				if(organizationalUnitType != null)
+				returnCode = isIntegrationFeasible(campaignId, interrogationId, returnCode);
+				if(returnCode.equals(BatchErrorCode.KO_FONCTIONAL_ERROR))
 				{
-					LocalDate localDate = LocalDate.now();
-					afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
-							ou ->
-							{
-								long epochSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
-								LocalDate date = Instant.ofEpochMilli(epochSeconds)
-										.atZone(ZoneOffset.UTC)
-										.toLocalDate();
-
-								return localDate.isAfter(date);
-							});
-				}
-
-				if(afterIdentificationStarted && environment.equals("prod"))
-				{
-					logger.log(Level.WARN, "Can not integrate sample processing, idendification start date for {} already in the past", interrogationId);
-					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
 					continue;
 				}
 
@@ -427,6 +407,34 @@ public class PilotageLauncherService {
 
 		// Move files in out folder
 		moveFilesInOutFolders(returnCode);
+		return returnCode;
+	}
+
+	private BatchErrorCode isIntegrationFeasible(String campaignId, String interrogationId, BatchErrorCode returnCode) {
+		Campaign campaign = campaignDao.findById(campaignId);
+		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
+
+		boolean afterIdentificationStarted = false;
+		if(organizationalUnitType != null)
+		{
+			LocalDate localDate = LocalDate.now();
+			afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
+					ou ->
+					{
+						long epochSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
+						LocalDate date = Instant.ofEpochMilli(epochSeconds)
+								.atZone(ZoneOffset.UTC)
+								.toLocalDate();
+
+						return localDate.isAfter(date);
+					});
+		}
+
+		if(afterIdentificationStarted && !allowWhenIdentificationStarted)
+		{
+			logger.log(Level.WARN, "Can not integrate sample processing, idendification start date for {} already in the past", interrogationId);
+			returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+		}
 		return returnCode;
 	}
 
