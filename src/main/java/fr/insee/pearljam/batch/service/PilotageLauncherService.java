@@ -35,6 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -350,14 +352,22 @@ public class PilotageLauncherService {
 			if (steps.contains(Constants.PILOTAGE)) {
 
 				Campaign campaign = campaignDao.findById(campaignId);
-				Instant now = Instant.now();
 				OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
 
 				boolean afterIdentificationStarted = false;
 				if(organizationalUnitType != null)
 				{
+					LocalDate localDate = LocalDate.now();
 					afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
-							ou -> now.isAfter(new Date(Long.parseLong(ou.getIdentificationPhaseStartDate())).toInstant()));
+							ou ->
+							{
+								long epochSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
+								LocalDate date = Instant.ofEpochMilli(epochSeconds)
+										.atZone(ZoneOffset.UTC)
+										.toLocalDate();
+
+								return localDate.isAfter(date);
+							});
 				}
 
 				if(afterIdentificationStarted && environment.equals("prod"))
