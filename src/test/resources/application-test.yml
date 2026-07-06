@@ -81,4 +81,4 @@ api:
 application:
   feature:
     sampleprocessing:
-      allowwhenindentificationstarted: true
+      allowwhenidentificationstarted: true
