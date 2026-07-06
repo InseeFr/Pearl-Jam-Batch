@@ -351,7 +351,16 @@ public class PilotageLauncherService {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
 
-				isIntegrationFeasible(campaignId, interrogationId);
+				try
+				{
+					isIntegrationFeasible(campaignId, interrogationId);
+				}
+				catch (BatchException e)
+				{
+					logger.log(Level.WARN, e.getMessage());
+					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+					continue;
+				}
 
 				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(!pilotageValidate) {
@@ -407,13 +416,14 @@ public class PilotageLauncherService {
 	}
 
 	private void isIntegrationFeasible(String campaignId, String interrogationId) throws BatchException {
-		Campaign campaign = campaignDao.findById(campaignId);
-		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
-
 		if(allowWhenIdentificationStarted)
 		{
 			return;
 		}
+
+		Campaign campaign = campaignDao.findById(campaignId);
+		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
+
 
 		boolean afterIdentificationStarted = false;
 		if(organizationalUnitType != null)
@@ -422,8 +432,8 @@ public class PilotageLauncherService {
 			afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
 					ou ->
 					{
-						long epochSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
-						LocalDate date = Instant.ofEpochMilli(epochSeconds)
+						long epochMilliSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
+						LocalDate date = Instant.ofEpochMilli(epochMilliSeconds)
 								.atZone(ZoneOffset.UTC)
 								.toLocalDate();
 
