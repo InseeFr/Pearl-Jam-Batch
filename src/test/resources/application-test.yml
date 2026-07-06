@@ -78,5 +78,7 @@ api:
     bulk:
       size: 500
 
-app:
-  environment: development
+application:
+  feature:
+    sampleprocessing:
+      allowwhenindentificationstarted: true

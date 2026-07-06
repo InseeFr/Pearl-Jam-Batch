@@ -83,4 +83,4 @@ logging:
 application:
    feature:
       sampleprocessing:
-        allowwhenindentificationstarted : true
+        allowwhenindentificationstarted: true
