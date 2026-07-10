@@ -1,9 +1,7 @@
 package fr.insee.pearljam.batch.service;
 
 import fr.insee.pearljam.batch.Constants;
-import fr.insee.pearljam.batch.campaign.Campaign;
-import fr.insee.pearljam.batch.campaign.CommunicationTemplateType;
-import fr.insee.pearljam.batch.campaign.SurveyUnitType;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
@@ -36,6 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,9 @@ public class PilotageLauncherService {
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
+
+	@Value("${application.feature.sampleprocessing.allowwhenidentificationstarted}")
+	private boolean allowWhenIdentificationStarted;
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -346,6 +350,18 @@ public class PilotageLauncherService {
 		for(Questionnaire questionnaire : questionnaires) {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
+
+				try
+				{
+					isIntegrationFeasible(campaignId, interrogationId);
+				}
+				catch (BatchException e)
+				{
+					logger.log(Level.WARN, e.getMessage());
+					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
+					continue;
+				}
+
 				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(!pilotageValidate) {
 					logger.log(Level.WARN, "Interrogation {} is invalid", interrogationId);
@@ -397,6 +413,38 @@ public class PilotageLauncherService {
 		// Move files in out folder
 		moveFilesInOutFolders(returnCode);
 		return returnCode;
+	}
+
+	private void isIntegrationFeasible(String campaignId, String interrogationId) throws BatchException {
+		if(allowWhenIdentificationStarted)
+		{
+			return;
+		}
+
+		Campaign campaign = campaignDao.findById(campaignId);
+		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
+
+
+		boolean afterIdentificationStarted = false;
+		if(organizationalUnitType != null)
+		{
+			LocalDate localDate = LocalDate.now();
+			afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
+					ou ->
+					{
+						long epochMilliSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
+						LocalDate date = Instant.ofEpochMilli(epochMilliSeconds)
+								.atZone(ZoneOffset.UTC)
+								.toLocalDate();
+
+						return localDate.isAfter(date);
+					});
+		}
+
+		if(afterIdentificationStarted)
+		{
+			throw new BatchException(String.format("Can not integrate sample processing, idendification start date for %s already in the past", interrogationId));
+		}
 	}
 
 
