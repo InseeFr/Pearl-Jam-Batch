@@ -2,8 +2,7 @@ package fr.insee.pearljam.batch.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -100,6 +99,31 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     public void setSurveyUnitOrganizationUnitAffectation(String surveyUnitId, String organizationUnitId) {
         String qString = "UPDATE survey_unit SET organization_unit_id=?  WHERE id=?";
         pilotageJdbcTemplate.update(qString, organizationUnitId, surveyUnitId);
+    }
+
+    @Override
+    public Map<String, String> getOrganizationalUnitIdsByInterrogationIds(Set<String> interrogationIds) {
+        if (interrogationIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // Create placeholders for the IN clause
+        String placeholders = String.join(",", Collections.nCopies(interrogationIds.size(), "?"));
+        String qString = String.format(
+                "SELECT id, organization_unit_id FROM survey_unit WHERE id IN (%s)",
+                placeholders
+        );
+
+        return pilotageJdbcTemplate.query(qString, interrogationIds.toArray(), rs -> {
+            Map<String, String> resultMap = new HashMap<>();
+            while (rs.next()) {
+                String interrogationId = rs.getString("id");
+                String ouId = rs.getString("organization_unit_id");
+                // Handle NULL case - JDBC returns null for NULL database values
+                resultMap.put(interrogationId, rs.wasNull() ? null : ouId);
+            }
+            return resultMap;
+        });
     }
 
 

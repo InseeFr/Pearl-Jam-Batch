@@ -1,6 +1,8 @@
 package fr.insee.pearljam.batch.dao;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -77,6 +79,13 @@ public interface SurveyUnitDao {
 	void setSurveyUnitInterviewerAffectation(String surveyUnitId, String idep);
 	String getSurveyUnitOrganizationUnitAffectation(String surveyUnitId);
 	void setSurveyUnitOrganizationUnitAffectation(String surveyUnitId, String organizationUnitId);
+
+	/**
+     * Get organizational unit IDs for multiple interrogations in bulk
+     * @param interrogationIds list of interrogation IDs (which are survey unit IDs)
+     * @return Map of interrogation ID to organizational unit ID (can be null)
+     */
+	Map<String, String> getOrganizationalUnitIdsByInterrogationIds(Set<String> interrogationIds);
 
 	void createSurveyUnit(String campaignId, SurveyUnitType surveyUnit, Long addressId, Long sampleIdentifierId,
 			String interviewerId, String organizationUnitId);
