@@ -3,7 +3,6 @@ package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.Constants;
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
-import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
 import fr.insee.pearljam.batch.dao.SurveyUnitDao;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
@@ -55,7 +54,6 @@ public class PilotageLauncherService {
 	private final CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
 	private final ApplicationConfig appConfig;
 	private final DataCollectionService dataCollectionService;
-	private final CampaignDao campaignDao;
 	private final CampaignService campaignService;
 	private final SurveyUnitDao surveyUnitDao;
 	@Value("${api.datacollection.bulk.size}")
@@ -65,7 +63,7 @@ public class PilotageLauncherService {
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 
 	@Value("${application.feature.sampleprocessing.identificationphasecheck.enabled:true}")
-	private boolean identificationPhaseCheckEnabled;
+	private final boolean identificationPhaseCheckEnabled;
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -149,7 +147,6 @@ public class PilotageLauncherService {
 	 * @param out out folder
 	 * @return BatchErrorCode
 	 * @throws IOException ioe
-	 * @throws SynchronizationException se
 	 * @throws ValidateException va
 	 * @throws DataBaseException dbe
 	 * @throws SQLException sqle
@@ -157,7 +154,7 @@ public class PilotageLauncherService {
 	 * @throws SAXException saxe
 	 * @throws ParserConfigurationException pce
 	 */
-	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, SynchronizationException, IOException, BatchException, ParserConfigurationException, SAXException {
+	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, IOException, BatchException, ParserConfigurationException, SAXException {
 		return switch (batchOption) {
 			// Delete campaign
 			case DELETECAMPAIGN -> deleteCampaign(in, out);
@@ -287,7 +284,7 @@ public class PilotageLauncherService {
 	public BatchErrorCode deleteCampaign(String in, String out) throws BatchException, ValidateException, SQLException, DataBaseException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
 		if(campaign!=null) {
-			if(campaignDao.existCampaign(campaign.getId())) {
+			if(campaignService.checkCampaignById(campaign.getId())) {
 				return campaignService.deleteCampaign(campaign, out);
 			}else{
 				logger.log(Level.ERROR, "The campaign {} does not exist", campaign.getId());
@@ -311,7 +308,7 @@ public class PilotageLauncherService {
 	public BatchErrorCode extractCampaign(String in, String out) throws ValidateException, DataBaseException, BatchException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
 		if(campaign!=null) {
-			if(campaignDao.existCampaign(campaign.getId())) {
+			if(campaignService.checkCampaignById(campaign.getId())) {
 				return campaignService.extractCampaign(campaign, out);
 			}else{
 				logger.log(Level.ERROR, "The campaign {} does not exist", campaign.getId());
@@ -409,7 +406,7 @@ public class PilotageLauncherService {
 	}
 
 	private Map<String, Boolean> evaluateOuIdentificationPhaseStarted(String campaignId) {
-		Campaign campaign = campaignDao.findById(campaignId);
+		Campaign campaign = campaignService.findById(campaignId);
 		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
 
 		if (organizationalUnitType == null) {
@@ -439,9 +436,9 @@ public class PilotageLauncherService {
 	}
 
 	private List<Questionnaire> filterEligibleQuestionnaires(
-			List<Questionnaire> questionnaires,
-			String campaignId
-	) {
+            List<Questionnaire> questionnaires,
+            String campaignId
+    ) {
 
 		// bypass mechanism: every interrogation is considered integrable.
 		if (!identificationPhaseCheckEnabled) {
@@ -496,7 +493,7 @@ public class PilotageLauncherService {
 		if(!steps.contains(Constants.PILOTAGE)) {
 			return new HashMap<>();
 		}
-		if(!campaignDao.existCampaign(campaignId)){
+		if(!campaignService.checkCampaignById(campaignId)){
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}
