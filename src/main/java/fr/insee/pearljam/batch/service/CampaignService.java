@@ -532,7 +532,4 @@ public class CampaignService {
 		return campaignDao.existCampaign(campaignId);
 	}
 
-	public Campaign findById(String campaignId){
-		return campaignDao.findById(campaignId);
-	}
 }
