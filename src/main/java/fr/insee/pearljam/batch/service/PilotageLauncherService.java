@@ -4,6 +4,7 @@ import fr.insee.pearljam.batch.Constants;
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
 import fr.insee.pearljam.batch.dao.SurveyUnitDao;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.enums.BatchOption;
@@ -56,6 +57,7 @@ public class PilotageLauncherService {
 	private final DataCollectionService dataCollectionService;
 	private final CampaignService campaignService;
 	private final SurveyUnitDao surveyUnitDao;
+	private final OrganizationalUnitTypeDao organizationalUnitTypeDao;
 	@Value("${api.datacollection.bulk.size}")
 	private final int dataCollectionBulkSize;
 
@@ -406,16 +408,10 @@ public class PilotageLauncherService {
 	}
 
 	private Map<String, Boolean> evaluateOuIdentificationPhaseStarted(String campaignId) {
-		Campaign campaign = campaignService.findById(campaignId);
-		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
-
-		if (organizationalUnitType == null) {
-			return Collections.emptyMap();
-		}
-
+		List<OrganizationalUnitType> ouWithStarDate = organizationalUnitTypeDao.findIdentificationStartDateByCampaignId(campaignId);
 		long today = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
 
-		return organizationalUnitType.getOrganizationalUnit().stream()
+		return ouWithStarDate.stream()
 				.collect(Collectors.toMap(
 						OrganizationalUnitType::getId,
 						ou -> Long.parseLong(ou.getIdentificationPhaseStartDate()) >= today));
