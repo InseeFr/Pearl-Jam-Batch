@@ -4,11 +4,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 
@@ -23,6 +27,13 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     @Autowired
     @Qualifier("pilotageJdbcTemplate")
     JdbcTemplate pilotageJdbcTemplate;
+
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @PostConstruct
+    public void init(){
+        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(pilotageJdbcTemplate);
+    }
 
     @Override
     public boolean existSurveyUnit(String id) {
@@ -107,22 +118,24 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
             return Collections.emptyMap();
         }
 
-        // Create placeholders for the IN clause
-        String placeholders = String.join(",", Collections.nCopies(interrogationIds.size(), "?"));
-        String qString = String.format(
-                "SELECT id, organization_unit_id FROM survey_unit WHERE id IN (%s)",
-                placeholders
-        );
+        String sql = """
+                SELECT id, organization_unit_id
+                FROM survey_unit
+                WHERE id IN (:ids)
+                """;
 
-        return pilotageJdbcTemplate.query(qString, interrogationIds.toArray(), rs -> {
-            Map<String, String> resultMap = new HashMap<>();
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("ids", interrogationIds);
+
+        return namedParameterJdbcTemplate.query(sql, params, rs -> {
+            Map<String, String> result = new HashMap<>();
             while (rs.next()) {
-                String interrogationId = rs.getString("id");
-                String ouId = rs.getString("organization_unit_id");
-                // Handle NULL case - JDBC returns null for NULL database values
-                resultMap.put(interrogationId, rs.wasNull() ? null : ouId);
+                result.put(
+                        rs.getString("id"),
+                        rs.getString("organization_unit_id")
+                );
             }
-            return resultMap;
+            return result;
         });
     }
 
