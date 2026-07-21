@@ -79,3 +79,9 @@ api:
 logging:
   level:
     fr.insee.lunatic.utils.XslTransformation: WARN
+
+application:
+   feature:
+      sampleprocessing:
+        identificationphasecheck:
+          enabled: true

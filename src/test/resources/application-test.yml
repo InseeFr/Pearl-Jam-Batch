@@ -77,3 +77,8 @@ api:
     url: http://localhost:9999
     bulk:
       size: 500
+
+application:
+  feature:
+    sampleprocessing:
+      allowwhenidentificationstarted: true
