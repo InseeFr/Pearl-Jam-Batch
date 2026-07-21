@@ -3,8 +3,9 @@ package fr.insee.pearljam.batch.service;
 import fr.insee.pearljam.batch.Constants;
 import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
-import fr.insee.pearljam.batch.dao.CampaignDao;
 import fr.insee.pearljam.batch.dao.CommunicationTemplateDaoImpl;
+import fr.insee.pearljam.batch.dao.OrganizationalUnitTypeDao;
+import fr.insee.pearljam.batch.dao.SurveyUnitDao;
 import fr.insee.pearljam.batch.dto.InterrogationDataCollectionDto;
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.*;
@@ -34,9 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,16 +55,17 @@ public class PilotageLauncherService {
 	private final CommunicationTemplateDaoImpl communicationTemplateDaoImpl;
 	private final ApplicationConfig appConfig;
 	private final DataCollectionService dataCollectionService;
-	private final CampaignDao campaignDao;
 	private final CampaignService campaignService;
+	private final SurveyUnitDao surveyUnitDao;
+	private final OrganizationalUnitTypeDao organizationalUnitTypeDao;
 	@Value("${api.datacollection.bulk.size}")
 	private final int dataCollectionBulkSize;
 
 	private static final Logger logger = LogManager.getLogger(PilotageLauncherService.class);
 	private static final String CAMPAIGN_PATH_IN = "/campaign/campaign.xml";
 
-	@Value("${application.feature.sampleprocessing.allowwhenidentificationstarted}")
-	private boolean allowWhenIdentificationStarted;
+	@Value("${application.feature.sampleprocessing.identificationphasecheck.enabled:true}")
+	private final boolean identificationPhaseCheckEnabled;
 
 	/**
 	 * Global function that structure the batch execution depends on batchOption
@@ -150,7 +149,6 @@ public class PilotageLauncherService {
 	 * @param out out folder
 	 * @return BatchErrorCode
 	 * @throws IOException ioe
-	 * @throws SynchronizationException se
 	 * @throws ValidateException va
 	 * @throws DataBaseException dbe
 	 * @throws SQLException sqle
@@ -158,7 +156,7 @@ public class PilotageLauncherService {
 	 * @throws SAXException saxe
 	 * @throws ParserConfigurationException pce
 	 */
-	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, SynchronizationException, IOException, BatchException, ParserConfigurationException, SAXException {
+	public BatchErrorCode load(BatchOption batchOption, String in, String out, String processing) throws SQLException, DataBaseException, ValidateException, IOException, BatchException, ParserConfigurationException, SAXException {
 		return switch (batchOption) {
 			// Delete campaign
 			case DELETECAMPAIGN -> deleteCampaign(in, out);
@@ -288,7 +286,7 @@ public class PilotageLauncherService {
 	public BatchErrorCode deleteCampaign(String in, String out) throws BatchException, ValidateException, SQLException, DataBaseException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
 		if(campaign!=null) {
-			if(campaignDao.existCampaign(campaign.getId())) {
+			if(campaignService.checkCampaignById(campaign.getId())) {
 				return campaignService.deleteCampaign(campaign, out);
 			}else{
 				logger.log(Level.ERROR, "The campaign {} does not exist", campaign.getId());
@@ -312,7 +310,7 @@ public class PilotageLauncherService {
 	public BatchErrorCode extractCampaign(String in, String out) throws ValidateException, DataBaseException, BatchException {
 		Campaign campaign = XmlUtils.xmlToObject(in, Campaign.class);
 		if(campaign!=null) {
-			if(campaignDao.existCampaign(campaign.getId())) {
+			if(campaignService.checkCampaignById(campaign.getId())) {
 				return campaignService.extractCampaign(campaign, out);
 			}else{
 				logger.log(Level.ERROR, "The campaign {} does not exist", campaign.getId());
@@ -345,22 +343,16 @@ public class PilotageLauncherService {
 		dataCollectionService.validate(sampleProcessing);
 		logger.log(Level.INFO, "End split sample processing content");
 
+		// prevent overwritting already started interrogations
+		questionnaires = filterEligibleQuestionnaires(
+				questionnaires,
+				campaignId);
+
 		List<InterrogationDataCollectionDto> interrogations = new ArrayList<>();
 		Map<String, SurveyUnitType> oldSuMap = new HashMap<>();
 		for(Questionnaire questionnaire : questionnaires) {
 			String interrogationId = questionnaire.getIdInterrogation();
 			if (steps.contains(Constants.PILOTAGE)) {
-
-				try
-				{
-					isIntegrationFeasible(campaignId, interrogationId);
-				}
-				catch (BatchException e)
-				{
-					logger.log(Level.WARN, e.getMessage());
-					returnCode = BatchErrorCode.KO_FONCTIONAL_ERROR;
-					continue;
-				}
 
 				boolean pilotageValidate = campaignService.validateInput(mapPilotageSu.get(interrogationId), campaignId);
 				if(!pilotageValidate) {
@@ -415,38 +407,69 @@ public class PilotageLauncherService {
 		return returnCode;
 	}
 
-	private void isIntegrationFeasible(String campaignId, String interrogationId) throws BatchException {
-		if(allowWhenIdentificationStarted)
-		{
-			return;
-		}
+	private Map<String, Boolean> evaluateOuIdentificationPhaseStarted(String campaignId) {
+		List<OrganizationalUnitType> ouWithStarDate = organizationalUnitTypeDao.findIdentificationStartDateByCampaignId(campaignId);
+		long today = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
 
-		Campaign campaign = campaignDao.findById(campaignId);
-		OrganizationalUnitsType organizationalUnitType = campaign.getOrganizationalUnits();
-
-
-		boolean afterIdentificationStarted = false;
-		if(organizationalUnitType != null)
-		{
-			LocalDate localDate = LocalDate.now();
-			afterIdentificationStarted = organizationalUnitType.getOrganizationalUnit().stream().anyMatch(
-					ou ->
-					{
-						long epochMilliSeconds = Long.parseLong(ou.getIdentificationPhaseStartDate());
-						LocalDate date = Instant.ofEpochMilli(epochMilliSeconds)
-								.atZone(ZoneOffset.UTC)
-								.toLocalDate();
-
-						return localDate.isAfter(date);
-					});
-		}
-
-		if(afterIdentificationStarted)
-		{
-			throw new BatchException(String.format("Can not integrate sample processing, idendification start date for %s already in the past", interrogationId));
-		}
+		return ouWithStarDate.stream()
+				.collect(Collectors.toMap(
+						OrganizationalUnitType::getId,
+						ou -> Long.parseLong(ou.getIdentificationPhaseStartDate()) >= today));
 	}
 
+	/**
+	 * Fetches organizational unit IDs for all interrogations from the database
+	 */
+	protected Map<String, String> fetchInterrogationOuIds(Set<String> interrogationIds) {
+		if (interrogationIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		// Use new bulk method to fetch all OU IDs in a single database query
+		return surveyUnitDao.getOrganizationalUnitIdsByInterrogationIds(
+				interrogationIds
+		);
+	}
+
+	protected List<Questionnaire> filterEligibleQuestionnaires(
+            List<Questionnaire> questionnaires,
+            String campaignId
+    ) {
+
+		// bypass mechanism: every interrogation is considered integrable.
+		if (!identificationPhaseCheckEnabled) {
+			return questionnaires;
+		}
+
+		Set<String> interrogationIds = questionnaires.stream()
+				.map(Questionnaire::getIdInterrogation)
+				.collect(Collectors.toSet());
+
+		Map<String, String> interrogationOuIdMap =
+				fetchInterrogationOuIds(interrogationIds);
+
+		Map<String, Boolean> ouIdentificationPhaseStarted =
+				evaluateOuIdentificationPhaseStarted(campaignId);
+
+		return questionnaires.stream()
+				.filter(questionnaire -> {
+					String interrogationId = questionnaire.getIdInterrogation();
+					String ouId = interrogationOuIdMap.get(interrogationId);
+
+					boolean eligible = ouId == null
+							|| ouIdentificationPhaseStarted.getOrDefault(ouId, Boolean.TRUE);
+
+					if (!eligible) {
+						logger.log(
+								Level.WARN,
+								"Interrogation {} has not been integrated: identification phase has already started",
+								interrogationId);
+					}
+
+					return eligible;
+				})
+				.toList();
+	}
 
 	private void moveFilesInOutFolders(BatchErrorCode returnCode) throws IOException, ValidateException {
 		if(new File(appConfig.folderIn() + CAMPAIGN_PATH_IN).exists()) {
@@ -466,7 +489,7 @@ public class PilotageLauncherService {
 		if(!steps.contains(Constants.PILOTAGE)) {
 			return new HashMap<>();
 		}
-		if(!campaignDao.existCampaign(campaignId)){
+		if(!campaignService.checkCampaignById(campaignId)){
 			logger.log(Level.INFO, "Campaign {} does not exist in Pilotage", campaignId);
 			throw new ValidateException("Campaign does not exist in Pilotage DB");
 		}

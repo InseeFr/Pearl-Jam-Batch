@@ -1,9 +1,12 @@
 package fr.insee.pearljam.batch.service;
 
 import fr.insee.pearljam.batch.campaign.PersonType;
+import fr.insee.pearljam.batch.dao.CampaignDao;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +32,15 @@ class CampaignServiceTest {
             assertEquals(1, result.stream().filter(PersonType::isPrivileged).count());
             assertEquals(UTHER, privilegedPersonName(result)
             );
+        }
+
+        @Test
+        void shouldCheckCampaignExistenceThroughDao() {
+            CampaignDao campaignDao = mock(CampaignDao.class);
+            campaignService.campaignDao = campaignDao;
+            when(campaignDao.existCampaign("campaign-id")).thenReturn(true);
+
+            assertTrue(campaignService.checkCampaignById("campaign-id"));
         }
 
 

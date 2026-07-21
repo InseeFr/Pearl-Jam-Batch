@@ -528,4 +528,8 @@ public class CampaignService {
 		}
 	}
 
+	public boolean checkCampaignById(String campaignId){
+		return campaignDao.existCampaign(campaignId);
+	}
+
 }

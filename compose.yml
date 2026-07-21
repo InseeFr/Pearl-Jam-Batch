@@ -85,7 +85,7 @@ services:
       - ./container/keycloak/realms:/opt/keycloak/data/import
 
   pearl-api:
-    image: inseefr/pearl-jam-back-office:5.32.0-rc
+    image: inseefr/pearl-jam-back-office:5.34.7
     depends_on:
       pearl-db:
         condition: service_healthy
