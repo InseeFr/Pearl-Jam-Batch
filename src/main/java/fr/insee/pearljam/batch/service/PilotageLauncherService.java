@@ -420,7 +420,7 @@ public class PilotageLauncherService {
 	/**
 	 * Fetches organizational unit IDs for all interrogations from the database
 	 */
-	private Map<String, String> fetchInterrogationOuIds(Set<String> interrogationIds) {
+	protected Map<String, String> fetchInterrogationOuIds(Set<String> interrogationIds) {
 		if (interrogationIds.isEmpty()) {
 			return Collections.emptyMap();
 		}
@@ -431,7 +431,7 @@ public class PilotageLauncherService {
 		);
 	}
 
-	private List<Questionnaire> filterEligibleQuestionnaires(
+	protected List<Questionnaire> filterEligibleQuestionnaires(
             List<Questionnaire> questionnaires,
             String campaignId
     ) {
@@ -468,7 +468,7 @@ public class PilotageLauncherService {
 
 					return eligible;
 				})
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private void moveFilesInOutFolders(BatchErrorCode returnCode) throws IOException, ValidateException {
