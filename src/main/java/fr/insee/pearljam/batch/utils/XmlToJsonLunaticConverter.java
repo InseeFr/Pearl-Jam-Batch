@@ -1,8 +1,9 @@
 package fr.insee.pearljam.batch.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import fr.insee.lunatic.conversion.data.XMLLunaticDataToJSON;
 
 import fr.insee.pearljam.batch.exception.TransformationException;
@@ -37,7 +38,7 @@ public class XmlToJsonLunaticConverter {
 
     public XmlToJsonLunaticConverter() {
         this.xmlLunaticDataToJSON = new XMLLunaticDataToJSON();
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new JsonMapper();
     }
 
     public ObjectNode convertInterrogationData(Data data) throws TransformationException {

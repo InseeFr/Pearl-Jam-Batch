@@ -1,11 +1,9 @@
 package fr.insee.pearljam.batch;
 
-import fr.insee.pearljam.batch.campaign.CommunicationMetadataType;
-import fr.insee.pearljam.batch.campaign.PreviousCollectionInformationType;
-import fr.insee.pearljam.batch.campaign.PreviousContactOutcomeType;
-import fr.insee.pearljam.batch.campaign.Title;
+import fr.insee.pearljam.batch.campaign.*;
 import fr.insee.pearljam.batch.dao.CommunicationMetadataDao;
 import fr.insee.pearljam.batch.dao.ContactHistoryDao;
+
 import fr.insee.pearljam.batch.enums.BatchOption;
 import fr.insee.pearljam.batch.exception.ValidateException;
 import fr.insee.pearljam.batch.service.PilotageLauncherService;
@@ -29,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestsEndToEndSampleProcessing {
+class EndToEndSampleProcessingIT {
 
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
@@ -55,12 +53,12 @@ class TestsEndToEndSampleProcessing {
 
 		File dir = new File(outDirectory +"/campaign");
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 		dir = new File(outCampaignDirectory);
 		if (!dir.exists()) {
-			dir.mkdir();
+			assertTrue(dir.mkdir());
 		}
 
 	}
@@ -244,7 +242,7 @@ class TestsEndToEndSampleProcessing {
 		FileHelper.purgeDirectory(new File(outCampaignDirectory));
 		File sample = new File("src/test/resources/in");
 		if(sample.exists()) {
-			sample.delete();
+			assertTrue(sample.delete());
 		}
 	}
 

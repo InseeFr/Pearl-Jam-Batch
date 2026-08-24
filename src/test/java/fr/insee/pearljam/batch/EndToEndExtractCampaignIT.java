@@ -21,10 +21,11 @@ import fr.insee.pearljam.batch.utils.BatchErrorCode;
 import fr.insee.pearljam.batch.utils.PathUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestsEndToEndExtractCampaign {
+class EndToEndExtractCampaignIT {
 	
 	@Autowired
 	private PilotageLauncherService pilotageLauncherService;
@@ -56,8 +57,8 @@ class TestsEndToEndExtractCampaign {
 		try {
 			pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, in, OUT);
 		} catch(ValidateException ve) {
-			assertEquals(true, ve.getMessage().contains("Error validating campaign.to.extract.xml : "));
-			assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.error.xml"));
+			assertTrue(ve.getMessage().contains("Error validating campaign.to.extract.xml : "));
+			assertTrue(PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.error.xml"));
 		}
 	}
 	
@@ -69,7 +70,7 @@ class TestsEndToEndExtractCampaign {
 	@Test
 	void testScenario2() throws Exception {
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario2", OUT));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.warning.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.warning.xml"));
 	}
 	
 	/**
@@ -79,8 +80,8 @@ class TestsEndToEndExtractCampaign {
 	@Test
 	void testScenario3() throws Exception {
 		assertEquals(BatchErrorCode.OK, pilotageLauncherService.validateLoadClean(BatchOption.EXTRACT, "src/test/resources/in/extract/testScenarios/extractScenario3", OUT));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.done.xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.done.xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(OUT), "campaign","extract.xml"));
 	}
 
 	@AfterEach

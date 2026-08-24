@@ -6,9 +6,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 import fr.insee.pearljam.batch.utils.DBResetHelper;
 import fr.insee.pearljam.batch.utils.FileHelper;
@@ -23,12 +21,13 @@ import fr.insee.pearljam.batch.dao.MessageDao;
 import fr.insee.pearljam.batch.dao.StateDao;
 import fr.insee.pearljam.batch.service.TriggerService;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestsEndToEndDailyUpdate {
+class EndToEndDailyUpdateIT {
 
 	@Autowired
 	private TriggerService triggerService;
@@ -67,11 +66,17 @@ class TestsEndToEndDailyUpdate {
 		triggerService.initDefaultClock();
 		
 		assertTrue(messageDao.getIdsToDelete(c.getTimeInMillis()).isEmpty());
-		assertEquals(List.of("NVM"), stateDao.getStateBySurveyUnitId("24").stream().map(StateType::getType).collect(Collectors.toList()));
-		assertEquals(List.of("NVM","ANV"), stateDao.getStateBySurveyUnitId("25").stream().map(StateType::getType).collect(Collectors.toList()));
-		assertEquals(List.of("NVM","ANV","VIN"), stateDao.getStateBySurveyUnitId("26").stream().map(StateType::getType).collect(Collectors.toList()));
-		assertEquals(List.of("NVM","ANV","VIN"), stateDao.getStateBySurveyUnitId("27").stream().map(StateType::getType).collect(Collectors.toList()));
-		assertEquals(List.of("NVM","ANV","VIN","NVA"), stateDao.getStateBySurveyUnitId("28").stream().map(StateType::getType).collect(Collectors.toList()));
+		assertStates("24", "NVM");
+		assertStates("25", "NVM", "ANV");
+		assertStates("26", "NVM", "ANV", "VIN");
+		assertStates("27", "NVM", "ANV", "VIN");
+		assertStates("28", "NVM", "ANV", "VIN", "NVA");
+	}
+
+	private void assertStates(String surveyUnitId, String... expectedStates) {
+		assertThat(stateDao.getStateBySurveyUnitId(surveyUnitId))
+				.extracting(StateType::getType)
+				.containsExactlyInAnyOrder(expectedStates);
 	}
 	
 	@AfterEach

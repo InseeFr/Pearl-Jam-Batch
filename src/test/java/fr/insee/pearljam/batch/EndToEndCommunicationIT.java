@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestEndToEndCommunicationTest {
+class EndToEndCommunicationIT {
 
 	private static final String OUT_PATH = "src/test/resources/out/unitTests";
 

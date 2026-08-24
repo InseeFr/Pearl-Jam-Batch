@@ -1,93 +1,75 @@
 package fr.insee.pearljam.batch.config;
 
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.StreamSupport;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.stereotype.Component;
 
-@Component
-public class PropertyLogger  {
+@Slf4j
+public class PropertyLogger  implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyLogger.class);
+    private static final Set<String> hiddenWords = Set.of("password", "pw", "jeton", "token", "secret", "credential");
+    private static final List<String> propertyPrefixes = List.of("application", "spring", "feature", "logging", "fr.insee", "keycloak");
 
-    private static boolean alreadyDisplayed=false;
+    @Override
+    public void onApplicationEvent(@NonNull ApplicationEnvironmentPreparedEvent event) {
+        Environment environment = event.getEnvironment();
 
-    @EventListener
-    public void handleContextRefresh(ContextRefreshedEvent event) {
-        final Environment env = event.getApplicationContext().getEnvironment();
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-        Model model = null;
-        if (!alreadyDisplayed) {
-            if ((new File("pom.xml")).exists()) {
-                try {
-                    model = reader.read(new FileReader("pom.xml"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (XmlPullParserException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    model = reader.read(
-                            new InputStreamReader(
-                                    PropertyLogger.class.getResourceAsStream(
-                                            "/META-INF/maven/fr.insee.pearljam/pearljam-batch/pom.xml"
-                                    )
-                            )
-                    );
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (XmlPullParserException e) {
-                    e.printStackTrace();
-                }
-            }
-            List<Dependency> dependencyList = model.getDependencies();
-            String queenBatchVersion = null;
-            String artifactId = "queen-batch";
-            String groupId = "fr.insee.queen";
-            for (Dependency d : dependencyList) {
-                if (d.getArtifactId().equals(artifactId) && d.getGroupId().equals(groupId)
-                ) {
-                    queenBatchVersion = d.getVersion();
-                    break;
-                }
-            }
+        log.info("===============================================================================================");
+        log.info("                                     Properties                                                ");
 
-            LOGGER.info("================================ PearlJam-Batch Version:" + model.getVersion() + " ================================");
-            LOGGER.info("================================ Using Queen-Batch Version:" + queenBatchVersion + " ================================");
+        getFilteredPropertyStream((AbstractEnvironment) environment)
+                .forEach(key -> log.info("{} = {}", key, hideProperties(key.toLowerCase(), environment)));
 
-            LOGGER.info("================================ Properties ================================");
-            final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
-            StreamSupport.stream(sources.spliterator(), false)
-                    .filter(ps -> ps instanceof EnumerablePropertySource)
-                    .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames())
-                    .flatMap(Arrays::stream)
-                    .distinct()
-                    .filter(prop -> !(prop.contains("credentials") || prop.contains("password")
-                            || prop.contains("pw") || prop.contains("secret") || prop.contains("Password")))
-                    .filter(prop -> prop.startsWith("fr.insee") || prop.startsWith("logging") || prop.startsWith("keycloak") || prop.startsWith("spring"))
-                    .sorted()
-                    .forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
-            LOGGER.info("===========================================================================");
+        log.info("===============================================================================================");
+    }
+
+    /**
+     * Retrieve filtered properties starting with propertyPrefixes and with masked values for hidden words
+     * @param environment Spring environment
+     * @return filtered properties
+     */
+    Stream<String> getFilteredPropertyStream(AbstractEnvironment environment) {
+        return environment.getPropertySources().stream()
+                .filter(EnumerablePropertySource.class::isInstance)
+                .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames())
+                .flatMap(Arrays::stream)
+                .distinct()
+                .filter(Objects::nonNull)
+                .sorted()
+                .filter(this::isRelevantProperty);
+    }
+
+    /**
+     * Is the property relevant to be logged
+     * @param property to check
+     * @return true if relevant false otherwise
+     */
+    boolean isRelevantProperty(String property) {
+        return propertyPrefixes
+                .stream()
+                .anyMatch(property::startsWith);
+    }
+
+    /**
+     *
+     * @param key key property
+     * @param environment environment
+     * @return property value
+     */
+    Object hideProperties(String key, Environment environment) {
+        if (hiddenWords.stream().anyMatch(key::contains)) {
+            return "******";
         }
-        alreadyDisplayed=true;
+        return environment.getProperty(key);
     }
 }

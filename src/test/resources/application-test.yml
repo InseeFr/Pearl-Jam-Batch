@@ -94,3 +94,7 @@ api:
     bulk:
       size: 500
 
+application:
+  feature:
+    sampleprocessing:
+      allowwhenidentificationstarted: true

@@ -8,7 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
+import tools.jackson.databind.json.JsonMapper;
 import fr.insee.pearljam.batch.config.ApplicationConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
@@ -20,9 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.util.FileSystemUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import fr.insee.pearljam.batch.dao.ClosingCauseDao;
 import fr.insee.pearljam.batch.dao.InterviewerTypeDao;
@@ -45,7 +44,7 @@ import fr.insee.pearljam.batch.utils.PathUtils;
 @SpringBootTest
 @ActiveProfiles("test")
 @Disabled
-class TestsEndToEndSynchro {
+class EndToEndSynchroIT {
 
 	@Autowired
 	private TriggerService triggerService;
@@ -65,7 +64,7 @@ class TestsEndToEndSynchro {
 	private String keycloakTokenUrl;
 
 	private MockRestServiceServer mockServer;
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new JsonMapper();
 
 	private final String outFolder = "src/test/resources/out/contextReferentialSynchro";
 
@@ -100,10 +99,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+        assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+        assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+        assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+        assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -185,10 +184,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW1", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -229,10 +228,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -272,10 +271,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("INTW3", suDao.getSurveyUnitInterviewerAffectation("12"));
@@ -351,10 +350,10 @@ class TestsEndToEndSynchro {
 		expectExternalCallWithToken(contextReferentialBaseUrl + "/sabiane/organization-units/survey-units", ouSuResp);
 
 		assertEquals(BatchErrorCode.OK_FONCTIONAL_WARNING, triggerService.synchronizeWithOpale(outFolder));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
-		assertEquals(true, PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_ITW", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.OU", ".xml"));
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outFolder + "/synchro"), "sync.SU_OU", ".xml"));
 
 		assertTrue(interviewerDao.existInterviewer("TEST"));
 		assertEquals("TEST", suDao.getSurveyUnitInterviewerAffectation("14"));
@@ -647,7 +646,7 @@ class TestsEndToEndSynchro {
 		return ouSuResp;
 	}
 
-	private void expectExternalCallWithToken(String url, Object resp) throws JsonProcessingException {
+	private void expectExternalCallWithToken(String url, Object resp) throws JacksonException {
 		KeycloakResponseDto keycloackResp = new KeycloakResponseDto();
 		keycloackResp.setAccess_token("token");
 
@@ -655,7 +654,7 @@ class TestsEndToEndSynchro {
 		expectExternalCall(url, resp);
 	}
 
-	private void expectExternalCall(String url, Object resp) throws JsonProcessingException {
+	private void expectExternalCall(String url, Object resp) throws JacksonException {
 		mockServer.expect(ExpectedCount.once(),
 				requestTo(url))
 				.andRespond(withStatus(HttpStatus.OK)

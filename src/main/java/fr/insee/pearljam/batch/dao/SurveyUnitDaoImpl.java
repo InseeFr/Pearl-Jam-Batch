@@ -2,14 +2,17 @@ package fr.insee.pearljam.batch.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import fr.insee.pearljam.batch.campaign.SurveyUnitType;
 
@@ -24,6 +27,13 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     @Autowired
     @Qualifier("pilotageJdbcTemplate")
     JdbcTemplate pilotageJdbcTemplate;
+
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @PostConstruct
+    public void init(){
+        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(pilotageJdbcTemplate);
+    }
 
     @Override
     public boolean existSurveyUnit(String id) {
@@ -100,6 +110,33 @@ public class SurveyUnitDaoImpl implements SurveyUnitDao {
     public void setSurveyUnitOrganizationUnitAffectation(String surveyUnitId, String organizationUnitId) {
         String qString = "UPDATE survey_unit SET organization_unit_id=?  WHERE id=?";
         pilotageJdbcTemplate.update(qString, organizationUnitId, surveyUnitId);
+    }
+
+    @Override
+    public Map<String, String> getOrganizationalUnitIdsByInterrogationIds(Set<String> interrogationIds) {
+        if (interrogationIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        String sql = """
+                SELECT id, organization_unit_id
+                FROM survey_unit
+                WHERE id IN (:ids)
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("ids", interrogationIds);
+
+        return namedParameterJdbcTemplate.query(sql, params, rs -> {
+            Map<String, String> result = new HashMap<>();
+            while (rs.next()) {
+                result.put(
+                        rs.getString("id"),
+                        rs.getString("organization_unit_id")
+                );
+            }
+            return result;
+        });
     }
 
 

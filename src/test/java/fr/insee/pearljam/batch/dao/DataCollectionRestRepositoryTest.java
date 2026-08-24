@@ -1,7 +1,7 @@
 package fr.insee.pearljam.batch.dao;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
 import fr.insee.pearljam.batch.config.ApplicationConfig;
@@ -32,7 +32,7 @@ class DataCollectionRestRepositoryTest {
 
     @BeforeEach
     void setup() {
-        wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
+        wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().http2PlainDisabled(true));
         wireMockServer.start();
 
         RestClient restClient = RestClient.builder()
