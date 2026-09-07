@@ -126,20 +126,20 @@
 
 	<xs:complexType name="PersonType">
 		<xs:all>
+            <xs:element name="ContactHistoryType" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="NEXT"/>
+                        <xs:enumeration value="PREVIOUS"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
 			<xs:element name="Title" type="Title" />
 			<xs:element name="FirstName" type="xs:string" />
 			<xs:element name="LastName" type="xs:string" />
 			<xs:element name="Email" type="xs:string" />
 			<xs:element name="Privileged" type="xs:boolean" />
 			<xs:element name="Panel" type="xs:boolean" nillable="true"/>
-			<xs:element name="ContactHistoryType" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:enumeration value="NEXT"/>
-						<xs:enumeration value="PREVIOUS"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
 			<xs:element name="DateOfBirth" type="DateType"/>
 			<xs:element ref="PhoneNumbers" />
 		</xs:all>

@@ -17,5 +17,6 @@ public interface PersonDao {
 	void deletePersonAndContactsBySurveyUnitId(String surveyUnitId);
 
 	List<Entry<Long, PersonType>> getPersonsBySurveyUnitId(String id);
-    
+
+	List<Entry<Long, PersonType>> getPersonsIncludingHistoryBySurveyUnitId(String id);
 }

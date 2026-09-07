@@ -159,6 +159,10 @@ INSERT INTO public.survey_unit (id, display_name, priority,address_id,campaign_i
 
 INSERT INTO public.person ( birthdate, email, first_name, last_name, title, survey_unit_id, privileged) VALUES
      (537535800000, 'ted.farmer@test.com', 'Ted', 'Farmer', 0, '11', true );
+INSERT INTO public.person ( birthdate, email, first_name, last_name, title, survey_unit_id, privileged, panel, contact_history_type) VALUES
+      (537535800001, 'john.previous@test.com', 'John', 'Previous', 0, '11', true, NULL, 'PREVIOUS');
+INSERT INTO public.person ( birthdate, email, first_name, last_name, title, survey_unit_id, privileged, panel, contact_history_type) VALUES
+      (537535800002, 'jane.next@test.com', 'Jane', 'Next', 0, '11', true, NULL, 'NEXT');
 
 
 INSERT INTO public."user" (id,first_name,last_name,organization_unit_id) VALUES
