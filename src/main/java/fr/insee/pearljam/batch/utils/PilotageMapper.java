@@ -92,7 +92,7 @@ public class PilotageMapper {
 		if (commentaires == null || commentaires.getCommentaire().isEmpty())
 			return comments;
 
-		commentaires.getCommentaire().stream().forEach(commentaire -> {
+		commentaires.getCommentaire().forEach(commentaire -> {
 			CommentType comment = new CommentType();
 			comment.setType(convertCommentType(commentaire.getType()));
 			comment.setValue(commentaire.getValeur());
@@ -125,10 +125,10 @@ public class PilotageMapper {
 	}
 
 	private static Title civilityToTitle(CiviliteType civility) {
-		if (civility == null) return Title.MISTER;
 		return switch (civility) {
 			case MME -> Title.MISS;
 			case M -> Title.MISTER;
+            default ->  Title.UNDEFINED;
 		};
 	}
 
@@ -177,11 +177,19 @@ public class PilotageMapper {
 		return phoneNumbers;
 	}
 
+	public static String label(CiviliteType c) {
+		return switch (c) {
+			case MME -> "Mme";
+			case M -> "M.";
+			case M_OU_MME -> "M ou Mme";
+		};
+	}
+
 	private static InseeAddressType getInseeAddressFromSampleProcessing(Contacts contacts) {
 		InseeAddressType address = new InseeAddressType();
 		for (Contact contact : contacts.getContact()) {
 			if (contact.getAdresse() != null) {
-				address.setL1(String.join(Constants.ESPACE, contact.getCiviliteReferent().value(),
+				address.setL1(String.join(Constants.ESPACE, label(contact.getCiviliteReferent()),
 						contact.getPrenomReferent(),
 						contact.getNomReferent()));
 				if (contact.getAdresse().getComplementAdresse().length() > 38) {

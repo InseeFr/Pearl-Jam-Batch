@@ -301,6 +301,9 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="Mme"/>
 			<xs:enumeration value="M."/>
+			<xs:enumeration value="">
+				<xs:annotation><xs:appinfo><jaxb:typesafeEnumMember name="M_OU_MME"/></xs:appinfo></xs:annotation>
+			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
 

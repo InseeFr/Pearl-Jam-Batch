@@ -85,14 +85,25 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
         pilotageJdbcTemplate.update(qString, surveyUnitId);
     }
 
-    private static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
+    static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
         @Override
         public PreviousContactType mapRow(ResultSet rs, int rowNum) throws SQLException {
             PreviousContactType contactPrecedent = new PreviousContactType();
 
             int title = rs.getInt("title");
             if (!rs.wasNull()) {
-                contactPrecedent.setTitle(title == 0 ? Title.MISTER : Title.MISS);
+                if(title == 0)
+                {
+                    contactPrecedent.setTitle(Title.MISTER);
+                }
+                if(title == 1)
+                {
+                    contactPrecedent.setTitle(Title.MISS);
+                }
+                if(title == 2)
+                {
+                    contactPrecedent.setTitle(Title.UNDEFINED);
+                }
             }
             contactPrecedent.setFirstName(rs.getString("first_name"));
             contactPrecedent.setPanel(rs.getObject("panel", Boolean.class));

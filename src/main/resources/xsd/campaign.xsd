@@ -349,6 +349,7 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="MISTER"/>
 			<xs:enumeration value="MISS"/>
+			<xs:enumeration value="UNDEFINED"/>
 		</xs:restriction>
 	</xs:simpleType>
 

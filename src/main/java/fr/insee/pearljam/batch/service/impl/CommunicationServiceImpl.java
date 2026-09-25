@@ -265,7 +265,11 @@ public class CommunicationServiceImpl implements CommunicationService {
 	}
 
 	String generateRecipientName(PersonType person) {
-		String title = Title.MISS.equals(person.getTitle()) ? "MME" : "M";
+		String title = switch (person.getTitle()) {
+			case MISS -> "MME";
+			case UNDEFINED -> "M ou Mme";
+			default -> "M";
+		};
 
 		String firstName = person.getFirstName();
 		List<String> composedFirstName = Arrays.stream(firstName.split("[ -]")).toList();
