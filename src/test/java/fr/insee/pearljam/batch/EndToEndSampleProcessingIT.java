@@ -236,6 +236,14 @@ class EndToEndSampleProcessingIT {
 
 	}
 
+	@Test
+	@DisplayName("Should handle empty civility and map to UNDEFINED")
+	void testScenario10_EmptyCivility() throws Exception {
+		BatchErrorCode code = pilotageLauncherService.validateLoadClean(BatchOption.SAMPLEPROCESSING, "src/test/resources/in/sampleprocessing/testScenarios/sampleprocessingScenario10", outDirectory);
+		assertEquals(BatchErrorCode.OK, code);
+		assertTrue(PathUtils.isDirContainsFile(Path.of(outDirectory), "sampleProcessing", ".done.xml"));
+	}
+
 	@AfterEach
 	void cleanOutFolder() {
 		FileHelper.purgeDirectory(new File(outDirectory));
