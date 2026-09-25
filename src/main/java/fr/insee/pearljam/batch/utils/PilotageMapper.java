@@ -128,7 +128,7 @@ public class PilotageMapper {
 		return switch (civility) {
 			case MME -> Title.MISS;
 			case M -> Title.MISTER;
-			case M_OU_MME -> Title.UNDEFINED;
+            default ->  Title.UNDEFINED;
 		};
 	}
 
