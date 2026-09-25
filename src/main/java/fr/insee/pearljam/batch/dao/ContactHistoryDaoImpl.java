@@ -85,7 +85,7 @@ public class ContactHistoryDaoImpl implements ContactHistoryDao {
         pilotageJdbcTemplate.update(qString, surveyUnitId);
     }
 
-    private static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
+    static final class ContactPrecedentRowMapper implements RowMapper<PreviousContactType> {
         @Override
         public PreviousContactType mapRow(ResultSet rs, int rowNum) throws SQLException {
             PreviousContactType contactPrecedent = new PreviousContactType();
