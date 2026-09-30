@@ -45,10 +45,9 @@ public class DBResetHelper {
 	}
 
 	private void executeSql(String sqlFilePath, Connection connection) throws Exception {
-		connection.setAutoCommit(false);
+		connection.setAutoCommit(true);
 		Statement stmt = connection.createStatement();
 		String sql = new String(Files.readAllBytes(Paths.get(sqlFilePath)));
 		stmt.execute(sql);
-		connection.commit();
 	}
 }
