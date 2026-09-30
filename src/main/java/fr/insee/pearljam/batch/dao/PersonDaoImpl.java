@@ -78,11 +78,7 @@ public class PersonDaoImpl implements PersonDao{
 					ps.setString(2, person.getEmail());
 					ps.setString(3, person.getFirstName());
 					ps.setString(4, person.getLastName());
-					if (tempTitle != null) {
-						ps.setLong(5, tempTitle);
-					} else {
-						ps.setNull(5, Types.BIGINT);
-					}
+					ps.setLong(5, tempTitle);
 					ps.setString(6, surveyUnitId);
 					ps.setBoolean(7, person.isPrivileged());
 					if (person.isPanel() == null) {

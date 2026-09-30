@@ -329,8 +329,9 @@ public class CampaignService {
 		}
 	}
 
-	SurveyUnitType createOrUpdateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) {
+	SurveyUnitType createOrUpdateSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) throws SQLException {
 		SurveyUnitType oldSu = null;
+		pilotageConnection.setAutoCommit(true);
 		if (!surveyUnitDao.existSurveyUnit(surveyUnitType.getId())) {
 			createSurveyUnit(surveyUnitType, campaignId);
 			logger.log(Level.INFO, "The Survey Unit {} has been created",
@@ -344,7 +345,7 @@ public class CampaignService {
 		return oldSu;
 	}
 
-	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId)  {
+	private void createSurveyUnit(SurveyUnitType surveyUnitType, String campaignId) {
 		String surveyUnitId = surveyUnitType.getId();
 
 		// Create address
