@@ -67,6 +67,21 @@ class CommunicationServiceImplTest {
         assertEquals(38, result.length());
     }
 
+    @Test
+    void testUndefinedTitle() {
+        PersonType person = new MockPerson(Title.UNDEFINED, "Jean", "Dupont");
+        String result = communicationService.generateRecipientName(person);
+        assertEquals("M ou Mme Jean Dupont", result);
+    }
+
+    @Test
+    void testUndefinedTitleWithLongName() {
+        // "M ou Mme Jean DupontVraimentLong" = 34 chars, should fit
+        PersonType person = new MockPerson(Title.UNDEFINED, "Jean", "DupontVraimentLong");
+        String result = communicationService.generateRecipientName(person);
+        assertEquals("M ou Mme Jean DupontVraimentLong", result);
+    }
+
     // Helper mock implementation of PersonType
     static class MockPerson extends PersonType {
         private final Title title;

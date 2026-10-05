@@ -61,6 +61,7 @@ public class PersonDaoImpl implements PersonDao{
 			dbTitle = switch (title) {
 				case MISTER -> 0;
 				case MISS -> 1;
+                case UNDEFINED -> 2;
 			};
 		}
 		KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -112,6 +113,7 @@ public class PersonDaoImpl implements PersonDao{
 				title = switch (dbTitle) {
 					case 0 -> Title.MISTER;
 					case 1 -> Title.MISS;
+					case 2 -> Title.UNDEFINED;
                     default -> throw new IllegalStateException("Unexpected value: " + dbTitle);
                 };
 			}
