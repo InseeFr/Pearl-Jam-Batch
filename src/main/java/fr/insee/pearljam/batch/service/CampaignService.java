@@ -151,7 +151,7 @@ public class CampaignService {
 
 					// Persons
 					List<Entry<Long, PersonType>> listPersonEntries = personDao
-							.getPersonsBySurveyUnitId(surveyUnitType.getId());
+							.getPersonsIncludingHistoryBySurveyUnitId(surveyUnitType.getId());
 					for (Entry<Long, PersonType> personEntry : listPersonEntries) {
 						Long personId = personEntry.getKey();
 						PersonType person = personEntry.getValue();
